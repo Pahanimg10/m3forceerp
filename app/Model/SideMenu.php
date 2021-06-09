@@ -15,20 +15,19 @@ class SideMenu extends Model
     protected $table = 'side_menu';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'menu_order', 
-        'menu_category', 
-        'menu_name', 
-        'menu_id', 
-        'menu_icon', 
-        'menu_url'
+        'menu_order',
+        'menu_category',
+        'menu_name',
+        'menu_id',
+        'menu_icon',
+        'menu_url',
     ];
 
     /**
      * Relations
      */
-    
     public function UserAccess()
     {
-        return $this->hasMany('App\Model\UserAccess', 'side_menu_id', 'id');
+        return $this->hasMany(\App\Model\UserAccess::class, 'side_menu_id', 'id');
     }
 }

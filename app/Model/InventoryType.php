@@ -16,16 +16,14 @@ class InventoryType extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'code',
-        'name'
+        'name',
     ];
 
     /**
      * Relations
      */
-    
     public function InventoryRegister()
     {
-        return $this->hasMany('App\Model\InventoryRegister', 'inventory_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\InventoryRegister::class, 'inventory_type_id', 'id')->where('is_delete', 0);
     }
-
 }

@@ -15,16 +15,14 @@ class PurchaseType extends Model
     protected $table = 'purchase_type';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'name'
+        'name',
     ];
 
     /**
      * Relations
      */
-    
     public function Item()
     {
-        return $this->hasMany('App\Model\Item', 'purchase_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Item::class, 'purchase_type_id', 'id')->where('is_delete', 0);
     }
-
 }

@@ -152,13 +152,13 @@ Remarks : <strong><?php echo $item_receive->remarks; ?></strong>
 <?php
     if ($item_receive->ItemReceiveDetails){
         foreach ($item_receive->ItemReceiveDetails as $index => $value){
-            $main_serails = array();
+            $main_serails = [];
             foreach ($value->ItemReceiveBreakdown as $detail){                            
                 if($detail['type'] == 1){
-                    $row = array(
+                    $row = [
                         'id' => $detail['GoodReceiveBreakdown']['id'],
                         'serial_no' => $detail['GoodReceiveBreakdown']['serial_no']
-                    );
+                    ];
                     array_push($main_serails, $row);
                 }
             }
@@ -179,13 +179,13 @@ Remarks : <strong><?php echo $item_receive->remarks; ?></strong>
                 if ($item_receive->ItemReceiveDetails){
                     foreach ($item_receive->ItemReceiveDetails as $index => $value){
                         $style = $s%2 == 0 ? ' background-color: #e3e0dd;' : '';
-                        $main_serails = array();
+                        $main_serails = [];
                         foreach ($value->ItemReceiveBreakdown as $detail){                            
                             if($detail['type'] == 1){
-                                $row = array(
+                                $row = [
                                     'id' => $detail['GoodReceiveBreakdown']['id'],
                                     'serial_no' => $detail['GoodReceiveBreakdown']['serial_no']
-                                );
+                                ];
                                 array_push($main_serails, $row);
                             }
                         }

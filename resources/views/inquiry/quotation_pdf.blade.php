@@ -101,11 +101,11 @@
 </div>
 
 <?php
-    $job_card_ids = array(); 
+    $job_card_ids = []; 
     foreach ($quotation->QuotationJobCard as $detail){
         array_push($job_card_ids, $detail['id']);
     }
-    $cost_sheet_ids = array();
+    $cost_sheet_ids = [];
     foreach ($quotation->QuotationCostSheet as $detail){
         array_push($cost_sheet_ids, $detail['id']);
     }
@@ -118,14 +118,14 @@
         $usd_rate = $quotation->usd_rate;
         $currency = 'USD';
     }   
-    $main_items = $sub_items = array();
+    $main_items = $sub_items = [];
     $job_card_details = \App\Model\QuotationJobCardDetails::whereIn('quotation_job_card_id', $job_card_ids)
             ->where('is_delete', 0)
             ->get();
     foreach ($job_card_details as $job_card_detail){
         $margin = ($job_card_detail->margin + 100)/100;
         $value = $usd ? ($job_card_detail->rate * $margin * $job_card_detail->quantity)/$usd_rate : $job_card_detail->rate * $margin * $job_card_detail->quantity;
-        $row = array(
+        $row = [
             'description' => $job_card_detail->Item->name,
             'model_no' => $job_card_detail->Item->model_no,
             'brand' => $job_card_detail->Item->brand,
@@ -134,7 +134,7 @@
             'rate' => $value/$job_card_detail->quantity,
             'quantity' => $job_card_detail->quantity,
             'value' => $value
-        );
+        ];
         if($job_card_detail->is_main == 1){
             array_push($main_items, $row);
         } else{
@@ -145,7 +145,7 @@
     $cost_sheet_details = \App\Model\QuotationCostSheet::whereIn('id', $cost_sheet_ids)
             ->where('is_delete', 0)
             ->get();
-    $rate_ids = $rate_meters = array();
+    $rate_ids = $rate_meters = [];
     foreach ($cost_sheet_details as $main_cost_sheet_detail){
         if($main_cost_sheet_detail->InstallationRate && !in_array($main_cost_sheet_detail->InstallationRate->id, $rate_ids)){
             $meters = 0;
@@ -154,11 +154,11 @@
                     $meters += $sub_cost_sheet_detail->meters;
                 }
             }
-            $row = array(
+            $row = [
                 'installation_name' => $main_cost_sheet_detail->InstallationRate->name,
                 'installation_rate' => $usd ? $main_cost_sheet_detail->InstallationRate->rate/$usd_rate : $main_cost_sheet_detail->InstallationRate->rate,
                 'meters' => $meters
-            );
+            ];
             array_push($rate_meters, $row);
             array_push($rate_ids, $main_cost_sheet_detail->InstallationRate->id);
         }

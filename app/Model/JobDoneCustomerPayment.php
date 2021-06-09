@@ -15,7 +15,7 @@ class JobDoneCustomerPayment extends Model
     protected $table = 'job_done_customer_payment';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'job_done_customer_id',  
+        'job_done_customer_id',
         'payment_mode_id',
         'collection_person_id',
         'receipt_no',
@@ -25,26 +25,24 @@ class JobDoneCustomerPayment extends Model
         'bank',
         'realize_date',
         'remarks',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function JobDoneCustomer()
     {
-        return $this->belongsTo('App\Model\JobDoneCustomer', 'job_done_customer_id', 'id');
-    }
-    
-    public function PaymentMode()
-    {
-        return $this->belongsTo('App\Model\PaymentMode', 'payment_mode_id', 'id');
-    }
-    
-    public function CollectionPerson()
-    {
-        return $this->belongsTo('App\Model\CollectionPerson', 'collection_person_id', 'id');
+        return $this->belongsTo(\App\Model\JobDoneCustomer::class, 'job_done_customer_id', 'id');
     }
 
+    public function PaymentMode()
+    {
+        return $this->belongsTo(\App\Model\PaymentMode::class, 'payment_mode_id', 'id');
+    }
+
+    public function CollectionPerson()
+    {
+        return $this->belongsTo(\App\Model\CollectionPerson::class, 'collection_person_id', 'id');
+    }
 }

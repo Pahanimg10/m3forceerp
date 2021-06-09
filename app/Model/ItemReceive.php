@@ -14,28 +14,26 @@ class ItemReceive extends Model
     public $timestamps = true;
     protected $table = 'item_receive';
     protected $primaryKey = 'id';
-    protected $fillable = [ 
+    protected $fillable = [
         'item_issue_id',
-        'item_receive_no', 
+        'item_receive_no',
         'item_receive_date_time',
-        'remarks', 
-        'item_receive_value', 
+        'remarks',
+        'item_receive_value',
         'is_posted',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function ItemIssue()
     {
-        return $this->belongsTo('App\Model\ItemIssue', 'item_issue_id', 'id');
-    }
-    
-    public function ItemReceiveDetails()
-    {
-        return $this->hasMany('App\Model\ItemReceiveDetails', 'item_receive_id', 'id')->where('is_delete', 0);
+        return $this->belongsTo(\App\Model\ItemIssue::class, 'item_issue_id', 'id');
     }
 
+    public function ItemReceiveDetails()
+    {
+        return $this->hasMany(\App\Model\ItemReceiveDetails::class, 'item_receive_id', 'id')->where('is_delete', 0);
+    }
 }

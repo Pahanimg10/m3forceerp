@@ -15,25 +15,23 @@ class CollectionManager extends Model
     protected $table = 'm_collection_manager';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'code', 
-        'name', 
+        'code',
+        'name',
         'contact_no',
         'is_active',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function CGroup()
     {
-        return $this->hasMany('App\Model\CGroup', 'collection_manager_id', 'id')->where('is_delete', 0);
-    }
-    
-    public function Contact()
-    {
-        return $this->hasMany('App\Model\Contact', 'collection_manager_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CGroup::class, 'collection_manager_id', 'id')->where('is_delete', 0);
     }
 
+    public function Contact()
+    {
+        return $this->hasMany(\App\Model\Contact::class, 'collection_manager_id', 'id')->where('is_delete', 0);
+    }
 }

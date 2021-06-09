@@ -15,28 +15,26 @@ class TechnicalTeam extends Model
     protected $table = 'm_technical_team';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'code', 
-        'epf_no', 
-        'name', 
+        'code',
+        'epf_no',
+        'name',
         'contact_no',
         'nic',
         'is_driving',
         'is_active',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function TechnicalTeamDrivingDetail()
     {
-        return $this->hasMany('App\Model\TechnicalTeamDrivingDetail', 'technical_team_id', 'id')->where('is_delete', 0);
-    }
-    
-    public function JobAttendance()
-    {
-        return $this->hasMany('App\Model\JobAttendance', 'technical_team_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechnicalTeamDrivingDetail::class, 'technical_team_id', 'id')->where('is_delete', 0);
     }
 
+    public function JobAttendance()
+    {
+        return $this->hasMany(\App\Model\JobAttendance::class, 'technical_team_id', 'id')->where('is_delete', 0);
+    }
 }

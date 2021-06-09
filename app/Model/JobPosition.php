@@ -15,17 +15,16 @@ class JobPosition extends Model
     protected $table = 'm_job_position';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'name', 
-        'code', 
-        'is_delete'
+        'name',
+        'code',
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function User()
     {
-        return $this->hasMany('App\Model\User', 'job_position_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\User::class, 'job_position_id', 'id')->where('is_delete', 0);
     }
 }

@@ -334,13 +334,13 @@
                     foreach ($good_receive->GoodReceiveDetails as $index => $value){
                         if(count($value->GoodReceiveBreakdown) > 0){
                             $style = $s%2 == 0 ? ' background-color: #e3e0dd;' : '';
-                            $main_serails = array();
+                            $main_serails = [];
                             foreach ($value->GoodReceiveBreakdown as $detail){
                                 if($detail['is_main'] == 1){
-                                    $row = array(
+                                    $row = [
                                         'id' => $detail['id'],
                                         'serial_no' => $detail['serial_no']
-                                    );
+                                    ];
                                     array_push($main_serails, $row);
                                 }
                             }

@@ -206,7 +206,7 @@ if ($item_issue) {
                             $style = $s % 2 == 0 ? ' background-color: #e3e0dd;' : '';
 
                             $item_total = 0;
-                            $grn_detail_ids = array();
+                            $grn_detail_ids = [];
                             foreach ($value->ItemIssueBreakdown as $item_issue_breakdown) {
                                 if($item_issue_breakdown->type == 1){
                                     $item_total += $item_issue_breakdown->GoodReceiveBreakdown->GoodReceiveDetails->rate * $item_issue_breakdown->quantity;
@@ -290,14 +290,14 @@ if ($item_issue) {
 
     <?php
     if ($item_issue->ItemIssueDetails) {
-        $main_serails = array();
+        $main_serails = [];
         foreach ($item_issue->ItemIssueDetails as $index => $value) {
             foreach ($value->ItemIssueBreakdown as $detail) {
                 if ($detail['type'] == 1) {
-                    $row = array(
+                    $row = [
                         'id' => $detail['GoodReceiveBreakdown']['id'],
                         'serial_no' => $detail['GoodReceiveBreakdown']['serial_no']
-                    );
+                    ];
                     array_push($main_serails, $row);
                 }
             }
@@ -321,13 +321,13 @@ if ($item_issue) {
                             $s = 1;
                             foreach ($item_issue->ItemIssueDetails as $index => $value) {
                                 $style = $s % 2 == 0 ? ' background-color: #e3e0dd;' : '';
-                                $main_serails = array();
+                                $main_serails = [];
                                 foreach ($value->ItemIssueBreakdown as $detail) {
                                     if ($detail['type'] == 1) {
-                                        $row = array(
+                                        $row = [
                                             'id' => $detail['GoodReceiveBreakdown']['id'],
                                             'serial_no' => $detail['GoodReceiveBreakdown']['serial_no']
-                                        );
+                                        ];
                                         array_push($main_serails, $row);
                                     }
                                 }

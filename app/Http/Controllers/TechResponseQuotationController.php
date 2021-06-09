@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-require_once('ESMSWS.php');
+require_once 'ESMSWS.php';
 session_start();
 date_default_timezone_set('Asia/Colombo');
 set_time_limit(0);
 
-use Illuminate\Http\Request;
-
 use App\Http\Requests;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class TechResponseQuotationController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('user_access');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -57,11 +57,11 @@ class TechResponseQuotationController extends Controller
             ->get();
         $discount_types = \App\Model\DiscountType::all();
 
-        $data = array(
+        $data = [
             'tech_response_job_cards' => $tech_response_job_cards,
             'discount_types' => $discount_types,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -69,19 +69,19 @@ class TechResponseQuotationController extends Controller
     public function tech_response_quotation_list(Request $request)
     {
         $tech_response_quotations = \App\Model\TechResponseQuotation::select('id', 'tech_response_id', 'tech_response_quotation_no', 'tech_response_quotation_date_time', 'remarks', 'tech_response_quotation_value', 'is_confirmed', 'user_id')
-            ->with(array('User' => function ($query) {
+            ->with(['User' => function ($query) {
                 $query->select('id', 'first_name');
-            }))
+            }])
             ->where('tech_response_id', $request->id)
             ->where('is_delete', 0)
             ->get();
         $tech_response = \App\Model\TechResponse::select('id', 'tech_response_no')->find($request->id);
 
-        $data = array(
+        $data = [
             'tech_response_quotations' => $tech_response_quotations,
             'tech_response' => $tech_response,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -89,38 +89,39 @@ class TechResponseQuotationController extends Controller
     public function find_tech_response_quotation(Request $request)
     {
         $tech_response_quotation = \App\Model\TechResponseQuotation::select('id', 'tech_response_id', 'tech_response_quotation_no', 'tech_response_quotation_date_time', 'remarks', 'special_notes', 'show_installation_charge', 'installation_charge_text', 'show_brand', 'show_origin', 'show_transport', 'is_currency', 'usd_rate', 'installation_charge', 'transport_charge', 'attendance_fee', 'tech_response_quotation_value', 'is_confirmed')
-            ->with(array('TechResponseQuotationDiscount' => function ($query) {
+            ->with(['TechResponseQuotationDiscount' => function ($query) {
                 $query->select('id', 'tech_response_quotation_id', 'discount_type_id', 'description', 'percentage')
-                    ->with(array('DiscountType' => function ($query) {
+                    ->with(['DiscountType' => function ($query) {
                         $query->select('id', 'name');
-                    }));
-            }))
-            ->with(array('TechResponseQuotationJobCard' => function ($query) {
+                    }]);
+            }])
+            ->with(['TechResponseQuotationJobCard' => function ($query) {
                 $query->select('id', 'tech_response_quotation_id', 'tech_response_job_card_id')
-                    ->with(array('TechResponseJobCard' => function ($query) {
+                    ->with(['TechResponseJobCard' => function ($query) {
                         $query->select('id', 'tech_response_job_card_no', 'tech_response_job_card_value');
-                    }));
-            }))
+                    }]);
+            }])
             ->find($request->id);
+
         return response($tech_response_quotation);
     }
 
     public function discount_detail(Request $request)
     {
         $discounts = \App\Model\TechResponseQuotationDiscount::select('id', 'tech_response_quotation_id', 'discount_type_id', 'description', 'percentage')
-            ->with(array('DiscountType' => function ($query) {
+            ->with(['DiscountType' => function ($query) {
                 $query->select('id', 'name');
-            }))
+            }])
             ->where('tech_response_quotation_id', $request->id)
             ->where('is_delete', 0)
             ->get();
         $tech_response_quotation = \App\Model\TechResponseQuotation::select('id', 'is_confirmed')->find($request->id);
 
-        $data = array(
+        $data = [
             'discounts' => $discounts,
             'tech_response_quotation' => $tech_response_quotation,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -167,17 +168,17 @@ class TechResponseQuotationController extends Controller
                 $tech_response->save();
             }
 
-            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/tech_response_quotation_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Confirmed,' . $tech_response_quotation->id . ',,,,,,,,,,,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/tech_response_quotation_controller.csv', 'a+') or die('Unable to open/create file!');
+            fwrite($myfile, 'Confirmed,'.$tech_response_quotation->id.',,,,,,,,,,,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
 
             $tech_response = \App\Model\TechResponse::find($tech_response_quotation->tech_response_id);
-            $data = array(
+            $data = [
                 'id' => $tech_response->id,
                 'type' => 2,
                 'customer_name' => $tech_response->Contact->name,
-                'customer_address' => $tech_response->Contact->address
-            );
+                'customer_address' => $tech_response->Contact->address,
+            ];
 
             Mail::send('emails.installation_update_notification', $data, function ($message) {
                 $message->from('mail.smtp.m3force@gmail.com', 'M3Force ERP System');
@@ -186,15 +187,15 @@ class TechResponseQuotationController extends Controller
                 $message->subject('M3Force Customer Installation Update Details');
             });
 
-            $result = array(
+            $result = [
                 'response' => true,
-                'message' => 'Tech Response Quotation confirmed successfully'
-            );
+                'message' => 'Tech Response Quotation confirmed successfully',
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Tech Response Quotation confirm failed'
-            );
+                'message' => 'Tech Response Quotation confirm failed',
+            ];
         }
 
         echo json_encode($result);
@@ -242,19 +243,19 @@ class TechResponseQuotationController extends Controller
                 $tech_response->save();
             }
 
-            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/tech_response_quotation_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Revised,' . $tech_response_quotation->id . ',,,,,,,,,,,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/tech_response_quotation_controller.csv', 'a+') or die('Unable to open/create file!');
+            fwrite($myfile, 'Revised,'.$tech_response_quotation->id.',,,,,,,,,,,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
 
-            $result = array(
+            $result = [
                 'response' => true,
-                'message' => 'Tech Response Quotation revised successfully'
-            );
+                'message' => 'Tech Response Quotation revised successfully',
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Tech Response Quotation revise failed'
-            );
+                'message' => 'Tech Response Quotation revise failed',
+            ];
         }
 
         echo json_encode($result);
@@ -262,7 +263,7 @@ class TechResponseQuotationController extends Controller
 
     public function preview_tech_response_quotation(Request $request)
     {
-        $tech_response_job_card_ids = array();
+        $tech_response_job_card_ids = [];
         foreach ($request->data['tech_response_job_cards'] as $detail) {
             if ($detail['selected']) {
                 array_push($tech_response_job_card_ids, $detail['id']);
@@ -272,13 +273,13 @@ class TechResponseQuotationController extends Controller
         $usd = false;
         $usd_rate = 0;
         $currency = 'LKR';
-        if (!$request->data['is_currency']) {
+        if (! $request->data['is_currency']) {
             $usd = true;
             $usd_rate = $request->data['usd_rate'];
             $currency = 'USD';
         }
 
-        $main_items = $sub_items = array();
+        $main_items = $sub_items = [];
         $tech_response_job_card_details = \App\Model\TechResponseJobCardDetails::whereIn('tech_response_job_card_id', $tech_response_job_card_ids)
             ->where('is_delete', 0)
             ->get();
@@ -286,7 +287,7 @@ class TechResponseQuotationController extends Controller
             if ($tech_response_job_card_detail->is_chargeable == 1) {
                 $margin = ($tech_response_job_card_detail->margin + 100) / 100;
                 $value = $usd ? ($tech_response_job_card_detail->rate * $margin * $tech_response_job_card_detail->quantity) / $usd_rate : $tech_response_job_card_detail->rate * $margin * $tech_response_job_card_detail->quantity;
-                $row = array(
+                $row = [
                     'description' => $tech_response_job_card_detail->Item->name,
                     'model_no' => $tech_response_job_card_detail->Item->model_no,
                     'brand' => $tech_response_job_card_detail->Item->brand,
@@ -294,8 +295,8 @@ class TechResponseQuotationController extends Controller
                     'unit_type' => $tech_response_job_card_detail->Item->UnitType->code,
                     'rate' => $value / $tech_response_job_card_detail->quantity,
                     'quantity' => $tech_response_job_card_detail->quantity,
-                    'value' => $value
-                );
+                    'value' => $value,
+                ];
                 if ($tech_response_job_card_detail->is_main == 1) {
                     array_push($main_items, $row);
                 } else {
@@ -316,7 +317,7 @@ class TechResponseQuotationController extends Controller
                 $package_exist = true;
                 $package_description = $detail['description'];
                 $package_percentage = $detail['percentage'];
-            } else if ($detail['discount_type_id'] == 2) {
+            } elseif ($detail['discount_type_id'] == 2) {
                 $special_exist = true;
                 $special_description = $detail['description'];
                 $special_percentage = $detail['percentage'];
@@ -332,11 +333,11 @@ class TechResponseQuotationController extends Controller
                     $nbt_exist = true;
                     $nbt_description = $detail['c_tax_type']['code'];
                     $nbt_percentage = $detail['c_tax_type']['percentage'];
-                } else if ($detail['c_tax_type']['id'] == 2) {
+                } elseif ($detail['c_tax_type']['id'] == 2) {
                     $svat_exist = true;
                     $svat_description = $detail['c_tax_type']['code'];
                     $svat_percentage = $detail['c_tax_type']['percentage'];
-                } else if ($detail['c_tax_type']['id'] == 3) {
+                } elseif ($detail['c_tax_type']['id'] == 3) {
                     $vat_exist = true;
                     $vat_description = $detail['c_tax_type']['code'];
                     $vat_percentage = $detail['c_tax_type']['percentage'];
@@ -364,9 +365,9 @@ class TechResponseQuotationController extends Controller
         $view .= $request->data['show_origin'] ? '<th style="text-align: center; vertical-align: middle;">Origin</th>' : '';
         $view .= '
                             <th style="text-align: center; vertical-align: middle;">Unit Type</th>
-                            <th style="text-align: center; vertical-align: middle;">Rate (' . $currency . ')</th>
+                            <th style="text-align: center; vertical-align: middle;">Rate ('.$currency.')</th>
                             <th style="text-align: center; vertical-align: middle;">Quantity</th>
-                            <th style="text-align: center; vertical-align: middle;">Value (' . $currency . ')</th>
+                            <th style="text-align: center; vertical-align: middle;">Value ('.$currency.')</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -378,17 +379,17 @@ class TechResponseQuotationController extends Controller
             $equipment_installation_total += $main_item['value'];
             $view .= '
                 <tr>
-                    <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                    <td style="vertical-align: middle;">' . $main_item['description'] . '</td>
-                    <td style="vertical-align: middle;">' . $main_item['model_no'] . '</td>
+                    <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                    <td style="vertical-align: middle;">'.$main_item['description'].'</td>
+                    <td style="vertical-align: middle;">'.$main_item['model_no'].'</td>
                 ';
-            $view .= $request->data['show_brand'] ? '<td style="vertical-align: middle;">' . $main_item['brand'] . '</td>' : '';
-            $view .= $request->data['show_origin'] ? '<td style="vertical-align: middle;">' . $main_item['origin'] . '</td>' : '';
+            $view .= $request->data['show_brand'] ? '<td style="vertical-align: middle;">'.$main_item['brand'].'</td>' : '';
+            $view .= $request->data['show_origin'] ? '<td style="vertical-align: middle;">'.$main_item['origin'].'</td>' : '';
             $view .= '
-                    <td style="text-align: center; vertical-align: middle;">' . $main_item['unit_type'] . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($main_item['rate'], 2) . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . $main_item['quantity'] . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($main_item['value'], 2) . '</td>
+                    <td style="text-align: center; vertical-align: middle;">'.$main_item['unit_type'].'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($main_item['rate'], 2).'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.$main_item['quantity'].'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($main_item['value'], 2).'</td>
                 </tr>
                 ';
             $count++;
@@ -397,23 +398,23 @@ class TechResponseQuotationController extends Controller
         if ($package_exist) {
             $view .= '
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">Package Price</th>
-                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">' . number_format($equipment_installation_total, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">Package Price</th>
+                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">'.number_format($equipment_installation_total, 2).'</th>
                 </tr>
                 ';
             $discount_value = $equipment_installation_total * $package_percentage / 100;
             $equipment_installation_total -= $discount_value;
             $view .= '
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle; background-color: #fdff32;">' . $package_description . '</th>
-                    <th style="text-align: right; vertical-align: middle; background-color: #fdff32;">' . number_format($discount_value, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle; background-color: #fdff32;">'.$package_description.'</th>
+                    <th style="text-align: right; vertical-align: middle; background-color: #fdff32;">'.number_format($discount_value, 2).'</th>
                 </tr>
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">Sign up fee -Package Cost</th>
-                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">' . number_format($equipment_installation_total, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">Sign up fee -Package Cost</th>
+                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">'.number_format($equipment_installation_total, 2).'</th>
                 </tr>
                 <tr>
-                    <td colspan="' . ($colspan + 1) . '" style="vertical-align: middle;"><u>Extra Equipment</u></td>
+                    <td colspan="'.($colspan + 1).'" style="vertical-align: middle;"><u>Extra Equipment</u></td>
                 </tr>
                 ';
         }
@@ -422,17 +423,17 @@ class TechResponseQuotationController extends Controller
             $equipment_installation_total += $sub_item['value'];
             $view .= '
                 <tr>
-                    <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                    <td style="vertical-align: middle;">' . $sub_item['description'] . '</td>
-                    <td style="vertical-align: middle;">' . $sub_item['model_no'] . '</td>
+                    <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                    <td style="vertical-align: middle;">'.$sub_item['description'].'</td>
+                    <td style="vertical-align: middle;">'.$sub_item['model_no'].'</td>
                 ';
-            $view .= $request->data['show_brand'] ? '<td style="vertical-align: middle;">' . $sub_item['brand'] . '</td>' : '';
-            $view .= $request->data['show_origin'] ? '<td style="vertical-align: middle;">' . $sub_item['origin'] . '</td>' : '';
+            $view .= $request->data['show_brand'] ? '<td style="vertical-align: middle;">'.$sub_item['brand'].'</td>' : '';
+            $view .= $request->data['show_origin'] ? '<td style="vertical-align: middle;">'.$sub_item['origin'].'</td>' : '';
             $view .= '
-                    <td style="text-align: center; vertical-align: middle;">' . $sub_item['unit_type'] . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($sub_item['rate'], 2) . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . $sub_item['quantity'] . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($sub_item['value'], 2) . '</td>
+                    <td style="text-align: center; vertical-align: middle;">'.$sub_item['unit_type'].'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($sub_item['rate'], 2).'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.$sub_item['quantity'].'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($sub_item['value'], 2).'</td>
                 </tr>
                 ';
             $count++;
@@ -441,25 +442,25 @@ class TechResponseQuotationController extends Controller
         if (count($main_items) == 0 && count($sub_items) == 0) {
             $view .= '
                     <tr>
-                        <td colspan="' . $colspan . '" style="text-align: center; vertical-align: middle;">No Equipments</td>
-                        <td style="text-align: right; vertical-align: middle;">' . number_format($equipment_installation_total, 2) . '</td>
+                        <td colspan="'.$colspan.'" style="text-align: center; vertical-align: middle;">No Equipments</td>
+                        <td style="text-align: right; vertical-align: middle;">'.number_format($equipment_installation_total, 2).'</td>
                     </tr>
                 ';
         }
 
         $view .= '
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">Total - Equipment</th>
-                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">' . number_format($equipment_installation_total, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">Total - Equipment</th>
+                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">'.number_format($equipment_installation_total, 2).'</th>
                 </tr>
             ';
 
-        if (!$request->data['show_installation_charge'] && !$request->data['show_transport']) {
+        if (! $request->data['show_installation_charge'] && ! $request->data['show_transport']) {
             $view .= '
                     <tr>
-                        <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                        <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">Engineering, Installation, Transport & Attendance Fee</td>
-                        <td style="text-align: right; vertical-align: middle;">' . number_format($installation_charge + $transport_charge + $attendance_fee, 2) . '</td>
+                        <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                        <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">Engineering, Installation, Transport & Attendance Fee</td>
+                        <td style="text-align: right; vertical-align: middle;">'.number_format($installation_charge + $transport_charge + $attendance_fee, 2).'</td>
                     </tr>
                 ';
             $count++;
@@ -467,59 +468,59 @@ class TechResponseQuotationController extends Controller
             if ($request->data['show_installation_charge'] && $request->data['show_transport']) {
                 $view .= '
                         <tr>
-                            <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                            <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">' . $request->data['installation_charge_text'] . '</td>
-                            <td style="text-align: right; vertical-align: middle;">' . number_format($installation_charge, 2) . '</td>
+                            <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                            <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">'.$request->data['installation_charge_text'].'</td>
+                            <td style="text-align: right; vertical-align: middle;">'.number_format($installation_charge, 2).'</td>
                         </tr>
                     ';
                 $count++;
                 $view .= '
                         <tr>
-                            <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                            <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">Transport Charge</td>
-                            <td style="text-align: right; vertical-align: middle;">' . number_format($transport_charge, 2) . '</td>
+                            <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                            <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">Transport Charge</td>
+                            <td style="text-align: right; vertical-align: middle;">'.number_format($transport_charge, 2).'</td>
                         </tr>
                     ';
                 $count++;
                 $view .= '
                         <tr>
-                            <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                            <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">Engineering & Attendance Fee</td>
-                            <td style="text-align: right; vertical-align: middle;">' . number_format($attendance_fee, 2) . '</td>
+                            <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                            <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">Engineering & Attendance Fee</td>
+                            <td style="text-align: right; vertical-align: middle;">'.number_format($attendance_fee, 2).'</td>
                         </tr>
                     ';
                 $count++;
-            } else if ($request->data['show_installation_charge']) {
+            } elseif ($request->data['show_installation_charge']) {
                 $view .= '
                         <tr>
-                            <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                            <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">' . $request->data['installation_charge_text'] . '</td>
-                            <td style="text-align: right; vertical-align: middle;">' . number_format($installation_charge, 2) . '</td>
-                        </tr>
-                    ';
-                $count++;
-                $view .= '
-                        <tr>
-                            <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                            <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">Engineering, Transport & Attendance Fee</td>
-                            <td style="text-align: right; vertical-align: middle;">' . number_format($transport_charge + $attendance_fee, 2) . '</td>
-                        </tr>
-                    ';
-                $count++;
-            } else if ($request->data['show_transport']) {
-                $view .= '
-                        <tr>
-                            <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                            <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">Transport Charge</td>
-                            <td style="text-align: right; vertical-align: middle;">' . number_format($transport_charge, 2) . '</td>
+                            <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                            <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">'.$request->data['installation_charge_text'].'</td>
+                            <td style="text-align: right; vertical-align: middle;">'.number_format($installation_charge, 2).'</td>
                         </tr>
                     ';
                 $count++;
                 $view .= '
                         <tr>
-                            <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                            <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">Engineering, Installation & Attendance Fee</td>
-                            <td style="text-align: right; vertical-align: middle;">' . number_format($installation_charge + $attendance_fee, 2) . '</td>
+                            <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                            <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">Engineering, Transport & Attendance Fee</td>
+                            <td style="text-align: right; vertical-align: middle;">'.number_format($transport_charge + $attendance_fee, 2).'</td>
+                        </tr>
+                    ';
+                $count++;
+            } elseif ($request->data['show_transport']) {
+                $view .= '
+                        <tr>
+                            <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                            <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">Transport Charge</td>
+                            <td style="text-align: right; vertical-align: middle;">'.number_format($transport_charge, 2).'</td>
+                        </tr>
+                    ';
+                $count++;
+                $view .= '
+                        <tr>
+                            <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                            <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">Engineering, Installation & Attendance Fee</td>
+                            <td style="text-align: right; vertical-align: middle;">'.number_format($installation_charge + $attendance_fee, 2).'</td>
                         </tr>
                     ';
                 $count++;
@@ -529,8 +530,8 @@ class TechResponseQuotationController extends Controller
         $equipment_installation_total += $installation_charge + $transport_charge + $attendance_fee;
         $view .= '
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">Total - Equipment & Installation</th>
-                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">' . number_format($equipment_installation_total, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">Total - Equipment & Installation</th>
+                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">'.number_format($equipment_installation_total, 2).'</th>
                 </tr>
             ';
 
@@ -539,12 +540,12 @@ class TechResponseQuotationController extends Controller
             $equipment_installation_total -= $discount_value;
             $view .= '
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle; background-color: #fdff32;">' . $special_description . '</th>
-                    <th style="text-align: right; vertical-align: middle; background-color: #fdff32;">' . number_format($discount_value, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle; background-color: #fdff32;">'.$special_description.'</th>
+                    <th style="text-align: right; vertical-align: middle; background-color: #fdff32;">'.number_format($discount_value, 2).'</th>
                 </tr>
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;"></th>
-                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">' . number_format($equipment_installation_total, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;"></th>
+                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">'.number_format($equipment_installation_total, 2).'</th>
                 </tr>
                 ';
         }
@@ -554,12 +555,12 @@ class TechResponseQuotationController extends Controller
             $equipment_installation_total += $nbt_value;
             $view .= '
                 <tr>
-                    <td colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">' . $nbt_percentage . '% ' . $nbt_description . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($nbt_value, 2) . '</td>
+                    <td colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">'.$nbt_percentage.'% '.$nbt_description.'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($nbt_value, 2).'</td>
                 </tr>
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;"></th>
-                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">' . number_format($equipment_installation_total, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;"></th>
+                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">'.number_format($equipment_installation_total, 2).'</th>
                 </tr>
                 ';
         }
@@ -567,8 +568,8 @@ class TechResponseQuotationController extends Controller
             $svat_value = $equipment_installation_total * $svat_percentage / 100;
             $view .= '
                 <tr>
-                    <td colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">' . $svat_percentage . '% ' . $svat_description . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($svat_value, 2) . '</td>
+                    <td colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">'.$svat_percentage.'% '.$svat_description.'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($svat_value, 2).'</td>
                 </tr>
                 ';
         }
@@ -577,15 +578,15 @@ class TechResponseQuotationController extends Controller
             $equipment_installation_total += $vat_value;
             $view .= '
                 <tr>
-                    <td colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">' . $vat_percentage . '% ' . $vat_description . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($vat_value, 2) . '</td>
+                    <td colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">'.$vat_percentage.'% '.$vat_description.'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($vat_value, 2).'</td>
                 </tr>
                 ';
         }
-        if (!$nbt_exist && !$svat_exist && !$vat_exist) {
+        if (! $nbt_exist && ! $svat_exist && ! $vat_exist) {
             $view .= '
                 <tr>
-                    <td colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">VAT EXEMPTED</td>
+                    <td colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">VAT EXEMPTED</td>
                     <td style="text-align: right; vertical-align: middle;"></td>
                 </tr>
                 ';
@@ -593,8 +594,8 @@ class TechResponseQuotationController extends Controller
 
         $view .= '
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">Grand Total – Equipment & Installation</th>
-                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black; border-bottom: 3px double black;">' . number_format($equipment_installation_total, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">Grand Total – Equipment & Installation</th>
+                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black; border-bottom: 3px double black;">'.number_format($equipment_installation_total, 2).'</th>
                 </tr>
             ';
 
@@ -603,10 +604,10 @@ class TechResponseQuotationController extends Controller
                 </table>
             ';
 
-        $result = array(
+        $result = [
             'view' => $view,
-            'tech_response_quotation_value' => $equipment_installation_total
-        );
+            'tech_response_quotation_value' => $equipment_installation_total,
+        ];
 
         echo json_encode($result);
     }
@@ -617,13 +618,13 @@ class TechResponseQuotationController extends Controller
 
         $tech_response_quotation = \App\Model\TechResponseQuotation::find($request->id);
         $data['tech_response_quotation'] = $tech_response_quotation;
-        $title = $tech_response_quotation ? 'Tech Response Quotation Details ' . $tech_response_quotation->tech_response_quotation_no : 'Tech Response Quotation Details';
+        $title = $tech_response_quotation ? 'Tech Response Quotation Details '.$tech_response_quotation->tech_response_quotation_no : 'Tech Response Quotation Details';
 
         $html = view('tech_response.tech_response_quotation_pdf', $data);
 
-        $snappy = new \Knp\Snappy\Pdf($_SERVER['DOCUMENT_ROOT'] . '/m3force/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
+        $snappy = new \Knp\Snappy\Pdf($_SERVER['DOCUMENT_ROOT'].'/m3force/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
         header('Content-Type: application/pdf');
-        header('Content-Disposition: filename="' . $title . '.pdf"');
+        header('Content-Disposition: filename="'.$title.'.pdf"');
         $options = [
             'page-size' => 'A4',
             'margin-top' => 5,
@@ -632,7 +633,7 @@ class TechResponseQuotationController extends Controller
             'margin-bottom' => 15,
             'orientation' => 'Portrait',
             'footer-center' => 'Page [page] of [toPage]',
-            'footer-font-size' => 8
+            'footer-font-size' => 8,
         ];
         echo $snappy->getOutputFromHtml($html, $options);
     }
@@ -657,7 +658,7 @@ class TechResponseQuotationController extends Controller
     {
         $valid = true;
 
-        $tech_response_job_card_ids = array();
+        $tech_response_job_card_ids = [];
         foreach ($request->tech_response_job_cards as $detail) {
             if ($detail['selected']) {
                 array_push($tech_response_job_card_ids, $detail['id']);
@@ -666,7 +667,7 @@ class TechResponseQuotationController extends Controller
 
         $usd = false;
         $usd_rate = 0;
-        if (!$request->is_currency) {
+        if (! $request->is_currency) {
             $usd = true;
             $usd_rate = $request->usd_rate;
         }
@@ -706,9 +707,9 @@ class TechResponseQuotationController extends Controller
             $last_id = 0;
             $last_tech_response_quotation = \App\Model\TechResponseQuotation::select('id')->where('is_delete', 0)->orderBy('id', 'desc')->first();
             $last_id = $last_tech_response_quotation ? $last_tech_response_quotation->id : $last_id;
-            $tech_response_quotation->tech_response_quotation_no = 'TR/QT/' . date('m') . '/' . date('y') . '/' . $request->tech_response_id . '/' . sprintf('%05d', $last_id + 1);
+            $tech_response_quotation->tech_response_quotation_no = 'TR/QT/'.date('m').'/'.date('y').'/'.$request->tech_response_id.'/'.sprintf('%05d', $last_id + 1);
 
-            $tech_response_quotation->tech_response_quotation_date_time = date('Y-m-d', strtotime($request->tech_response_quotation_date)) . ' ' . $request->tech_response_quotation_time;
+            $tech_response_quotation->tech_response_quotation_date_time = date('Y-m-d', strtotime($request->tech_response_quotation_date)).' '.$request->tech_response_quotation_time;
             $tech_response_quotation->remarks = $request->remarks;
             $tech_response_quotation->special_notes = $request->special_notes;
             $tech_response_quotation->show_installation_charge = $request->show_installation_charge ? 1 : 0;
@@ -733,7 +734,7 @@ class TechResponseQuotationController extends Controller
                         $tech_response_quotation_job_card->tech_response_job_card_id = $tech_response_job_card['id'];
                         $tech_response_quotation_job_card->save();
 
-                        $tech_response_job_card_ids .= $tech_response_job_card_ids != '' ? '|' . $tech_response_quotation_job_card->tech_response_job_card_id : $tech_response_quotation_job_card->tech_response_job_card_id;
+                        $tech_response_job_card_ids .= $tech_response_job_card_ids != '' ? '|'.$tech_response_quotation_job_card->tech_response_job_card_id : $tech_response_quotation_job_card->tech_response_job_card_id;
                     }
                 }
                 $discount_details = '';
@@ -745,7 +746,7 @@ class TechResponseQuotationController extends Controller
                     $tech_response_quotation_discount->percentage = $details['percentage'];
                     $tech_response_quotation_discount->save();
 
-                    $discount_details .= $discount_details != '' ? '|' . $tech_response_quotation_discount->discount_type_id . '-' . $tech_response_quotation_discount->percentage : $tech_response_quotation_discount->discount_type_id . '-' . $tech_response_quotation_discount->percentage;
+                    $discount_details .= $discount_details != '' ? '|'.$tech_response_quotation_discount->discount_type_id.'-'.$tech_response_quotation_discount->percentage : $tech_response_quotation_discount->discount_type_id.'-'.$tech_response_quotation_discount->percentage;
                 }
 
                 $tech_response_status = new \App\Model\TechResponseDetails();
@@ -758,26 +759,26 @@ class TechResponseQuotationController extends Controller
                 $tech_response_status->user_id = $request->session()->get('users_id');
                 $tech_response_status->save();
 
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/tech_response_quotation_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Created,' . $tech_response_quotation->id . ',' . $tech_response_quotation->tech_response_id . ',' . $tech_response_quotation->tech_response_quotation_no . ',' . $tech_response_quotation->tech_response_quotation_date_time . ',' . str_replace(',', ' ', $tech_response_quotation->remarks) . ',' . str_replace(',', ' ', $tech_response_quotation->special_notes) . ',' . $tech_response_quotation->show_installation_charge . ',' . str_replace(',', ' ', $tech_response_quotation->installation_charge_text) . ',' . $tech_response_quotation->show_brand . ',' . $tech_response_quotation->show_origin . ',' . $tech_response_quotation->show_transport . ',' . $tech_response_quotation->is_currency . ',' . $tech_response_quotation->usd_rate . ',' . $tech_response_quotation->installation_charge . ',' . $tech_response_quotation->transport_charge . ',' . $tech_response_quotation->attendance_fee . ',' . $tech_response_quotation->tech_response_quotation_value . ',' . $tech_response_job_card_ids . ',' . $discount_details . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/tech_response_quotation_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Created,'.$tech_response_quotation->id.','.$tech_response_quotation->tech_response_id.','.$tech_response_quotation->tech_response_quotation_no.','.$tech_response_quotation->tech_response_quotation_date_time.','.str_replace(',', ' ', $tech_response_quotation->remarks).','.str_replace(',', ' ', $tech_response_quotation->special_notes).','.$tech_response_quotation->show_installation_charge.','.str_replace(',', ' ', $tech_response_quotation->installation_charge_text).','.$tech_response_quotation->show_brand.','.$tech_response_quotation->show_origin.','.$tech_response_quotation->show_transport.','.$tech_response_quotation->is_currency.','.$tech_response_quotation->usd_rate.','.$tech_response_quotation->installation_charge.','.$tech_response_quotation->transport_charge.','.$tech_response_quotation->attendance_fee.','.$tech_response_quotation->tech_response_quotation_value.','.$tech_response_job_card_ids.','.$discount_details.','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
                     'message' => 'Tech Response Quotation created successfully',
-                    'data' => $tech_response_quotation->id
-                );
+                    'data' => $tech_response_quotation->id,
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Tech Response Quotation creation failed'
-                );
+                    'message' => 'Tech Response Quotation creation failed',
+                ];
             }
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Tech Response Quotation does not meet the profit margin'
-            );
+                'message' => 'Tech Response Quotation does not meet the profit margin',
+            ];
         }
 
         echo json_encode($result);
@@ -816,7 +817,7 @@ class TechResponseQuotationController extends Controller
     {
         $valid = true;
 
-        $tech_response_job_card_ids = array();
+        $tech_response_job_card_ids = [];
         foreach ($request->tech_response_job_cards as $detail) {
             if ($detail['selected']) {
                 array_push($tech_response_job_card_ids, $detail['id']);
@@ -825,7 +826,7 @@ class TechResponseQuotationController extends Controller
 
         $usd = false;
         $usd_rate = 0;
-        if (!$request->is_currency) {
+        if (! $request->is_currency) {
             $usd = true;
             $usd_rate = $request->usd_rate;
         }
@@ -862,7 +863,7 @@ class TechResponseQuotationController extends Controller
             $tech_response_quotation = \App\Model\TechResponseQuotation::find($request->tech_response_quotation_id);
             $tech_response_quotation->tech_response_id = $request->tech_response_id;
             $tech_response_quotation->tech_response_quotation_no = $request->tech_response_quotation_no;
-            $tech_response_quotation->tech_response_quotation_date_time = date('Y-m-d', strtotime($request->tech_response_quotation_date)) . ' ' . $request->tech_response_quotation_time;
+            $tech_response_quotation->tech_response_quotation_date_time = date('Y-m-d', strtotime($request->tech_response_quotation_date)).' '.$request->tech_response_quotation_time;
             $tech_response_quotation->remarks = $request->remarks;
             $tech_response_quotation->special_notes = $request->special_notes;
             $tech_response_quotation->show_installation_charge = $request->show_installation_charge ? 1 : 0;
@@ -906,7 +907,7 @@ class TechResponseQuotationController extends Controller
                         $tech_response_quotation_job_card->is_delete = 0;
                         $tech_response_quotation_job_card->save();
 
-                        $tech_response_job_card_ids .= $tech_response_job_card_ids != '' ? '|' . $tech_response_job_card['id'] : $tech_response_job_card['id'];
+                        $tech_response_job_card_ids .= $tech_response_job_card_ids != '' ? '|'.$tech_response_job_card['id'] : $tech_response_job_card['id'];
                     }
                 }
                 $discount_details = '';
@@ -922,29 +923,29 @@ class TechResponseQuotationController extends Controller
                     $tech_response_quotation_discount->is_delete = 0;
                     $tech_response_quotation_discount->save();
 
-                    $discount_details .= $discount_details != '' ? '|' . $details['discount_type_id'] . '-' . $details['percentage'] : $details['discount_type_id'] . '-' . $details['percentage'];
+                    $discount_details .= $discount_details != '' ? '|'.$details['discount_type_id'].'-'.$details['percentage'] : $details['discount_type_id'].'-'.$details['percentage'];
                 }
 
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/tech_response_quotation_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Updated,' . $tech_response_quotation->id . ',' . $tech_response_quotation->tech_response_id . ',' . $tech_response_quotation->tech_response_quotation_no . ',' . $tech_response_quotation->tech_response_quotation_date_time . ',' . str_replace(',', ' ', $tech_response_quotation->remarks) . ',' . str_replace(',', ' ', $tech_response_quotation->special_notes) . ',' . $tech_response_quotation->show_installation_charge . ',' . str_replace(',', ' ', $tech_response_quotation->installation_charge_text) . ',' . $tech_response_quotation->show_brand . ',' . $tech_response_quotation->show_origin . ',' . $tech_response_quotation->show_transport . ',' . $tech_response_quotation->is_currency . ',' . $tech_response_quotation->usd_rate . ',' . $tech_response_quotation->installation_charge . ',' . $tech_response_quotation->transport_charge . ',' . $tech_response_quotation->attendance_fee . ',' . $tech_response_quotation->tech_response_quotation_value . ',' . $tech_response_job_card_ids . ',' . $discount_details . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/tech_response_quotation_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Updated,'.$tech_response_quotation->id.','.$tech_response_quotation->tech_response_id.','.$tech_response_quotation->tech_response_quotation_no.','.$tech_response_quotation->tech_response_quotation_date_time.','.str_replace(',', ' ', $tech_response_quotation->remarks).','.str_replace(',', ' ', $tech_response_quotation->special_notes).','.$tech_response_quotation->show_installation_charge.','.str_replace(',', ' ', $tech_response_quotation->installation_charge_text).','.$tech_response_quotation->show_brand.','.$tech_response_quotation->show_origin.','.$tech_response_quotation->show_transport.','.$tech_response_quotation->is_currency.','.$tech_response_quotation->usd_rate.','.$tech_response_quotation->installation_charge.','.$tech_response_quotation->transport_charge.','.$tech_response_quotation->attendance_fee.','.$tech_response_quotation->tech_response_quotation_value.','.$tech_response_job_card_ids.','.$discount_details.','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
                     'message' => 'Tech Response Quotation updated successfully',
-                    'data' => $tech_response_quotation->id
-                );
+                    'data' => $tech_response_quotation->id,
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Tech Response Quotation updation failed'
-                );
+                    'message' => 'Tech Response Quotation updation failed',
+                ];
             }
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Tech Response Quotation does not meet the profit margin'
-            );
+                'message' => 'Tech Response Quotation does not meet the profit margin',
+            ];
         }
 
         echo json_encode($result);
@@ -962,18 +963,18 @@ class TechResponseQuotationController extends Controller
         $tech_response_quotation->is_delete = 1;
 
         if ($tech_response_quotation->save()) {
-            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/tech_response_quotation_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Deleted,' . $tech_response_quotation->id . ',,,,,,,,,,,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/tech_response_quotation_controller.csv', 'a+') or die('Unable to open/create file!');
+            fwrite($myfile, 'Deleted,'.$tech_response_quotation->id.',,,,,,,,,,,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
-            $result = array(
+            $result = [
                 'response' => true,
-                'message' => 'Tech Response Quotation deleted successfully'
-            );
+                'message' => 'Tech Response Quotation deleted successfully',
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Tech Response Quotation deletion failed'
-            );
+                'message' => 'Tech Response Quotation deletion failed',
+            ];
         }
 
         echo json_encode($result);

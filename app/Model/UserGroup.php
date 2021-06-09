@@ -16,15 +16,14 @@ class UserGroup extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
-        'permission'
+        'permission',
     ];
 
     /**
      * Relations
      */
-    
     public function UserGroupPermission()
     {
-        return $this->hasMany('App\Model\UserGroupPermission', 'user_group_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\UserGroupPermission::class, 'user_group_id', 'id')->where('is_delete', 0);
     }
 }

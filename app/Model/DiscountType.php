@@ -15,21 +15,19 @@ class DiscountType extends Model
     protected $table = 'discount_type';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'name'
+        'name',
     ];
 
     /**
      * Relations
      */
-    
     public function QuotationDiscount()
     {
-        return $this->hasMany('App\Model\QuotationDiscount', 'discount_type_id', 'id')->where('is_delete', 0);
-    }
-    
-    public function TechResponseQuotationDiscount()
-    {
-        return $this->hasMany('App\Model\TechResponseQuotationDiscount', 'discount_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\QuotationDiscount::class, 'discount_type_id', 'id')->where('is_delete', 0);
     }
 
+    public function TechResponseQuotationDiscount()
+    {
+        return $this->hasMany(\App\Model\TechResponseQuotationDiscount::class, 'discount_type_id', 'id')->where('is_delete', 0);
+    }
 }

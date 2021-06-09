@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-require_once('ESMSWS.php');
+require_once 'ESMSWS.php';
 session_start();
 date_default_timezone_set('Asia/Colombo');
 set_time_limit(0);
 
-use Illuminate\Http\Request;
-
 use App\Http\Requests;
+use Illuminate\Http\Request;
 
 class ItemController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('user_access');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -63,7 +63,7 @@ class ItemController extends Controller
 
     public function item_list(Request $request)
     {
-        $item_details = array();
+        $item_details = [];
         $items = \App\Model\Item::where(function ($q) use ($request) {
             $request->main_category != -1 ? $q->where('main_category_id', $request->main_category) : '';
         })
@@ -86,10 +86,10 @@ class ItemController extends Controller
             $location = $serial_nos = '';
             $available_quantity = $serial_no_count = 0;
             foreach ($good_receive_details as $good_receive_detail) {
-                if($good_receive_detail->available_quantity > 0){
-                    $location .= $location != '' ? ' ' . $good_receive_detail->location : $good_receive_detail->location;
+                if ($good_receive_detail->available_quantity > 0) {
+                    $location .= $location != '' ? ' '.$good_receive_detail->location : $good_receive_detail->location;
                 }
-                
+
                 $available_quantity += $good_receive_detail->available_quantity;
 
                 $good_receive_breakdowns = \App\Model\GoodReceiveBreakdown::where('good_receive_detail_id', $good_receive_detail->id)
@@ -98,11 +98,11 @@ class ItemController extends Controller
                     ->where('is_delete', 0)
                     ->get();
                 foreach ($good_receive_breakdowns as $good_receive_breakdown) {
-                    $serial_nos .= $serial_nos != '' ? ' | ' . $good_receive_breakdown->serial_no : $good_receive_breakdown->serial_no;
+                    $serial_nos .= $serial_nos != '' ? ' | '.$good_receive_breakdown->serial_no : $good_receive_breakdown->serial_no;
                     $serial_no_count++;
                 }
             }
-            $row = array(
+            $row = [
                 'id' => $item->id,
                 'main_category' => $item->MainItemCategory ? $item->MainItemCategory->name : '',
                 'sub_category' => $item->SubItemCategory ? $item->SubItemCategory->name : '',
@@ -121,15 +121,15 @@ class ItemController extends Controller
                 'available_quantity' => $available_quantity,
                 'serial_no_count' => $serial_no_count,
                 'serial_nos' => $serial_nos,
-                'is_active' => $item->is_active == 1 ? 'Yes' : 'No'
-            );
+                'is_active' => $item->is_active == 1 ? 'Yes' : 'No',
+            ];
             array_push($item_details, $row);
         }
 
-        $data = array(
+        $data = [
             'items' => $item_details,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -137,19 +137,20 @@ class ItemController extends Controller
     public function find_item(Request $request)
     {
         $item = \App\Model\Item::select('id', 'main_category_id', 'sub_category_id', 'purchase_type_id', 'code', 'name', 'model_no', 'brand', 'origin', 'unit_type_id', 'reorder_level', 'rate', 'is_serial', 'is_warranty', 'is_active')
-            ->with(array('MainItemCategory' => function ($query) {
+            ->with(['MainItemCategory' => function ($query) {
                 $query->select('id', 'code', 'name');
-            }))
-            ->with(array('SubItemCategory' => function ($query) {
+            }])
+            ->with(['SubItemCategory' => function ($query) {
                 $query->select('id', 'code', 'name');
-            }))
-            ->with(array('PurchaseType' => function ($query) {
+            }])
+            ->with(['PurchaseType' => function ($query) {
                 $query->select('id', 'name');
-            }))
-            ->with(array('UnitType' => function ($query) {
+            }])
+            ->with(['UnitType' => function ($query) {
                 $query->select('id', 'code', 'name');
-            }))
+            }])
             ->find($request->id);
+
         return response($item);
     }
 
@@ -218,12 +219,12 @@ class ItemController extends Controller
         $unit_types = \App\Model\UnitType::select('id', 'code')->where('is_delete', 0)->orderBy('name')->get();
         $purchase_types = \App\Model\PurchaseType::select('id', 'name')->orderBy('name')->get();
 
-        $data = array(
+        $data = [
             'main_item_categories' => $main_item_categories,
             'sub_item_categories' => $sub_item_categories,
             'unit_types' => $unit_types,
-            'purchase_types' => $purchase_types
-        );
+            'purchase_types' => $purchase_types,
+        ];
 
         return response($data);
     }
@@ -258,7 +259,7 @@ class ItemController extends Controller
             $last_item = \App\Model\Item::selectRaw('COUNT(id) AS id')->where('main_category_id', $request->main_category['id'])->where('sub_category_id', $request->sub_category['id'])->orderBy('id', 'desc')->first();
             $last_id = $last_item ? $last_item->id : $last_id;
         }
-        $item->code = 'IT-' . $main_prefix . '-' . $sub_prefix . sprintf('%05d', $last_id + 1);
+        $item->code = 'IT-'.$main_prefix.'-'.$sub_prefix.sprintf('%05d', $last_id + 1);
         $item->name = $request->name;
         $item->model_no = $request->model_no;
         $item->brand = $request->brand;
@@ -271,19 +272,19 @@ class ItemController extends Controller
         $item->is_active = $request->is_active ? 1 : 0;
 
         if ($item->save()) {
-            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/item_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Created,' . $item->id . ',' . $item->main_category_id . ',' . $item->sub_category_id . ',' . $item->purchase_type_id . ',' . $item->code . ',' . str_replace(',', ' ', $item->name) . ',' . str_replace(',', ' ', $item->model_no) . ',' . str_replace(',', ' ', $item->brand) . ',' . str_replace(',', ' ', $item->origin) . ',' . $item->unit_type_id . ',' . $item->reorder_level . ',' . $item->rate . ',' . $item->is_serial . ',' . $item->is_warranty . ',' . $item->is_active . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/item_controller.csv', 'a+') or die('Unable to open/create file!');
+            fwrite($myfile, 'Created,'.$item->id.','.$item->main_category_id.','.$item->sub_category_id.','.$item->purchase_type_id.','.$item->code.','.str_replace(',', ' ', $item->name).','.str_replace(',', ' ', $item->model_no).','.str_replace(',', ' ', $item->brand).','.str_replace(',', ' ', $item->origin).','.$item->unit_type_id.','.$item->reorder_level.','.$item->rate.','.$item->is_serial.','.$item->is_warranty.','.$item->is_active.','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
 
-            $result = array(
+            $result = [
                 'response' => true,
-                'message' => 'Item created successfully'
-            );
+                'message' => 'Item created successfully',
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Item creation failed'
-            );
+                'message' => 'Item creation failed',
+            ];
         }
 
         echo json_encode($result);
@@ -338,7 +339,7 @@ class ItemController extends Controller
                 $last_item = \App\Model\Item::selectRaw('COUNT(id) AS id')->where('main_category_id', $request->main_category['id'])->where('sub_category_id', $request->sub_category['id'])->orderBy('id', 'desc')->first();
                 $last_id = $last_item ? $last_item->id : $last_id;
             }
-            $item->code = 'IT-' . $main_prefix . '-' . $sub_prefix . sprintf('%05d', $last_id + 1);
+            $item->code = 'IT-'.$main_prefix.'-'.$sub_prefix.sprintf('%05d', $last_id + 1);
         }
         $item->name = $request->name;
         $item->model_no = $request->model_no;
@@ -352,8 +353,8 @@ class ItemController extends Controller
         $item->is_active = $request->is_active ? 1 : 0;
 
         if ($item->save()) {
-            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/item_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Updated,' . $item->id . ',' . $item->main_category_id . ',' . $item->sub_category_id . ',' . $item->purchase_type_id . ',' . $item->code . ',' . str_replace(',', ' ', $item->name) . ',' . str_replace(',', ' ', $item->model_no) . ',' . str_replace(',', ' ', $item->brand) . ',' . str_replace(',', ' ', $item->origin) . ',' . $item->unit_type_id . ',' . $item->reorder_level . ',' . $item->rate . ',' . $item->is_serial . ',' . $item->is_warranty . ',' . $item->is_active . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/item_controller.csv', 'a+') or die('Unable to open/create file!');
+            fwrite($myfile, 'Updated,'.$item->id.','.$item->main_category_id.','.$item->sub_category_id.','.$item->purchase_type_id.','.$item->code.','.str_replace(',', ' ', $item->name).','.str_replace(',', ' ', $item->model_no).','.str_replace(',', ' ', $item->brand).','.str_replace(',', ' ', $item->origin).','.$item->unit_type_id.','.$item->reorder_level.','.$item->rate.','.$item->is_serial.','.$item->is_warranty.','.$item->is_active.','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
 
             if ($item_changed) {
@@ -368,7 +369,7 @@ class ItemController extends Controller
                         if (count($items) > 0) {
                             $count = 1;
                             foreach ($items as $item) {
-                                $item->code = 'IT-' . $main_item_category->code . '-' . $sub_item_category->code . sprintf('%05d', $count);
+                                $item->code = 'IT-'.$main_item_category->code.'-'.$sub_item_category->code.sprintf('%05d', $count);
                                 $item->save();
                                 $count++;
                             }
@@ -377,15 +378,15 @@ class ItemController extends Controller
                 }
             }
 
-            $result = array(
+            $result = [
                 'response' => true,
-                'message' => 'Item updated successfully'
-            );
+                'message' => 'Item updated successfully',
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Item updation failed'
-            );
+                'message' => 'Item updation failed',
+            ];
         }
 
         echo json_encode($result);
@@ -403,19 +404,19 @@ class ItemController extends Controller
         $item->is_delete = 1;
 
         if ($item->save()) {
-            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/item_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Deleted,' . $item->id . ',,,,,,,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/item_controller.csv', 'a+') or die('Unable to open/create file!');
+            fwrite($myfile, 'Deleted,'.$item->id.',,,,,,,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
 
-            $result = array(
+            $result = [
                 'response' => true,
-                'message' => 'Item deleted successfully'
-            );
+                'message' => 'Item deleted successfully',
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Item deletion failed'
-            );
+                'message' => 'Item deletion failed',
+            ];
         }
 
         echo json_encode($result);

@@ -15,25 +15,23 @@ class PersonResponsible extends Model
     protected $table = 'm_person_responsible';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'code', 
-        'name', 
-        'title', 
+        'code',
+        'name',
+        'title',
         'contact_no',
-        'email', 
-        'head_name', 
+        'email',
+        'head_name',
         'head_contact_no',
         'head_email',
         'is_active',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function CustomerComplain()
     {
-        return $this->hasMany('App\Model\CustomerComplain', 'person_responsible_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CustomerComplain::class, 'person_responsible_id', 'id')->where('is_delete', 0);
     }
-
 }

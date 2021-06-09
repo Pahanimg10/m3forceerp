@@ -196,7 +196,7 @@
                         $style = $s%2 == 0 ? ' background-color: #e3e0dd;' : '';
                         
                         $item_total = 0;
-                        $grn_detail_ids = array();
+                        $grn_detail_ids = [];
                         foreach ($value->ItemReceiveBreakdown as $item_receive_breakdown){
                             if($item_receive_breakdown->type == 1){
                                 $item_total += $item_receive_breakdown->GoodReceiveBreakdown->GoodReceiveDetails->rate * $item_receive_breakdown->quantity;
@@ -291,13 +291,13 @@
             <?php
                     foreach ($item_receive->ItemReceiveDetails as $index => $value){
                         $style = $s%2 == 0 ? ' background-color: #e3e0dd;' : '';
-                        $main_serails = array();
+                        $main_serails = [];
                         foreach ($value->ItemReceiveBreakdown as $detail){                            
                             if($detail['type'] == 1){
-                                $row = array(
+                                $row = [
                                     'id' => $detail['GoodReceiveBreakdown']['id'],
                                     'serial_no' => $detail['GoodReceiveBreakdown']['serial_no']
-                                );
+                                ];
                                 array_push($main_serails, $row);
                             }
                         }

@@ -15,18 +15,16 @@ class ContactInvoiceMonth extends Model
     protected $table = 'm_contact_inv_month';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'contact_id', 
-        'month', 
-        'is_delete'
+        'contact_id',
+        'month',
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function Contact()
     {
-        return $this->belongsTo('App\Model\Contact', 'contact_id', 'id');
+        return $this->belongsTo(\App\Model\Contact::class, 'contact_id', 'id');
     }
-
 }

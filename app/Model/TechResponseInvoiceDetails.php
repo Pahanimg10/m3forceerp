@@ -15,27 +15,25 @@ class TechResponseInvoiceDetails extends Model
     protected $table = 'tech_response_invoice_details';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'tech_response_id', 
-        'item_id', 
-        'rate', 
+        'tech_response_id',
+        'item_id',
+        'rate',
         'quantity',
-        'value',  
-        'invoice_value',  
-        'is_delete'
+        'value',
+        'invoice_value',
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function TechResponse()
     {
-        return $this->belongsTo('App\Model\TechResponse', 'tech_response_id', 'id');
-    }
-    
-    public function Item()
-    {
-        return $this->belongsTo('App\Model\Item', 'item_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponse::class, 'tech_response_id', 'id');
     }
 
+    public function Item()
+    {
+        return $this->belongsTo(\App\Model\Item::class, 'item_id', 'id');
+    }
 }

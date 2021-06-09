@@ -15,27 +15,25 @@ class QuotationJobCardDetails extends Model
     protected $table = 'quotation_job_card_details';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'quotation_job_card_id', 
-        'item_id', 
-        'rate',  
-        'quantity', 
-        'margin', 
-        'is_main', 
-        'is_delete'
+        'quotation_job_card_id',
+        'item_id',
+        'rate',
+        'quantity',
+        'margin',
+        'is_main',
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function QuotationJobCard()
     {
-        return $this->belongsTo('App\Model\QuotationJobCard', 'quotation_job_card_id', 'id');
-    }
-    
-    public function Item()
-    {
-        return $this->belongsTo('App\Model\Item', 'item_id', 'id');
+        return $this->belongsTo(\App\Model\QuotationJobCard::class, 'quotation_job_card_id', 'id');
     }
 
+    public function Item()
+    {
+        return $this->belongsTo(\App\Model\Item::class, 'item_id', 'id');
+    }
 }

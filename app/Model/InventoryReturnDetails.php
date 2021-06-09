@@ -15,24 +15,22 @@ class InventoryReturnDetails extends Model
     protected $table = 'inventory_return_details';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'inventory_return_id', 
+        'inventory_return_id',
         'inventory_register_id',
         'remarks',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function InventoryReturn()
     {
-        return $this->belongsTo('App\Model\InventoryReturn', 'inventory_return_id', 'id');
-    }
-    
-    public function InventoryRegister()
-    {
-        return $this->belongsTo('App\Model\InventoryRegister', 'inventory_register_id', 'id');
+        return $this->belongsTo(\App\Model\InventoryReturn::class, 'inventory_return_id', 'id');
     }
 
+    public function InventoryRegister()
+    {
+        return $this->belongsTo(\App\Model\InventoryRegister::class, 'inventory_register_id', 'id');
+    }
 }

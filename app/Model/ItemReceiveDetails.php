@@ -15,29 +15,27 @@ class ItemReceiveDetails extends Model
     protected $table = 'item_receive_details';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'item_receive_id', 
-        'item_id', 
+        'item_receive_id',
+        'item_id',
         'quantity',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function ItemReceive()
     {
-        return $this->belongsTo('App\Model\ItemReceive', 'item_receive_id', 'id');
-    }
-    
-    public function Item()
-    {
-        return $this->belongsTo('App\Model\Item', 'item_id', 'id');
-    }
-    
-    public function ItemReceiveBreakdown()
-    {
-        return $this->hasMany('App\Model\ItemReceiveBreakdown', 'item_receive_detail_id', 'id')->where('is_delete', 0);
+        return $this->belongsTo(\App\Model\ItemReceive::class, 'item_receive_id', 'id');
     }
 
+    public function Item()
+    {
+        return $this->belongsTo(\App\Model\Item::class, 'item_id', 'id');
+    }
+
+    public function ItemReceiveBreakdown()
+    {
+        return $this->hasMany(\App\Model\ItemReceiveBreakdown::class, 'item_receive_detail_id', 'id')->where('is_delete', 0);
+    }
 }

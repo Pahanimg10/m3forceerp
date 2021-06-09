@@ -15,18 +15,16 @@ class IModeOfInquiry extends Model
     protected $table = 'm_i_mode_of_inquiry';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'code', 
-        'name', 
-        'is_delete'
+        'code',
+        'name',
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function Inquiry()
     {
-        return $this->hasMany('App\Model\Inquiry', 'mode_of_inquiry_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Inquiry::class, 'mode_of_inquiry_id', 'id')->where('is_delete', 0);
     }
-
 }

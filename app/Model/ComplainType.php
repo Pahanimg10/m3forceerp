@@ -15,18 +15,16 @@ class ComplainType extends Model
     protected $table = 'm_complain_type';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'code', 
-        'name', 
-        'is_delete'
+        'code',
+        'name',
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function CustomerComplain()
     {
-        return $this->hasMany('App\Model\CustomerComplain', 'complain_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CustomerComplain::class, 'complain_type_id', 'id')->where('is_delete', 0);
     }
-
 }

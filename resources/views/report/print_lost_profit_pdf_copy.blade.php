@@ -152,13 +152,13 @@ if ($record) {
                     $job_installation_cost = 0;
                     $total_cost_value = $total_quotation_value = $total_lost_profit = $total_actual_cost = $total_budgeted_lost_profit = 0;
                     $package_discount = $special_discount = 0;
-                    $issued_item_ids = array();
+                    $issued_item_ids = [];
                     foreach ($quotations as $quotation) {
-                        $job_card_ids = array();
+                        $job_card_ids = [];
                         foreach ($quotation->QuotationJobCard as $detail) {
                             array_push($job_card_ids, $detail['id']);
                         }
-                        $cost_sheet_ids = array();
+                        $cost_sheet_ids = [];
                         foreach ($quotation->QuotationCostSheet as $detail) {
                             array_push($cost_sheet_ids, $detail['id']);
                         }
@@ -236,7 +236,7 @@ if ($record) {
                         $cost_sheet_details = \App\Model\QuotationCostSheet::whereIn('id', $cost_sheet_ids)
                             ->where('is_delete', 0)
                             ->get();
-                        $rate_ids = array();
+                        $rate_ids = [];
                         $temp_installation_cost = $temp_labour = $temp_quatation_installation = $temp_other = 0;
                         foreach ($cost_sheet_details as $main_cost_sheet_detail) {
                             if ($main_cost_sheet_detail->InstallationRate && !in_array($main_cost_sheet_detail->InstallationRate->id, $rate_ids)) {
@@ -528,11 +528,11 @@ if ($record) {
                         $equipment_installation_total = 0;
                         $main_items_total = 0;
 
-                        $job_card_ids = array();
+                        $job_card_ids = [];
                         foreach ($quotation->QuotationJobCard as $detail) {
                             array_push($job_card_ids, $detail['id']);
                         }
-                        $cost_sheet_ids = array();
+                        $cost_sheet_ids = [];
                         foreach ($quotation->QuotationCostSheet as $detail) {
                             array_push($cost_sheet_ids, $detail['id']);
                         }
@@ -552,7 +552,7 @@ if ($record) {
                         $cost_sheet_details = \App\Model\QuotationCostSheet::whereIn('id', $cost_sheet_ids)
                             ->where('is_delete', 0)
                             ->get();
-                        $rate_ids = array();
+                        $rate_ids = [];
                         foreach ($cost_sheet_details as $main_cost_sheet_detail) {
                             if ($main_cost_sheet_detail->InstallationRate && !in_array($main_cost_sheet_detail->InstallationRate->id, $rate_ids)) {
                                 $meters = 0;

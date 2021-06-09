@@ -15,32 +15,30 @@ class TechResponseJobCardDetails extends Model
     protected $table = 'tech_response_job_card_details';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'tech_response_job_card_id', 
-        'item_id', 
-        'rate',  
-        'quantity', 
-        'margin', 
-        'is_main', 
-        'is_delete'
+        'tech_response_job_card_id',
+        'item_id',
+        'rate',
+        'quantity',
+        'margin',
+        'is_main',
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function TechResponseJobCard()
     {
-        return $this->belongsTo('App\Model\TechResponseJobCard', 'tech_response_job_card_id', 'id');
-    }
-    
-    public function Item()
-    {
-        return $this->belongsTo('App\Model\Item', 'item_id', 'id');
-    }
-    
-    public function GoodRequestDetails()
-    {
-        return $this->hasMany('App\Model\GoodRequestDetails', 'detail_id', 'id')->where('is_delete', 0);
+        return $this->belongsTo(\App\Model\TechResponseJobCard::class, 'tech_response_job_card_id', 'id');
     }
 
+    public function Item()
+    {
+        return $this->belongsTo(\App\Model\Item::class, 'item_id', 'id');
+    }
+
+    public function GoodRequestDetails()
+    {
+        return $this->hasMany(\App\Model\GoodRequestDetails::class, 'detail_id', 'id')->where('is_delete', 0);
+    }
 }

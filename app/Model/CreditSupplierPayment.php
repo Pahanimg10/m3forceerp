@@ -15,7 +15,7 @@ class CreditSupplierPayment extends Model
     protected $table = 'credit_supplier_payment';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'credit_supplier_id',  
+        'credit_supplier_id',
         'payment_mode_id',
         'payment_no',
         'payment_date_time',
@@ -23,21 +23,19 @@ class CreditSupplierPayment extends Model
         'cheque_no',
         'bank',
         'remarks',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function CreditSupplier()
     {
-        return $this->belongsTo('App\Model\CreditSupplier', 'credit_supplier_id', 'id');
-    }
-    
-    public function PaymentMode()
-    {
-        return $this->belongsTo('App\Model\PaymentMode', 'payment_mode_id', 'id');
+        return $this->belongsTo(\App\Model\CreditSupplier::class, 'credit_supplier_id', 'id');
     }
 
+    public function PaymentMode()
+    {
+        return $this->belongsTo(\App\Model\PaymentMode::class, 'payment_mode_id', 'id');
+    }
 }

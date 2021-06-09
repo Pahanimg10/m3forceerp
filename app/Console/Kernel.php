@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         // Commands\Inspire::class,
         \App\Console\Commands\CronMinimumStockReminder::class,
-        \App\Console\Commands\CronMonitoringInvoice::class
+        \App\Console\Commands\CronMonitoringInvoice::class,
     ];
 
     /**
@@ -34,5 +34,15 @@ class Kernel extends ConsoleKernel
         $schedule->command('cron:monitoringInvoice')
                 ->monthlyOn(1, '08:30')
                 ->timezone('Asia/Colombo');
+    }
+
+    /**
+     * Register the Closure based commands for the application.
+     *
+     * @return void
+     */
+    protected function commands()
+    {
+        require base_path('routes/console.php');
     }
 }

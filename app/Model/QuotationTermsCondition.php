@@ -17,21 +17,19 @@ class QuotationTermsCondition extends Model
     protected $fillable = [
         'quotation_id',
         'terms_condition_id',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function Quotation()
     {
-        return $this->belongsTo('App\Model\Quotation', 'quotation_id', 'id');
-    }
-    
-    public function TermsCondition()
-    {
-        return $this->belongsTo('App\Model\TermsCondition', 'terms_condition_id', 'id');
+        return $this->belongsTo(\App\Model\Quotation::class, 'quotation_id', 'id');
     }
 
+    public function TermsCondition()
+    {
+        return $this->belongsTo(\App\Model\TermsCondition::class, 'terms_condition_id', 'id');
+    }
 }

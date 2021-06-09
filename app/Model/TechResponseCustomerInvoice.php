@@ -15,25 +15,23 @@ class TechResponseCustomerInvoice extends Model
     protected $table = 'tech_response_customer_invoice';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'tech_response_customer_id',  
+        'tech_response_customer_id',
         'tech_response_quotation_id',
         'invoice_date',
         'invoice_no',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function TechResponseCustomer()
     {
-        return $this->belongsTo('App\Model\TechResponseCustomer', 'tech_response_customer_id', 'id');
-    }
-    
-    public function TechResponseQuotation()
-    {
-        return $this->belongsTo('App\Model\TechResponseQuotation', 'tech_response_quotation_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponseCustomer::class, 'tech_response_customer_id', 'id');
     }
 
+    public function TechResponseQuotation()
+    {
+        return $this->belongsTo(\App\Model\TechResponseQuotation::class, 'tech_response_quotation_id', 'id');
+    }
 }

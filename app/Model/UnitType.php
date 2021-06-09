@@ -15,18 +15,16 @@ class UnitType extends Model
     protected $table = 'm_unit_type';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'code', 
+        'code',
         'name',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function Item()
     {
-        return $this->hasMany('App\Model\Item', 'unit_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Item::class, 'unit_type_id', 'id')->where('is_delete', 0);
     }
-
 }

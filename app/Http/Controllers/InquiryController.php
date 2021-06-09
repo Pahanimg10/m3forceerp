@@ -2,28 +2,27 @@
 
 namespace App\Http\Controllers;
 
-require_once('ESMSWS.php');
+require_once 'ESMSWS.php';
 session_start();
 date_default_timezone_set('Asia/Colombo');
 set_time_limit(0);
 
-use Illuminate\Http\Request;
-
 use App\Http\Requests;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class InquiryController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('user_access');
     }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-
     public function new_inquiry(Request $request)
     {
         $data['main_menus'] = \App\Model\UserAccess::leftJoin('side_menu', 'side_menu.id', '=', 'user_access.side_menu_id')
@@ -54,13 +53,13 @@ class InquiryController extends Controller
         $inquiry_status = \App\Model\InquiryStatus::select('id', 'name')->where('show_update', 1)->get();
         $payment_modes = \App\Model\PaymentMode::select('id', 'name')->orderBy('name')->get();
 
-        $data = array(
+        $data = [
             'mode_of_inquries' => $mode_of_inquries,
             'inquiry_types' => $inquiry_types,
             'sales_team' => $sales_team,
             'inquiry_status' => $inquiry_status,
-            'payment_modes' => $payment_modes
-        );
+            'payment_modes' => $payment_modes,
+        ];
 
         return response($data);
     }
@@ -68,58 +67,59 @@ class InquiryController extends Controller
     public function find_inquiry(Request $request)
     {
         $inquiry = \App\Model\Inquiry::select('id', 'contact_id', 'inquiry_no', 'inquiry_date_time', 'mode_of_inquiry_id', 'contact_of', 'inquiry_type_id', 'sales_team_id', 'remarks')
-            ->with(array('Contact' => function ($query) {
+            ->with(['Contact' => function ($query) {
                 $query->select('id', 'name', 'address', 'contact_no', 'email', 'group_id', 'is_group')
-                    ->with(array('ContactTax' => function ($query) {
+                    ->with(['ContactTax' => function ($query) {
                         $query->select('id', 'contact_id', 'tax_id')
-                            ->with(array('CTaxType' => function ($query) {
+                            ->with(['CTaxType' => function ($query) {
                                 $query->select('id', 'code', 'name', 'percentage');
-                            }));
-                    }))
-                    ->with(array('CGroup' => function ($query) {
+                            }]);
+                    }])
+                    ->with(['CGroup' => function ($query) {
                         $query->select('id', 'name')
-                            ->with(array('CGroupTax' => function ($query) {
+                            ->with(['CGroupTax' => function ($query) {
                                 $query->select('id', 'group_id', 'tax_id')
-                                    ->with(array('CTaxType' => function ($query) {
+                                    ->with(['CTaxType' => function ($query) {
                                         $query->select('id', 'code', 'name', 'percentage');
-                                    }));
-                            }));
-                    }));
-            }))
-            ->with(array('IModeOfInquiry' => function ($query) {
+                                    }]);
+                            }]);
+                    }]);
+            }])
+            ->with(['IModeOfInquiry' => function ($query) {
                 $query->select('id', 'name');
-            }))
-            ->with(array('IInquiryType' => function ($query) {
+            }])
+            ->with(['IInquiryType' => function ($query) {
                 $query->select('id', 'name');
-            }))
-            ->with(array('SalesTeam' => function ($query) {
+            }])
+            ->with(['SalesTeam' => function ($query) {
                 $query->select('id', 'name');
-            }))
+            }])
             ->find($request->id);
+
         return response($inquiry);
     }
 
     public function new_inquiry_list(Request $request)
     {
         $inquiries = \App\Model\Inquiry::select('id', 'contact_id', 'inquiry_no', 'inquiry_date_time', 'inquiry_type_id', 'sales_team_id', 'user_id')
-            ->with(array('Contact' => function ($query) {
+            ->with(['Contact' => function ($query) {
                 $query->select('id', 'name', 'address', 'contact_no', 'business_type_id', 'client_type_id')
-                    ->with(array('IBusinessType' => function ($query) {
+                    ->with(['IBusinessType' => function ($query) {
                         $query->select('id', 'name');
-                    }))
-                    ->with(array('IClientType' => function ($query) {
+                    }])
+                    ->with(['IClientType' => function ($query) {
                         $query->select('id', 'name');
-                    }));
-            }))
-            ->with(array('IInquiryType' => function ($query) {
+                    }]);
+            }])
+            ->with(['IInquiryType' => function ($query) {
                 $query->select('id', 'name');
-            }))
-            ->with(array('SalesTeam' => function ($query) {
+            }])
+            ->with(['SalesTeam' => function ($query) {
                 $query->select('id', 'name');
-            }))
-            ->with(array('User' => function ($query) {
+            }])
+            ->with(['User' => function ($query) {
                 $query->select('id', 'first_name');
-            }))
+            }])
             ->where(function ($q) use ($request) {
                 $request->inquiry_type_id != -1 ? $q->where('inquiry_type_id', $request->inquiry_type_id) : '';
             })
@@ -131,10 +131,10 @@ class InquiryController extends Controller
             ->where('is_delete', 0)
             ->get();
 
-        $data = array(
+        $data = [
             'inquiries' => $inquiries,
-            'permission' => !in_array(1, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -163,8 +163,8 @@ class InquiryController extends Controller
 
     public function validate_inquiry_status(Request $request)
     {
-        $avoid = array(2, 3, 12, 15);
-        if ($request->value != $request->update_status && !in_array($request->update_status, $avoid)) {
+        $avoid = [2, 3, 12, 15];
+        if ($request->value != $request->update_status && ! in_array($request->update_status, $avoid)) {
             $inquiry_details = \App\Model\InquiryDetials::where('inquiry_id', $request->inquiry_id)
                 ->where('inquiry_status_id', $request->update_status)
                 ->where('is_delete', 0)
@@ -184,39 +184,40 @@ class InquiryController extends Controller
     public function find_inquiry_status(Request $request)
     {
         $inquiry_status = \App\Model\InquiryDetials::select('id', 'inquiry_id', 'update_date_time', 'inquiry_status_id', 'sales_team_id', 'site_inspection_date_time', 'advance_payment', 'payment_mode_id', 'receipt_no', 'cheque_no', 'bank', 'realize_date', 'remarks')
-            ->with(array('InquiryStatus' => function ($query) {
+            ->with(['InquiryStatus' => function ($query) {
                 $query->select('id', 'name');
-            }))
-            ->with(array('SalesTeam' => function ($query) {
+            }])
+            ->with(['SalesTeam' => function ($query) {
                 $query->select('id', 'name');
-            }))
-            ->with(array('PaymentMode' => function ($query) {
+            }])
+            ->with(['PaymentMode' => function ($query) {
                 $query->select('id', 'name');
-            }))
+            }])
             ->find($request->id);
+
         return response($inquiry_status);
     }
 
     public function inquiry_status_list(Request $request)
     {
         $inquiry_status = \App\Model\InquiryDetials::select('id', 'inquiry_id', 'update_date_time', 'inquiry_status_id', 'sales_team_id', 'site_inspection_date_time', 'advance_payment', 'remarks', 'user_id')
-            ->with(array('InquiryStatus' => function ($query) {
+            ->with(['InquiryStatus' => function ($query) {
                 $query->select('id', 'name', 'show_update');
-            }))
-            ->with(array('SalesTeam' => function ($query) {
+            }])
+            ->with(['SalesTeam' => function ($query) {
                 $query->select('id', 'name');
-            }))
-            ->with(array('User' => function ($query) {
+            }])
+            ->with(['User' => function ($query) {
                 $query->select('id', 'first_name');
-            }))
+            }])
             ->where('inquiry_id', $request->inquiry_id)
             ->where('is_delete', 0)
             ->get();
 
-        $data = array(
+        $data = [
             'inquiry_status' => $inquiry_status,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -243,7 +244,7 @@ class InquiryController extends Controller
 
     public function ongoing_inquiry_list(Request $request)
     {
-        $data = array();
+        $data = [];
         $inquiries = \App\Model\Inquiry::select('id', 'contact_id', 'inquiry_no', 'inquiry_date_time', 'inquiry_type_id', 'sales_team_id', 'user_id')
             ->where(function ($q) use ($request) {
                 $request->inquiry_type_id != -1 ? $q->where('inquiry_type_id', $request->inquiry_type_id) : '';
@@ -276,7 +277,7 @@ class InquiryController extends Controller
                 foreach ($quotations as $quotation) {
                     $quotation_value += $quotation->quotation_value;
                 }
-                $row = array(
+                $row = [
                     'id' => $inquiry->id,
                     'status_id' => $inquiry_detail && $inquiry_detail->InquiryStatus ? $inquiry_detail->InquiryStatus->id : 0,
                     'inquiry_type_id' => $inquiry->inquiry_type_id,
@@ -293,8 +294,8 @@ class InquiryController extends Controller
                     'remarks' => $inquiry_detail ? $inquiry_detail->remarks : '',
                     'quotation_value' => $quotation_value,
                     'sales_person' => $inquiry->SalesTeam ? $inquiry->SalesTeam->name : '',
-                    'log_user' => $inquiry_detail && $inquiry_detail->User ? $inquiry_detail->User->first_name : ''
-                );
+                    'log_user' => $inquiry_detail && $inquiry_detail->User ? $inquiry_detail->User->first_name : '',
+                ];
                 array_push($data, $row);
             }
         }
@@ -345,27 +346,27 @@ class InquiryController extends Controller
 
     public function file_upload()
     {
-        if (!empty($_FILES['file'])) {
+        if (! empty($_FILES['file'])) {
             $path_info = pathinfo($_FILES['file']['name']);
-            $file = $path_info['filename'] . ' UD' . time() . '.' . $path_info['extension'];
-            if (move_uploaded_file($_FILES["file"]["tmp_name"], 'assets/uploads/documents/' . $file)) {
-                $result = array(
+            $file = $path_info['filename'].' UD'.time().'.'.$path_info['extension'];
+            if (move_uploaded_file($_FILES['file']['tmp_name'], 'assets/uploads/documents/'.$file)) {
+                $result = [
                     'response' => true,
                     'message' => 'success',
                     'file' => $file,
-                    'name' => $_FILES['file']['name']
-                );
+                    'name' => $_FILES['file']['name'],
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'File upload error'
-                );
+                    'message' => 'File upload error',
+                ];
             }
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'File is empty'
-            );
+                'message' => 'File is empty',
+            ];
         }
 
         echo json_encode($result);
@@ -374,17 +375,17 @@ class InquiryController extends Controller
     public function upload_document_list(Request $request)
     {
         $upload_documents = \App\Model\DocumentUpload::select('id', 'inquiry_id', 'document_type_id', 'document_name', 'upload_document')
-            ->with(array('DocumentType' => function ($query) {
+            ->with(['DocumentType' => function ($query) {
                 $query->select('id', 'name');
-            }))
+            }])
             ->where('inquiry_id', $request->inquiry_id)
             ->where('is_delete', 0)
             ->get();
 
-        $data = array(
+        $data = [
             'upload_documents' => $upload_documents,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -501,14 +502,14 @@ class InquiryController extends Controller
     {
         if ($request->type == 1) {
             $contact_id = 0;
-            if (!$request->customer_id || $request->customer_id == '') {
+            if (! $request->customer_id || $request->customer_id == '') {
                 $contact = new \App\Model\Contact();
                 $contact->contact_type_id = 2;
                 $contact->business_type_id = 0;
                 $last_id = 0;
                 $last_contact = \App\Model\Contact::select('id')->where('contact_type_id', 2)->where('is_delete', 0)->orderBy('id', 'desc')->first();
                 $last_id = $last_contact ? $last_contact->id : $last_id;
-                $contact->code = 'C-NMC' . sprintf('%05d', $last_id + 1);
+                $contact->code = 'C-NMC'.sprintf('%05d', $last_id + 1);
                 $contact->name = isset($request->name['name']) ? $request->name['name'] : $request->name;
                 $contact->nic = '';
                 $contact->address = $request->address;
@@ -530,20 +531,20 @@ class InquiryController extends Controller
                     $contact->save();
 
                     $cus_inv_months = $cus_taxes = '';
-                    $taxes = array(5);
+                    $taxes = [5];
                     for ($t = 0; $t < count($taxes); $t++) {
                         $contact_tax = new \App\Model\ContactTax();
                         $contact_tax->contact_id = $contact->id;
                         $contact_tax->tax_id = $taxes[$t];
                         $contact_tax->save();
 
-                        $cus_taxes .= $cus_taxes != '' ? '|' . $contact_tax->tax_id : $contact_tax->tax_id;
+                        $cus_taxes .= $cus_taxes != '' ? '|'.$contact_tax->tax_id : $contact_tax->tax_id;
                     }
                 }
                 $contact_id = $contact->id;
 
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/contact_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Created,' . $contact->id . ',' . $contact->contact_type_id . ',' . $contact->business_type_id . ',' . $contact->contact_id . ',' . $contact->code . ',' . str_replace(',', ' ', $contact->name) . ',' . str_replace(',', ' ', $contact->nic) . ',' . str_replace(',', ' ', $contact->address) . ',' . str_replace(',', ' ', $contact->contact_no) . ',' . str_replace(',', ' ', $contact->email) . ',' . $contact->region_id . ',' . $contact->collection_manager_id . ',' . str_replace(',', ' ', $contact->contact_person_1) . ',' . str_replace(',', ' ', $contact->contact_person_no_1) . ',' . str_replace(',', ' ', $contact->contact_person_2) . ',' . str_replace(',', ' ', $contact->contact_person_no_2) . ',' . str_replace(',', ' ', $contact->contact_person_3) . ',' . str_replace(',', ' ', $contact->contact_person_no_3) . ',' . str_replace(',', ' ', $contact->invoice_name) . ',' . str_replace(',', ' ', $contact->invoice_delivering_address) . ',' . str_replace(',', ' ', $contact->collection_address) . ',' . str_replace(',', ' ', $contact->invoice_email) . ',' . str_replace(',', ' ', $contact->vat_no) . ',' . str_replace(',', ' ', $contact->svat_no) . ',' . str_replace(',', ' ', $contact->monitoring_fee) . ',' . $contact->service_mode_id . ',' . $contact->client_type_id . ',' . $contact->group_id . ',' . $contact->is_group . ',' . $contact->is_active . ',' . $cus_inv_months . ',' . $cus_taxes . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/contact_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Created,'.$contact->id.','.$contact->contact_type_id.','.$contact->business_type_id.','.$contact->contact_id.','.$contact->code.','.str_replace(',', ' ', $contact->name).','.str_replace(',', ' ', $contact->nic).','.str_replace(',', ' ', $contact->address).','.str_replace(',', ' ', $contact->contact_no).','.str_replace(',', ' ', $contact->email).','.$contact->region_id.','.$contact->collection_manager_id.','.str_replace(',', ' ', $contact->contact_person_1).','.str_replace(',', ' ', $contact->contact_person_no_1).','.str_replace(',', ' ', $contact->contact_person_2).','.str_replace(',', ' ', $contact->contact_person_no_2).','.str_replace(',', ' ', $contact->contact_person_3).','.str_replace(',', ' ', $contact->contact_person_no_3).','.str_replace(',', ' ', $contact->invoice_name).','.str_replace(',', ' ', $contact->invoice_delivering_address).','.str_replace(',', ' ', $contact->collection_address).','.str_replace(',', ' ', $contact->invoice_email).','.str_replace(',', ' ', $contact->vat_no).','.str_replace(',', ' ', $contact->svat_no).','.str_replace(',', ' ', $contact->monitoring_fee).','.$contact->service_mode_id.','.$contact->client_type_id.','.$contact->group_id.','.$contact->is_group.','.$contact->is_active.','.$cus_inv_months.','.$cus_taxes.','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
             } else {
                 $contact_id = $request->customer_id;
@@ -551,7 +552,7 @@ class InquiryController extends Controller
 
             $inquiry = new \App\Model\Inquiry();
             $inquiry->contact_id = $contact_id;
-            $inquiry->inquiry_date_time = date('Y-m-d', strtotime($request->inquiry_date)) . ' ' . $request->inquiry_time;
+            $inquiry->inquiry_date_time = date('Y-m-d', strtotime($request->inquiry_date)).' '.$request->inquiry_time;
             $inquiry->mode_of_inquiry_id = isset($request->mode_of_inquiry['id']) ? $request->mode_of_inquiry['id'] : 0;
             $inquiry->contact_of = $request->contact_of;
             $inquiry->inquiry_type_id = isset($request->inquiry_type['id']) ? $request->inquiry_type['id'] : 0;
@@ -560,45 +561,45 @@ class InquiryController extends Controller
             $inquiry->user_id = $request->session()->get('users_id');
 
             if ($inquiry->save()) {
-                $inquiry->inquiry_no = 'INQ/' . date('m') . '/' . date('y') . '/' . sprintf('%05d', $inquiry->id);
+                $inquiry->inquiry_no = 'INQ/'.date('m').'/'.date('y').'/'.sprintf('%05d', $inquiry->id);
                 $inquiry->save();
 
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/inquiry_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Created,' . $inquiry->id . ',' . $inquiry->contact_id . ',' . $inquiry->inquiry_no . ',' . $inquiry->inquiry_date_time . ',' . $inquiry->mode_of_inquiry_id . ',' . str_replace(',', ' ', $inquiry->contact_of) . ',' . $inquiry->inquiry_type_id . ',' . $inquiry->sales_team_id . ',' . str_replace(',', ' ', $inquiry->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/inquiry_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Created,'.$inquiry->id.','.$inquiry->contact_id.','.$inquiry->inquiry_no.','.$inquiry->inquiry_date_time.','.$inquiry->mode_of_inquiry_id.','.str_replace(',', ' ', $inquiry->contact_of).','.$inquiry->inquiry_type_id.','.$inquiry->sales_team_id.','.str_replace(',', ' ', $inquiry->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
                 $contact = \App\Model\Contact::find($inquiry->contact_id);
                 $sales_person = \App\Model\SalesTeam::find($inquiry->sales_team_id);
 
                 if ($contact && $sales_person) {
-                    $sms = '--- New Inquiry ---' . PHP_EOL;
-                    $sms .= 'Inquiry No : ' . $inquiry->inquiry_no . PHP_EOL;
-                    $sms .= 'Date & Time : ' . $inquiry->inquiry_date_time . PHP_EOL;
-                    $sms .= 'Mode of Inquiry : ' . $request->mode_of_inquiry['name'] . PHP_EOL;
-                    $sms .= 'Inquiry Type : ' . $request->inquiry_type['name'] . PHP_EOL;
-                    $sms .= 'Customer Name : ' . $contact->name . PHP_EOL;
-                    $sms .= 'Contact No : ' . $contact->contact_no . PHP_EOL;
-                    $sms .= 'Address : ' . $contact->address . PHP_EOL;
-                    $sms .= 'Remarks : ' . $inquiry->remarks;
+                    $sms = '--- New Inquiry ---'.PHP_EOL;
+                    $sms .= 'Inquiry No : '.$inquiry->inquiry_no.PHP_EOL;
+                    $sms .= 'Date & Time : '.$inquiry->inquiry_date_time.PHP_EOL;
+                    $sms .= 'Mode of Inquiry : '.$request->mode_of_inquiry['name'].PHP_EOL;
+                    $sms .= 'Inquiry Type : '.$request->inquiry_type['name'].PHP_EOL;
+                    $sms .= 'Customer Name : '.$contact->name.PHP_EOL;
+                    $sms .= 'Contact No : '.$contact->contact_no.PHP_EOL;
+                    $sms .= 'Address : '.$contact->address.PHP_EOL;
+                    $sms .= 'Remarks : '.$inquiry->remarks;
 
                     $session = createSession('', 'esmsusr_1na2', '3p4lfqe', '');
-                    sendMessages($session, 'M3FORCE', $sms, array($sales_person->contact_no));
+                    sendMessages($session, 'M3FORCE', $sms, [$sales_person->contact_no]);
                 }
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Inquiry created successfully'
-                );
+                    'message' => 'Inquiry created successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Inquiry creation failed'
-                );
+                    'message' => 'Inquiry creation failed',
+                ];
             }
-        } else if ($request->type == 0) {
+        } elseif ($request->type == 0) {
             $completed = isset($request->update_status['id']) && $request->update_status['id'] == 16 ? false : true;
             $drawing_uploaded = $quotation_confirmed = $installation_sheet_created = false;
-            if (!$completed) {
+            if (! $completed) {
                 $inquiry = \App\Model\Inquiry::find($request->inquiry_id);
                 $drawing_uploaded = \App\Model\InquiryDetials::where('inquiry_id', $request->inquiry_id)
                     ->where('inquiry_status_id', 5)
@@ -620,10 +621,10 @@ class InquiryController extends Controller
             if ($completed) {
                 $inquiry_status = new \App\Model\InquiryDetials();
                 $inquiry_status->inquiry_id = $request->inquiry_id;
-                $inquiry_status->update_date_time = date('Y-m-d', strtotime($request->update_date)) . ' ' . $request->update_time;
+                $inquiry_status->update_date_time = date('Y-m-d', strtotime($request->update_date)).' '.$request->update_time;
                 $inquiry_status->inquiry_status_id = isset($request->update_status['id']) ? $request->update_status['id'] : 0;
                 $inquiry_status->sales_team_id = isset($request->update_status['id']) && $request->update_status['id'] == 1 ? isset($request->sales_person['id']) ? $request->sales_person['id'] : 0 : 0;
-                $inquiry_status->site_inspection_date_time = isset($request->update_status['id']) && $request->update_status['id'] == 3 ? date('Y-m-d', strtotime($request->site_inspection_date)) . ' ' . $request->site_inspection_time : '';
+                $inquiry_status->site_inspection_date_time = isset($request->update_status['id']) && $request->update_status['id'] == 3 ? date('Y-m-d', strtotime($request->site_inspection_date)).' '.$request->site_inspection_time : '';
                 $inquiry_status->advance_payment = isset($request->update_status['id']) && $request->update_status['id'] == 16 ? $request->advance_payment : 0;
                 $inquiry_status->payment_mode_id = isset($request->update_status['id']) && $request->update_status['id'] == 16 && isset($request->payment_mode['id']) ? $request->payment_mode['id'] : 0;
 
@@ -631,7 +632,7 @@ class InquiryController extends Controller
                 $count_advance_payment = \App\Model\InquiryDetials::select('id')->where('inquiry_status_id', 16)->where('is_delete', 0)->get()->count();
                 $last_id = $count_advance_payment ? $count_advance_payment : $last_id;
 
-                $inquiry_status->receipt_no = isset($request->update_status['id']) && $request->update_status['id'] == 16 ? 'REC/A/' . date('m') . '/' . date('y') . '/' . sprintf('%05d', $last_id + 1) : '';
+                $inquiry_status->receipt_no = isset($request->update_status['id']) && $request->update_status['id'] == 16 ? 'REC/A/'.date('m').'/'.date('y').'/'.sprintf('%05d', $last_id + 1) : '';
                 $inquiry_status->cheque_no = isset($request->update_status['id']) && $request->update_status['id'] == 16 ? $request->cheque_no : '';
                 $inquiry_status->bank = isset($request->update_status['id']) && $request->update_status['id'] == 16 ? $request->bank : '';
                 $inquiry_status->realize_date = isset($request->update_status['id']) && $request->update_status['id'] == 16 && $request->realize_date != '' ? date('Y-m-d', strtotime($request->realize_date)) : '';
@@ -639,8 +640,8 @@ class InquiryController extends Controller
                 $inquiry_status->user_id = $request->session()->get('users_id');
 
                 if ($inquiry_status->save()) {
-                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/inquiry_status_controller.csv', 'a+') or die('Unable to open/create file!');
-                    fwrite($myfile, 'Created,' . $inquiry_status->id . ',' . $inquiry_status->inquiry_id . ',' . $inquiry_status->update_date_time . ',' . $inquiry_status->inquiry_status_id . ',' . $inquiry_status->sales_team_id . ',' . $inquiry_status->site_inspection_date_time . ',' . $inquiry_status->advance_payment . ',' . $inquiry_status->payment_mode_id . ',' . $inquiry_status->receipt_no . ',' . str_replace(',', ' ', $inquiry_status->cheque_no) . ',' . str_replace(',', ' ', $inquiry_status->bank) . ',' . $inquiry_status->realize_date . ',' . str_replace(',', ' ', $inquiry_status->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/inquiry_status_controller.csv', 'a+') or die('Unable to open/create file!');
+                    fwrite($myfile, 'Created,'.$inquiry_status->id.','.$inquiry_status->inquiry_id.','.$inquiry_status->update_date_time.','.$inquiry_status->inquiry_status_id.','.$inquiry_status->sales_team_id.','.$inquiry_status->site_inspection_date_time.','.$inquiry_status->advance_payment.','.$inquiry_status->payment_mode_id.','.$inquiry_status->receipt_no.','.str_replace(',', ' ', $inquiry_status->cheque_no).','.str_replace(',', ' ', $inquiry_status->bank).','.$inquiry_status->realize_date.','.str_replace(',', ' ', $inquiry_status->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                     fclose($myfile);
 
                     $inquiry = \App\Model\Inquiry::find($inquiry_status->inquiry_id);
@@ -681,7 +682,7 @@ class InquiryController extends Controller
                         $job->mandays = $mandays;
                         $job->user_id = $request->session()->get('users_id');
                         if ($job->save()) {
-                            $job->job_no = 'JB/' . date('m') . '/' . date('y') . '/' . $inquiry->id . '/' . sprintf('%05d', $job->id);
+                            $job->job_no = 'JB/'.date('m').'/'.date('y').'/'.$inquiry->id.'/'.sprintf('%05d', $job->id);
                             $job->save();
 
                             $job_details = new \App\Model\JobDetails();
@@ -689,12 +690,12 @@ class InquiryController extends Controller
                             $job_details->update_date_time = $job->job_date_time;
                             $job_details->job_status_id = 1;
                             $job_details->job_scheduled_date_time = '';
-                            $job_details->remarks = 'Job value : ' . number_format($job->job_value, 2);
+                            $job_details->remarks = 'Job value : '.number_format($job->job_value, 2);
                             $job_details->user_id = $request->session()->get('users_id');
                             $job_details->save();
                         }
 
-                        $data = array(
+                        $data = [
                             'inquiry_id' => $inquiry->id,
                             'job_type' => $inquiry->IInquiryType->name,
                             'job_date_time' => $job->job_date_time,
@@ -702,8 +703,8 @@ class InquiryController extends Controller
                             'job_value' => $job->job_value,
                             'customer_name' => $inquiry->Contact->name,
                             'customer_address' => $inquiry->Contact->address,
-                            'sales_person' => $inquiry->SalesTeam->name
-                        );
+                            'sales_person' => $inquiry->SalesTeam->name,
+                        ];
 
                         Mail::send('emails.job_confirmation_notification', $data, function ($message) use ($quotation) {
                             $message->from('mail.smtp.m3force@gmail.com', 'M3Force ERP System');
@@ -720,33 +721,33 @@ class InquiryController extends Controller
                         $inquiry->save();
                     }
 
-                    $result = array(
+                    $result = [
                         'response' => true,
-                        'message' => 'Inquiry Status created successfully'
-                    );
+                        'message' => 'Inquiry Status created successfully',
+                    ];
                 } else {
-                    $result = array(
+                    $result = [
                         'response' => false,
-                        'message' => 'Inquiry Status creation failed'
-                    );
+                        'message' => 'Inquiry Status creation failed',
+                    ];
                 }
-            } else if (!$drawing_uploaded) {
-                $result = array(
+            } elseif (! $drawing_uploaded) {
+                $result = [
                     'response' => false,
-                    'message' => 'Site Drawing required'
-                );
-            } else if (!$quotation_confirmed) {
-                $result = array(
+                    'message' => 'Site Drawing required',
+                ];
+            } elseif (! $quotation_confirmed) {
+                $result = [
                     'response' => false,
-                    'message' => 'Quotation not confirmed'
-                );
-            } else if (!$installation_sheet_created) {
-                $result = array(
+                    'message' => 'Quotation not confirmed',
+                ];
+            } elseif (! $installation_sheet_created) {
+                $result = [
                     'response' => false,
-                    'message' => 'Installation Sheet required'
-                );
+                    'message' => 'Installation Sheet required',
+                ];
             }
-        } else if ($request->type == 2) {
+        } elseif ($request->type == 2) {
             $document_upload = new \App\Model\DocumentUpload();
             $document_upload->inquiry_id = $request->inquiry_id;
             $document_upload->document_type_id = isset($request->document_type['id']) ? $request->document_type['id'] : 0;
@@ -754,8 +755,8 @@ class InquiryController extends Controller
             $document_upload->upload_document = $request->upload_document;
 
             if ($document_upload->save()) {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/document_upload_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Uploaded,' . $document_upload->id . ',' . $document_upload->inquiry_id . ',' . $document_upload->document_type_id . ',' . str_replace(',', ' ', $document_upload->document_name) . ',' . str_replace(',', ' ', $document_upload->upload_document) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/document_upload_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Uploaded,'.$document_upload->id.','.$document_upload->inquiry_id.','.$document_upload->document_type_id.','.str_replace(',', ' ', $document_upload->document_name).','.str_replace(',', ' ', $document_upload->upload_document).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
                 if ($document_upload->document_type_id == 1) {
@@ -766,30 +767,30 @@ class InquiryController extends Controller
                     $inquiry_status->sales_team_id = 0;
                     $inquiry_status->site_inspection_date_time = '';
                     $inquiry_status->advance_payment = 0;
-                    $inquiry_status->remarks = isset($request->document_type['name']) ? $request->document_type['name'] . ' - ' . $document_upload->document_name . ' ( ' . $request->doc_name . ' )' : $document_upload->document_name . ' ( ' . $request->doc_name . ' )';
+                    $inquiry_status->remarks = isset($request->document_type['name']) ? $request->document_type['name'].' - '.$document_upload->document_name.' ( '.$request->doc_name.' )' : $document_upload->document_name.' ( '.$request->doc_name.' )';
                     $inquiry_status->user_id = $request->session()->get('users_id');
                     $inquiry_status->save();
 
-                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/inquiry_status_controller.csv', 'a+') or die('Unable to open/create file!');
-                    fwrite($myfile, 'Created,' . $inquiry_status->id . ',' . $inquiry_status->inquiry_id . ',' . $inquiry_status->update_date_time . ',' . $inquiry_status->inquiry_status_id . ',' . $inquiry_status->sales_team_id . ',' . $inquiry_status->site_inspection_date_time . ',' . $inquiry_status->advance_payment . ',' . $inquiry_status->payment_mode_id . ',' . $inquiry_status->receipt_no . ',' . str_replace(',', ' ', $inquiry_status->cheque_no) . ',' . str_replace(',', ' ', $inquiry_status->bank) . ',' . $inquiry_status->realize_date . ',' . str_replace(',', ' ', $inquiry_status->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/inquiry_status_controller.csv', 'a+') or die('Unable to open/create file!');
+                    fwrite($myfile, 'Created,'.$inquiry_status->id.','.$inquiry_status->inquiry_id.','.$inquiry_status->update_date_time.','.$inquiry_status->inquiry_status_id.','.$inquiry_status->sales_team_id.','.$inquiry_status->site_inspection_date_time.','.$inquiry_status->advance_payment.','.$inquiry_status->payment_mode_id.','.$inquiry_status->receipt_no.','.str_replace(',', ' ', $inquiry_status->cheque_no).','.str_replace(',', ' ', $inquiry_status->bank).','.$inquiry_status->realize_date.','.str_replace(',', ' ', $inquiry_status->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                     fclose($myfile);
                 }
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Document uploaded successfully'
-                );
+                    'message' => 'Document uploaded successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Document upload failed'
-                );
+                    'message' => 'Document upload failed',
+                ];
             }
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Creation failed'
-            );
+                'message' => 'Creation failed',
+            ];
         }
 
         echo json_encode($result);
@@ -828,14 +829,14 @@ class InquiryController extends Controller
     {
         if ($request->type == 1) {
             $contact_id = 0;
-            if (!$request->customer_id || $request->customer_id == '') {
+            if (! $request->customer_id || $request->customer_id == '') {
                 $contact = new \App\Model\Contact();
                 $contact->contact_type_id = 2;
                 $contact->business_type_id = 0;
                 $last_id = 0;
                 $last_contact = \App\Model\Contact::select('id')->where('contact_type_id', 2)->where('is_delete', 0)->orderBy('id', 'desc')->first();
                 $last_id = $last_contact ? $last_contact->id : $last_id;
-                $contact->code = 'C-NMC' . sprintf('%05d', $last_id + 1);
+                $contact->code = 'C-NMC'.sprintf('%05d', $last_id + 1);
                 $contact->name = isset($request->name['name']) ? $request->name['name'] : $request->name;
                 $contact->nic = '';
                 $contact->address = $request->address;
@@ -857,20 +858,20 @@ class InquiryController extends Controller
                     $contact->save();
 
                     $cus_inv_months = $cus_taxes = '';
-                    $taxes = array(1, 3);
+                    $taxes = [1, 3];
                     for ($t = 0; $t < count($taxes); $t++) {
                         $contact_tax = new \App\Model\ContactTax();
                         $contact_tax->contact_id = $contact->id;
                         $contact_tax->tax_id = $taxes[$t];
                         $contact_tax->save();
 
-                        $cus_taxes .= $cus_taxes != '' ? '|' . $contact_tax->tax_id : $contact_tax->tax_id;
+                        $cus_taxes .= $cus_taxes != '' ? '|'.$contact_tax->tax_id : $contact_tax->tax_id;
                     }
                 }
                 $contact_id = $contact->id;
 
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/contact_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Created,' . $contact->id . ',' . $contact->contact_type_id . ',' . $contact->business_type_id . ',' . $contact->contact_id . ',' . $contact->code . ',' . str_replace(',', ' ', $contact->name) . ',' . str_replace(',', ' ', $contact->nic) . ',' . str_replace(',', ' ', $contact->address) . ',' . str_replace(',', ' ', $contact->contact_no) . ',' . str_replace(',', ' ', $contact->email) . ',' . $contact->region_id . ',' . $contact->collection_manager_id . ',' . str_replace(',', ' ', $contact->contact_person_1) . ',' . str_replace(',', ' ', $contact->contact_person_no_1) . ',' . str_replace(',', ' ', $contact->contact_person_2) . ',' . str_replace(',', ' ', $contact->contact_person_no_2) . ',' . str_replace(',', ' ', $contact->contact_person_3) . ',' . str_replace(',', ' ', $contact->contact_person_no_3) . ',' . str_replace(',', ' ', $contact->invoice_name) . ',' . str_replace(',', ' ', $contact->invoice_delivering_address) . ',' . str_replace(',', ' ', $contact->collection_address) . ',' . str_replace(',', ' ', $contact->invoice_email) . ',' . str_replace(',', ' ', $contact->vat_no) . ',' . str_replace(',', ' ', $contact->svat_no) . ',' . str_replace(',', ' ', $contact->monitoring_fee) . ',' . $contact->service_mode_id . ',' . $contact->client_type_id . ',' . $contact->group_id . ',' . $contact->is_group . ',' . $contact->is_active . ',' . $cus_inv_months . ',' . $cus_taxes . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/contact_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Created,'.$contact->id.','.$contact->contact_type_id.','.$contact->business_type_id.','.$contact->contact_id.','.$contact->code.','.str_replace(',', ' ', $contact->name).','.str_replace(',', ' ', $contact->nic).','.str_replace(',', ' ', $contact->address).','.str_replace(',', ' ', $contact->contact_no).','.str_replace(',', ' ', $contact->email).','.$contact->region_id.','.$contact->collection_manager_id.','.str_replace(',', ' ', $contact->contact_person_1).','.str_replace(',', ' ', $contact->contact_person_no_1).','.str_replace(',', ' ', $contact->contact_person_2).','.str_replace(',', ' ', $contact->contact_person_no_2).','.str_replace(',', ' ', $contact->contact_person_3).','.str_replace(',', ' ', $contact->contact_person_no_3).','.str_replace(',', ' ', $contact->invoice_name).','.str_replace(',', ' ', $contact->invoice_delivering_address).','.str_replace(',', ' ', $contact->collection_address).','.str_replace(',', ' ', $contact->invoice_email).','.str_replace(',', ' ', $contact->vat_no).','.str_replace(',', ' ', $contact->svat_no).','.str_replace(',', ' ', $contact->monitoring_fee).','.$contact->service_mode_id.','.$contact->client_type_id.','.$contact->group_id.','.$contact->is_group.','.$contact->is_active.','.$cus_inv_months.','.$cus_taxes.','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
             } else {
                 $contact_id = $request->customer_id;
@@ -879,7 +880,7 @@ class InquiryController extends Controller
             $inquiry = \App\Model\Inquiry::find($id);
             $inquiry->contact_id = $contact_id;
             $inquiry->inquiry_no = $request->inquiry_no;
-            $inquiry->inquiry_date_time = date('Y-m-d', strtotime($request->inquiry_date)) . ' ' . $request->inquiry_time;
+            $inquiry->inquiry_date_time = date('Y-m-d', strtotime($request->inquiry_date)).' '.$request->inquiry_time;
             $inquiry->mode_of_inquiry_id = isset($request->mode_of_inquiry['id']) ? $request->mode_of_inquiry['id'] : 0;
             $inquiry->contact_of = $request->contact_of;
             $inquiry->inquiry_type_id = isset($request->inquiry_type['id']) ? $request->inquiry_type['id'] : 0;
@@ -888,24 +889,24 @@ class InquiryController extends Controller
             $inquiry->user_id = $request->session()->get('users_id');
 
             if ($inquiry->save()) {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/inquiry_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Updated,' . $inquiry->id . ',' . $inquiry->contact_id . ',' . $inquiry->inquiry_no . ',' . $inquiry->inquiry_date_time . ',' . $inquiry->mode_of_inquiry_id . ',' . str_replace(',', ' ', $inquiry->contact_of) . ',' . $inquiry->inquiry_type_id . ',' . $inquiry->sales_team_id . ',' . str_replace(',', ' ', $inquiry->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/inquiry_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Updated,'.$inquiry->id.','.$inquiry->contact_id.','.$inquiry->inquiry_no.','.$inquiry->inquiry_date_time.','.$inquiry->mode_of_inquiry_id.','.str_replace(',', ' ', $inquiry->contact_of).','.$inquiry->inquiry_type_id.','.$inquiry->sales_team_id.','.str_replace(',', ' ', $inquiry->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Inquiry updated successfully'
-                );
+                    'message' => 'Inquiry updated successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Inquiry updation failed'
-                );
+                    'message' => 'Inquiry updation failed',
+                ];
             }
-        } else if ($request->type == 0) {
+        } elseif ($request->type == 0) {
             $completed = isset($request->update_status['id']) && $request->update_status['id'] == 16 ? false : true;
             $drawing_uploaded = $quotation_confirmed = $installation_sheet_created = false;
-            if (!$completed) {
+            if (! $completed) {
                 $inquiry = \App\Model\Inquiry::find($request->inquiry_id);
                 $drawing_uploaded = \App\Model\InquiryDetials::where('inquiry_id', $request->inquiry_id)
                     ->where('inquiry_status_id', 5)
@@ -927,10 +928,10 @@ class InquiryController extends Controller
             if ($completed) {
                 $inquiry_status = \App\Model\InquiryDetials::find($id);
                 $inquiry_status->inquiry_id = $request->inquiry_id;
-                $inquiry_status->update_date_time = date('Y-m-d', strtotime($request->update_date)) . ' ' . $request->update_time;
+                $inquiry_status->update_date_time = date('Y-m-d', strtotime($request->update_date)).' '.$request->update_time;
                 $inquiry_status->inquiry_status_id = isset($request->update_status['id']) ? $request->update_status['id'] : 0;
                 $inquiry_status->sales_team_id = isset($request->update_status['id']) && $request->update_status['id'] == 1 ? isset($request->sales_person['id']) ? $request->sales_person['id'] : 0 : 0;
-                $inquiry_status->site_inspection_date_time = isset($request->update_status['id']) && $request->update_status['id'] == 3 ? date('Y-m-d', strtotime($request->site_inspection_date)) . ' ' . $request->site_inspection_time : '';
+                $inquiry_status->site_inspection_date_time = isset($request->update_status['id']) && $request->update_status['id'] == 3 ? date('Y-m-d', strtotime($request->site_inspection_date)).' '.$request->site_inspection_time : '';
                 $inquiry_status->advance_payment = isset($request->update_status['id']) && $request->update_status['id'] == 16 ? $request->advance_payment : 0;
                 $inquiry_status->payment_mode_id = isset($request->update_status['id']) && $request->update_status['id'] == 16 && isset($request->payment_mode['id']) ? $request->payment_mode['id'] : 0;
                 $inquiry_status->receipt_no = isset($request->update_status['id']) && $request->update_status['id'] == 16 ? $request->receipt_no : '';
@@ -941,8 +942,8 @@ class InquiryController extends Controller
                 $inquiry_status->user_id = $request->session()->get('users_id');
 
                 if ($inquiry_status->save()) {
-                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/inquiry_status_controller.csv', 'a+') or die('Unable to open/create file!');
-                    fwrite($myfile, 'Updated,' . $inquiry_status->id . ',' . $inquiry_status->inquiry_id . ',' . $inquiry_status->update_date_time . ',' . $inquiry_status->inquiry_status_id . ',' . $inquiry_status->sales_team_id . ',' . $inquiry_status->site_inspection_date_time . ',' . $inquiry_status->advance_payment . ',' . $inquiry_status->payment_mode_id . ',' . $inquiry_status->receipt_no . ',' . str_replace(',', ' ', $inquiry_status->cheque_no) . ',' . str_replace(',', ' ', $inquiry_status->bank) . ',' . $inquiry_status->realize_date . ',' . str_replace(',', ' ', $inquiry_status->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/inquiry_status_controller.csv', 'a+') or die('Unable to open/create file!');
+                    fwrite($myfile, 'Updated,'.$inquiry_status->id.','.$inquiry_status->inquiry_id.','.$inquiry_status->update_date_time.','.$inquiry_status->inquiry_status_id.','.$inquiry_status->sales_team_id.','.$inquiry_status->site_inspection_date_time.','.$inquiry_status->advance_payment.','.$inquiry_status->payment_mode_id.','.$inquiry_status->receipt_no.','.str_replace(',', ' ', $inquiry_status->cheque_no).','.str_replace(',', ' ', $inquiry_status->bank).','.$inquiry_status->realize_date.','.str_replace(',', ' ', $inquiry_status->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                     fclose($myfile);
 
                     $inquiry = \App\Model\Inquiry::find($inquiry_status->inquiry_id);
@@ -961,7 +962,7 @@ class InquiryController extends Controller
                         $job->job_value = 0;
                         $job->user_id = $request->session()->get('users_id');
                         if ($job->save()) {
-                            $job->job_no = 'J' . sprintf('%05d', $job->id);
+                            $job->job_no = 'J'.sprintf('%05d', $job->id);
                             $job->save();
 
                             $job_details = new \App\Model\JobDetails();
@@ -974,7 +975,7 @@ class InquiryController extends Controller
                             $job_details->save();
                         }
 
-                        $data = array(
+                        $data = [
                             'inquiry_id' => $inquiry->id,
                             'job_type' => $inquiry->IInquiryType->name,
                             'job_date_time' => $job->job_date_time,
@@ -982,8 +983,8 @@ class InquiryController extends Controller
                             'job_value' => $job->job_value,
                             'customer_name' => $inquiry->Contact->name,
                             'customer_address' => $inquiry->Contact->address,
-                            'sales_person' => $inquiry->SalesTeam->name
-                        );
+                            'sales_person' => $inquiry->SalesTeam->name,
+                        ];
 
                         Mail::send('emails.job_confirmation_notification', $data, function ($message) use ($quotation) {
                             $message->from('mail.smtp.m3force@gmail.com', 'M3Force ERP System');
@@ -993,38 +994,38 @@ class InquiryController extends Controller
                             $message->cc('palitha@m3force.com', 'Palitha Wickramathunga');
                             $message->subject('M3Force Job Confirmation Details');
                         });
-                    } else if ($inquiry_status->inquiry_status_id == 17 || $inquiry_status->inquiry_status_id == 18) {
+                    } elseif ($inquiry_status->inquiry_status_id == 17 || $inquiry_status->inquiry_status_id == 18) {
                         $inquiry->is_completed = 1;
                         $inquiry->save();
                     }
 
-                    $result = array(
+                    $result = [
                         'response' => true,
-                        'message' => 'Inquiry Status updated successfully'
-                    );
+                        'message' => 'Inquiry Status updated successfully',
+                    ];
                 } else {
-                    $result = array(
+                    $result = [
                         'response' => false,
-                        'message' => 'Inquiry Status updation failed'
-                    );
+                        'message' => 'Inquiry Status updation failed',
+                    ];
                 }
-            } else if (!$drawing_uploaded) {
-                $result = array(
+            } elseif (! $drawing_uploaded) {
+                $result = [
                     'response' => false,
-                    'message' => 'Site Drawing required'
-                );
-            } else if (!$quotation_confirmed) {
-                $result = array(
+                    'message' => 'Site Drawing required',
+                ];
+            } elseif (! $quotation_confirmed) {
+                $result = [
                     'response' => false,
-                    'message' => 'Quotation not confirmed'
-                );
-            } else if (!$installation_sheet_created) {
-                $result = array(
+                    'message' => 'Quotation not confirmed',
+                ];
+            } elseif (! $installation_sheet_created) {
+                $result = [
                     'response' => false,
-                    'message' => 'Installation Sheet required'
-                );
+                    'message' => 'Installation Sheet required',
+                ];
             }
-        } else if ($request->type == 2) {
+        } elseif ($request->type == 2) {
             $document_upload = \App\Model\DocumentUpload::find($id);
             $document_upload->inquiry_id = $request->inquiry_id;
             $document_upload->document_type_id = isset($request->document_type['id']) ? $request->document_type['id'] : 0;
@@ -1032,8 +1033,8 @@ class InquiryController extends Controller
             $document_upload->upload_document = $request->upload_document;
 
             if ($document_upload->save()) {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/document_upload_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Uploaded,' . $document_upload->id . ',' . $document_upload->inquiry_id . ',' . $document_upload->document_type_id . ',' . str_replace(',', ' ', $document_upload->document_name) . ',' . str_replace(',', ' ', $document_upload->upload_document) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/document_upload_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Uploaded,'.$document_upload->id.','.$document_upload->inquiry_id.','.$document_upload->document_type_id.','.str_replace(',', ' ', $document_upload->document_name).','.str_replace(',', ' ', $document_upload->upload_document).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
                 if ($document_upload->document_type_id == 1) {
@@ -1044,30 +1045,30 @@ class InquiryController extends Controller
                     $inquiry_status->sales_team_id = 0;
                     $inquiry_status->site_inspection_date_time = '';
                     $inquiry_status->advance_payment = 0;
-                    $inquiry_status->remarks = isset($request->document_type['name']) ? $request->document_type['name'] . ' - ' . $document_upload->document_name . ' ( ' . $request->doc_name . ' )' : $document_upload->document_name . ' ( ' . $request->doc_name . ' )';
+                    $inquiry_status->remarks = isset($request->document_type['name']) ? $request->document_type['name'].' - '.$document_upload->document_name.' ( '.$request->doc_name.' )' : $document_upload->document_name.' ( '.$request->doc_name.' )';
                     $inquiry_status->user_id = $request->session()->get('users_id');
                     $inquiry_status->save();
 
-                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/inquiry_status_controller.csv', 'a+') or die('Unable to open/create file!');
-                    fwrite($myfile, 'Created,' . $inquiry_status->id . ',' . $inquiry_status->inquiry_id . ',' . $inquiry_status->update_date_time . ',' . $inquiry_status->inquiry_status_id . ',' . $inquiry_status->sales_team_id . ',' . $inquiry_status->site_inspection_date_time . ',' . $inquiry_status->advance_payment . ',' . $inquiry_status->payment_mode_id . ',' . $inquiry_status->receipt_no . ',' . str_replace(',', ' ', $inquiry_status->cheque_no) . ',' . str_replace(',', ' ', $inquiry_status->bank) . ',' . $inquiry_status->realize_date . ',' . str_replace(',', ' ', $inquiry_status->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/inquiry_status_controller.csv', 'a+') or die('Unable to open/create file!');
+                    fwrite($myfile, 'Created,'.$inquiry_status->id.','.$inquiry_status->inquiry_id.','.$inquiry_status->update_date_time.','.$inquiry_status->inquiry_status_id.','.$inquiry_status->sales_team_id.','.$inquiry_status->site_inspection_date_time.','.$inquiry_status->advance_payment.','.$inquiry_status->payment_mode_id.','.$inquiry_status->receipt_no.','.str_replace(',', ' ', $inquiry_status->cheque_no).','.str_replace(',', ' ', $inquiry_status->bank).','.$inquiry_status->realize_date.','.str_replace(',', ' ', $inquiry_status->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                     fclose($myfile);
                 }
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Document updated successfully'
-                );
+                    'message' => 'Document updated successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Document updation failed'
-                );
+                    'message' => 'Document updation failed',
+                ];
             }
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Updation failed'
-            );
+                'message' => 'Updation failed',
+            ];
         }
 
         echo json_encode($result);
@@ -1086,63 +1087,63 @@ class InquiryController extends Controller
             $inquiry->is_delete = 1;
 
             if ($inquiry->save()) {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/inquiry_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Deleted,' . $inquiry->id . ',,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/inquiry_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Deleted,'.$inquiry->id.',,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Inquiry deleted successfully'
-                );
+                    'message' => 'Inquiry deleted successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Inquiry deletion failed'
-                );
+                    'message' => 'Inquiry deletion failed',
+                ];
             }
-        } else if ($request->type == 0) {
+        } elseif ($request->type == 0) {
             $inquiry_status = \App\Model\InquiryDetials::find($id);
             $inquiry_status->is_delete = 1;
 
             if ($inquiry_status->save()) {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/inquiry_status_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Deleted,' . $inquiry_status->id . ',,,,,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/inquiry_status_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Deleted,'.$inquiry_status->id.',,,,,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Inquiry Status deleted successfully'
-                );
+                    'message' => 'Inquiry Status deleted successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Inquiry Status deletion failed'
-                );
+                    'message' => 'Inquiry Status deletion failed',
+                ];
             }
-        } else if ($request->type == 2) {
+        } elseif ($request->type == 2) {
             $document_upload = \App\Model\DocumentUpload::find($id);
             $document_upload->is_delete = 1;
 
             if ($document_upload->save()) {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/document_upload_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Deleted,' . $document_upload->id . ',,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/document_upload_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Deleted,'.$document_upload->id.',,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Document Upload deleted successfully'
-                );
+                    'message' => 'Document Upload deleted successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Document Upload deletion failed'
-                );
+                    'message' => 'Document Upload deletion failed',
+                ];
             }
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Deletion failed'
-            );
+                'message' => 'Deletion failed',
+            ];
         }
 
         echo json_encode($result);

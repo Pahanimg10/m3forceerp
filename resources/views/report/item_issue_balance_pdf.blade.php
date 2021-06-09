@@ -133,7 +133,7 @@ if ($record){
     </div>
 </div>
 <?php
-    $job_card_ids = $job_card_items = $installation_items = $issued_items = array();
+    $job_card_ids = $job_card_items = $installation_items = $issued_items = [];
     if($status_type == 1){
         $quotations = \App\Model\Quotation::where(function($q) use($record){
                             $record ? $q->where('inquiry_id', $record->id) : '';
@@ -154,13 +154,13 @@ if ($record){
                 ->groupBy('item_id')
                 ->get();
         foreach ($job_card_details as $job_card_detail){
-            $row = array(
+            $row = [
                 'id' => $job_card_detail->Item->id,
                 'code' => $job_card_detail->Item->code,
                 'name' => $job_card_detail->Item->name,
                 'quantity' => $job_card_detail->total_quantity,
                 'stock' => $job_card_detail->Item->stock
-            );
+            ];
             array_push($job_card_items, $row);
         }
     } else if($status_type == 2){
@@ -175,13 +175,13 @@ if ($record){
                 ->groupBy('item_id')
                 ->get();
         foreach ($job_card_details as $job_card_detail){
-            $row = array(
+            $row = [
                 'id' => $job_card_detail->Item->id,
                 'code' => $job_card_detail->Item->code,
                 'name' => $job_card_detail->Item->name,
                 'quantity' => $job_card_detail->total_quantity,
                 'stock' => $job_card_detail->Item->stock
-            );
+            ];
             array_push($job_card_items, $row);
         }
     }
@@ -195,13 +195,13 @@ if ($record){
                 ->groupBy('item_id')
                 ->get();
         foreach ($installation_sheet_details as $installation_sheet_detail){
-            $row = array(
+            $row = [
                 'id' => $installation_sheet_detail->Item->id,
                 'code' => $installation_sheet_detail->Item->code,
                 'name' => $installation_sheet_detail->Item->name,
                 'quantity' => $installation_sheet_detail->total_quantity,
                 'stock' => $installation_sheet_detail->Item->stock
-            );
+            ];
             array_push($installation_items, $row);
         }
         $job = App\Model\Job::where('inquiry_id', $record->id)->where('is_delete', 0)->first();
@@ -216,13 +216,13 @@ if ($record){
                     ->groupBy('item_id')
                     ->get();
             foreach ($item_issue_details as $item_issue_detail){
-                $row = array(
+                $row = [
                     'id' => $item_issue_detail->Item->id,
                     'code' => $item_issue_detail->Item->code,
                     'name' => $item_issue_detail->Item->name,
                     'quantity' => 0,
                     'stock' => $item_issue_detail->Item->stock
-                );
+                ];
                 array_push($issued_items, $row);
             }
         }
@@ -235,13 +235,13 @@ if ($record){
                 ->groupBy('item_id')
                 ->get();
         foreach ($installation_sheet_details as $installation_sheet_detail){
-            $row = array(
+            $row = [
                 'id' => $installation_sheet_detail->Item->id,
                 'code' => $installation_sheet_detail->Item->code,
                 'name' => $installation_sheet_detail->Item->name,
                 'quantity' => $installation_sheet_detail->total_quantity,
                 'stock' => $installation_sheet_detail->Item->stock
-            );
+            ];
             array_push($installation_items, $row);
         }
         
@@ -255,18 +255,18 @@ if ($record){
                 ->groupBy('item_id')
                 ->get();
         foreach ($item_issue_details as $item_issue_detail){
-            $row = array(
+            $row = [
                 'id' => $item_issue_detail->Item->id,
                 'code' => $item_issue_detail->Item->code,
                 'name' => $item_issue_detail->Item->name,
                 'quantity' => 0,
                 'stock' => $item_issue_detail->Item->stock
-            );
+            ];
             array_push($issued_items, $row);
         }
     }
     
-    $request_ids = $request_items = array();
+    $request_ids = $request_items = [];
     foreach ($job_card_items as $job_card_main_item){
         if(!in_array($job_card_main_item['id'], $request_ids)){
             $total_qunatity = 0;
@@ -281,13 +281,13 @@ if ($record){
                 }
             }
             
-            $row = array(
+            $row = [
                 'id' => $job_card_main_item['id'],
                 'code' => $job_card_main_item['code'],
                 'name' => $job_card_main_item['name'],
                 'quantity' => $total_qunatity,
                 'stock' => $job_card_main_item['stock']
-            );
+            ];
             array_push($request_items, $row);
             array_push($request_ids, $job_card_main_item['id']);
         }
@@ -301,26 +301,26 @@ if ($record){
                 }
             }
             
-            $row = array(
+            $row = [
                 'id' => $installation_main_item['id'],
                 'code' => $installation_main_item['code'],
                 'name' => $installation_main_item['name'],
                 'quantity' => $total_qunatity,
                 'stock' => $installation_main_item['stock']
-            );
+            ];
             array_push($request_items, $row);
             array_push($request_ids, $installation_main_item['id']);
         }
     }
     foreach ($issued_items as $issued_item){
         if(!in_array($issued_item['id'], $request_ids)){
-            $row = array(
+            $row = [
                 'id' => $issued_item['id'],
                 'code' => $issued_item['code'],
                 'name' => $issued_item['name'],
                 'quantity' => 0,
                 'stock' => $issued_item['stock']
-            );
+            ];
             array_push($request_items, $row);
             array_push($request_ids, $issued_item['id']);
         }
@@ -349,7 +349,7 @@ if ($record){
             </thead>
             <tbody>
             <?php
-            $requested_item_ids = array();
+            $requested_item_ids = [];
             if(count($request_items) > 0){
                 $s = 1;
                 foreach($request_items as $index => $value){
@@ -400,7 +400,7 @@ if ($record){
                     <td style="<?php echo $style; ?>">
                     <?php
                         $received_quantity = 0;
-                        $item_issue_ids = array();
+                        $item_issue_ids = [];
                         if($status_type == 1){
                             $job = App\Model\Job::where('inquiry_id', $record->id)->where('is_delete', 0)->first();
                             if($job){
@@ -457,9 +457,9 @@ if ($record){
                     <td style="<?php echo $style; ?>"><?php echo ($value['quantity']-$issued_quantity+$received_quantity) > $value['stock'] ? $value['quantity']-$issued_quantity+$received_quantity-$value['stock'] : 0; ?></td>
                     <td style="<?php echo $style; ?>">
                         <?php 
-                            $good_receive_details = \App\Model\GoodReceiveDetails::with(array('GoodReceive' => function($query) {
+                            $good_receive_details = \App\Model\GoodReceiveDetails::with(['GoodReceive' => function($query) {
                                         $query->where('is_posted', 1)->where('is_delete', 0)->orderBy('good_receive_date_time', 'asc');
-                                    }))
+                                    }])
                                     ->where('item_id', $value['id'])
                                     ->where('available_quantity', '>', 0)
                                     ->where('is_delete', 0)

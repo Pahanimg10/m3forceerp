@@ -101,7 +101,7 @@
 </div>
 
 <?php
-    $tech_response_job_card_ids = array();
+    $tech_response_job_card_ids = [];
     foreach ($tech_response_quotation->TechResponseQuotationJobCard as $detail){
         array_push($tech_response_job_card_ids, $detail['tech_response_job_card_id']);
     }
@@ -115,7 +115,7 @@
         $currency = 'USD';
     }
         
-    $main_items = $sub_items = array();
+    $main_items = $sub_items = [];
     $tech_response_job_card_details = \App\Model\TechResponseJobCardDetails::whereIn('tech_response_job_card_id', $tech_response_job_card_ids)
             ->where('is_delete', 0)
             ->get();
@@ -123,7 +123,7 @@
         if($tech_response_job_card_detail->is_chargeable == 1){
             $margin = ($tech_response_job_card_detail->margin + 100)/100;
             $value = $usd ? ($tech_response_job_card_detail->rate * $margin * $tech_response_job_card_detail->quantity)/$usd_rate : $tech_response_job_card_detail->rate * $margin * $tech_response_job_card_detail->quantity;
-            $row = array(
+            $row = [
                 'description' => $tech_response_job_card_detail->Item->name,
                 'model_no' => $tech_response_job_card_detail->Item->model_no,
                 'brand' => $tech_response_job_card_detail->Item->brand,
@@ -132,7 +132,7 @@
                 'rate' => $value/$tech_response_job_card_detail->quantity,
                 'quantity' => $tech_response_job_card_detail->quantity,
                 'value' => $value
-            );
+            ];
             if($tech_response_job_card_detail->is_main == 1){
                 array_push($main_items, $row);
             } else{

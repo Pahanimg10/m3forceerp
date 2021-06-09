@@ -2,27 +2,26 @@
 
 namespace App\Http\Controllers;
 
-require_once('ESMSWS.php');
+require_once 'ESMSWS.php';
 session_start();
 date_default_timezone_set('Asia/Colombo');
 set_time_limit(0);
 
-use Illuminate\Http\Request;
-
 use App\Http\Requests;
+use Illuminate\Http\Request;
 
 class JobController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('user_access');
     }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-
     public function new_job()
     {
         $data['main_menus'] = \App\Model\UserAccess::leftJoin('side_menu', 'side_menu.id', '=', 'user_access.side_menu_id')
@@ -67,7 +66,7 @@ class JobController extends Controller
 
     public function new_job_list(Request $request)
     {
-        $data = array();
+        $data = [];
         $jobs = \App\Model\Job::whereHas('Inquiry', function ($query) use ($request) {
             $query->where(function ($q) use ($request) {
                 $request->inquiry_type_id != -1 ? $q->where('inquiry_type_id', $request->inquiry_type_id) : '';
@@ -101,7 +100,7 @@ class JobController extends Controller
                 $advance_value += $inquiry_detail->advance_payment;
             }
 
-            $row = array(
+            $row = [
                 'id' => $job->id,
                 'inquiry_id' => $job->inquiry_id,
                 'job_no' => $job->job_no,
@@ -116,8 +115,8 @@ class JobController extends Controller
                 'job_value' => $job->job_value,
                 'advance_value' => $advance_value,
                 'mandays' => $job->mandays,
-                'log_user' => $job->Inquiry && $job->Inquiry->User ? $job->Inquiry->User->first_name : ''
-            );
+                'log_user' => $job->Inquiry && $job->Inquiry->User ? $job->Inquiry->User->first_name : '',
+            ];
             array_push($data, $row);
         }
 
@@ -126,8 +125,8 @@ class JobController extends Controller
 
     public function validate_job_status(Request $request)
     {
-        $avoid = array(4, 6);
-        if ($request->value != $request->update_status && !in_array($request->update_status, $avoid)) {
+        $avoid = [4, 6];
+        if ($request->value != $request->update_status && ! in_array($request->update_status, $avoid)) {
             $job_details = \App\Model\JobDetails::where('job_id', $request->job_id)
                 ->where('job_status_id', $request->update_status)
                 ->where('is_delete', 0)
@@ -147,49 +146,52 @@ class JobController extends Controller
     public function get_data()
     {
         $job_status = \App\Model\JobStatus::select('id', 'name')->where('show_update', 1)->get();
+
         return response($job_status);
     }
 
     public function find_job(Request $request)
     {
         $job = \App\Model\Job::select('id', 'inquiry_id', 'job_value')
-            ->with(array('Inquiry' => function ($query) {
+            ->with(['Inquiry' => function ($query) {
                 $query->select('id', 'contact_id')
-                    ->with(array('Contact' => function ($query) {
+                    ->with(['Contact' => function ($query) {
                         $query->select('id', 'name', 'address', 'contact_no');
-                    }));
-            }))
+                    }]);
+            }])
             ->find($request->id);
+
         return response($job);
     }
 
     public function find_job_status(Request $request)
     {
         $job_status = \App\Model\JobDetails::select('id', 'job_id', 'update_date_time', 'job_status_id', 'job_scheduled_date_time', 'start_date', 'end_date', 'remarks')
-            ->with(array('JobStatus' => function ($query) {
+            ->with(['JobStatus' => function ($query) {
                 $query->select('id', 'name');
-            }))
+            }])
             ->find($request->id);
+
         return response($job_status);
     }
 
     public function job_status_list(Request $request)
     {
         $job_status = \App\Model\JobDetails::select('id', 'job_id', 'update_date_time', 'job_status_id', 'job_scheduled_date_time', 'start_date', 'end_date', 'remarks', 'user_id')
-            ->with(array('JobStatus' => function ($query) {
+            ->with(['JobStatus' => function ($query) {
                 $query->select('id', 'name', 'show_update');
-            }))
-            ->with(array('User' => function ($query) {
+            }])
+            ->with(['User' => function ($query) {
                 $query->select('id', 'first_name');
-            }))
+            }])
             ->where('job_id', $request->job_id)
             ->where('is_delete', 0)
             ->get();
 
-        $data = array(
+        $data = [
             'job_status' => $job_status,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -216,7 +218,7 @@ class JobController extends Controller
 
     public function ongoing_job_list(Request $request)
     {
-        $data = array();
+        $data = [];
         $jobs = \App\Model\Job::whereHas('Inquiry', function ($query) use ($request) {
             $query->where(function ($q) use ($request) {
                 $request->inquiry_type_id != -1 ? $q->where('inquiry_type_id', $request->inquiry_type_id) : '';
@@ -269,7 +271,7 @@ class JobController extends Controller
                     ->orderBy('update_date_time', 'DESC')
                     ->orderBy('id', 'DESC')
                     ->first();
-                $row = array(
+                $row = [
                     'id' => $job->id,
                     'inquiry_id' => $job->inquiry_id,
                     'status_id' => $job_detail && $job_detail->JobStatus ? $job_detail->JobStatus->id : 0,
@@ -288,8 +290,8 @@ class JobController extends Controller
                     'advance_value' => $advance_value,
                     'mandays' => $job->mandays,
                     'used_mandays' => $used_mandays,
-                    'log_user' => $job->Inquiry && $job->Inquiry->User ? $job->Inquiry->User->first_name : ''
-                );
+                    'log_user' => $job->Inquiry && $job->Inquiry->User ? $job->Inquiry->User->first_name : '',
+                ];
                 array_push($data, $row);
             }
         }
@@ -343,7 +345,7 @@ class JobController extends Controller
 
     public function advance_receipt_list()
     {
-        $inquiry_ids = array();
+        $inquiry_ids = [];
         $jobs = \App\Model\Job::where('is_completed', 0)
             ->where('is_delete', 0)
             ->get();
@@ -352,12 +354,12 @@ class JobController extends Controller
         }
 
         $inquiry_details = \App\Model\InquiryDetials::select('id', 'inquiry_id', 'update_date_time', 'receipt_no', 'advance_payment')
-            ->with(array('Inquiry' => function ($query) {
+            ->with(['Inquiry' => function ($query) {
                 $query->select('id', 'contact_id')
-                    ->with(array('Contact' => function ($query) {
+                    ->with(['Contact' => function ($query) {
                         $query->select('id', 'name', 'address');
-                    }));
-            }))
+                    }]);
+            }])
             ->whereIn('inquiry_id', $inquiry_ids)
             ->where('inquiry_status_id', 16)
             ->where('is_delete', 0)
@@ -373,13 +375,13 @@ class JobController extends Controller
 
         $inquiry_detail = \App\Model\InquiryDetials::find($request->id);
         $data['inquiry_detail'] = $inquiry_detail;
-        $title = $inquiry_detail ? 'Advance Payment Details ' . $inquiry_detail->receipt_no : 'Advance Payment Details';
+        $title = $inquiry_detail ? 'Advance Payment Details '.$inquiry_detail->receipt_no : 'Advance Payment Details';
 
         $html = view('job.advance_receipt_pdf', $data);
 
-        $snappy = new \Knp\Snappy\Pdf($_SERVER['DOCUMENT_ROOT'] . '/m3force/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
+        $snappy = new \Knp\Snappy\Pdf($_SERVER['DOCUMENT_ROOT'].'/m3force/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
         header('Content-Type: application/pdf');
-        header('Content-Disposition: filename="' . $title . '.pdf"');
+        header('Content-Disposition: filename="'.$title.'.pdf"');
         $options = [
             'page-size' => 'A4',
             'margin-top' => 5,
@@ -388,7 +390,7 @@ class JobController extends Controller
             'margin-bottom' => 15,
             'orientation' => 'Portrait',
             'footer-center' => 'Page [page] of [toPage]',
-            'footer-font-size' => 8
+            'footer-font-size' => 8,
         ];
         echo $snappy->getOutputFromHtml($html, $options);
     }
@@ -425,23 +427,23 @@ class JobController extends Controller
         if ($request->type == 1) {
             $title = 'Company Contact Details Document';
             $html = view('job.company_contact_details_document_pdf', $data);
-        } else if ($request->type == 2) {
+        } elseif ($request->type == 2) {
             $title = 'Installation Completion Acknowledgement Document';
             $html = view('job.customer_acknowledgement_document_pdf', $data);
-        } else if ($request->type == 3) {
-            header("Location: " . \Illuminate\Support\Facades\URL::to('/') . "/assets/uploads/Customer Feedback Form - Installations.docx");
+        } elseif ($request->type == 3) {
+            header('Location: '.\Illuminate\Support\Facades\URL::to('/').'/assets/uploads/Customer Feedback Form - Installations.docx');
             die();
-        } else if ($request->type == 4) {
-            header("Location: " . \Illuminate\Support\Facades\URL::to('/') . "/assets/uploads/Customer Detail Schedule - Monitoring.docx");
+        } elseif ($request->type == 4) {
+            header('Location: '.\Illuminate\Support\Facades\URL::to('/').'/assets/uploads/Customer Detail Schedule - Monitoring.docx');
             die();
         } else {
-            header("Location: " . \Illuminate\Support\Facades\URL::to('/') . "/assets/uploads/FO  SM  08 Monitoring & Response Agreement.doc");
+            header('Location: '.\Illuminate\Support\Facades\URL::to('/').'/assets/uploads/FO  SM  08 Monitoring & Response Agreement.doc');
             die();
         }
 
-        $snappy = new \Knp\Snappy\Pdf($_SERVER['DOCUMENT_ROOT'] . '/m3force/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
+        $snappy = new \Knp\Snappy\Pdf($_SERVER['DOCUMENT_ROOT'].'/m3force/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
         header('Content-Type: application/pdf');
-        header('Content-Disposition: filename="' . $title . '.pdf"');
+        header('Content-Disposition: filename="'.$title.'.pdf"');
         $options = [
             'page-size' => 'A4',
             'margin-top' => 5,
@@ -450,7 +452,7 @@ class JobController extends Controller
             'margin-bottom' => 15,
             'orientation' => 'Portrait',
             'footer-center' => 'Page [page] of [toPage]',
-            'footer-font-size' => 8
+            'footer-font-size' => 8,
         ];
         echo $snappy->getOutputFromHtml($html, $options);
     }
@@ -477,8 +479,8 @@ class JobController extends Controller
             $job = \App\Model\Job::find($request->job_id);
             $completed = isset($request->update_status['id']) && $request->update_status['id'] == 10 ? false : true;
             $remote_monitoring = $hand_over = $item_issue = $item_mismatch = true;
-            if (!$completed) {
-                if (in_array($job->Inquiry->inquiry_type_id, array(2, 4))) {
+            if (! $completed) {
+                if (in_array($job->Inquiry->inquiry_type_id, [2, 4])) {
                     $job_status = \App\Model\JobDetails::where('job_id', $job->id)
                         ->where('job_status_id', 8)
                         ->where('is_delete', 0)
@@ -486,7 +488,7 @@ class JobController extends Controller
                     $remote_monitoring = $job_status ? true : false;
                 }
 
-                if (!in_array($job->Inquiry->inquiry_type_id, array(3, 6))) {
+                if (! in_array($job->Inquiry->inquiry_type_id, [3, 6])) {
                     $job_status = \App\Model\JobDetails::where('job_id', $job->id)
                         ->where('job_status_id', 9)
                         ->where('is_delete', 0)
@@ -494,7 +496,7 @@ class JobController extends Controller
                     $hand_over = $job_status ? true : false;
                 }
 
-                $job_card_ids = array();
+                $job_card_ids = [];
                 $quotations = \App\Model\Quotation::where('inquiry_id', $job->inquiry_id)
                     ->where('is_confirmed', 1)
                     ->where('is_revised', 0)
@@ -506,17 +508,17 @@ class JobController extends Controller
                     }
                 }
 
-                $items = array();
+                $items = [];
                 $job_card_details = \App\Model\QuotationJobCardDetails::selectRaw('SUM(quantity) AS total_quantity, item_id AS item_id')
                     ->whereIn('quotation_job_card_id', $job_card_ids)
                     ->where('is_delete', 0)
                     ->groupBy('item_id')
                     ->get();
                 foreach ($job_card_details as $job_card_detail) {
-                    $row = array(
+                    $row = [
                         'id' => $job_card_detail->item_id,
-                        'quantity' => $job_card_detail->total_quantity
-                    );
+                        'quantity' => $job_card_detail->total_quantity,
+                    ];
                     array_push($items, $row);
                 }
 
@@ -538,7 +540,7 @@ class JobController extends Controller
 
                 ///////////////////////////////////
 
-                $issued_item_ids = $issued_items = $returned_item_ids = $returned_items = array();
+                $issued_item_ids = $issued_items = $returned_item_ids = $returned_items = [];
                 $item_issue_details = \App\Model\ItemIssueDetails::whereHas('ItemIssue', function ($query) use ($job) {
                     $query->where('item_issue_type_id', 1)
                         ->where('document_id', $job->id)
@@ -548,21 +550,21 @@ class JobController extends Controller
                     ->where('is_delete', 0)
                     ->get();
                 foreach ($item_issue_details as $main_item_issue_detail) {
-                    if (!in_array($main_item_issue_detail->item_id, $issued_item_ids)) {
+                    if (! in_array($main_item_issue_detail->item_id, $issued_item_ids)) {
                         $issued_quantity = 0;
-                        $item_issue_ids = array();
+                        $item_issue_ids = [];
                         foreach ($item_issue_details as $sub_item_issue_detail) {
                             if ($main_item_issue_detail->item_id == $sub_item_issue_detail->item_id) {
                                 $issued_quantity += $sub_item_issue_detail->quantity;
-                                if (!in_array($sub_item_issue_detail->item_issue_id, $item_issue_ids)) {
+                                if (! in_array($sub_item_issue_detail->item_issue_id, $item_issue_ids)) {
                                     array_push($item_issue_ids, $sub_item_issue_detail->item_issue_id);
                                 }
                             }
                         }
-                        $row = array(
+                        $row = [
                             'id' => $main_item_issue_detail->Item->id,
-                            'quantity' => $issued_quantity
-                        );
+                            'quantity' => $issued_quantity,
+                        ];
                         array_push($issued_items, $row);
 
                         $item_receive_details = \App\Model\ItemReceiveDetails::whereHas('ItemReceive', function ($query) use ($item_issue_ids) {
@@ -573,17 +575,17 @@ class JobController extends Controller
                             ->where('is_delete', 0)
                             ->get();
                         foreach ($item_receive_details as $main_item_receive_detail) {
-                            if (!in_array($main_item_receive_detail->item_id, $returned_item_ids)) {
+                            if (! in_array($main_item_receive_detail->item_id, $returned_item_ids)) {
                                 $returned_quantity = 0;
                                 foreach ($item_receive_details as $sub_item_receive_detail) {
                                     if ($main_item_receive_detail->item_id == $sub_item_receive_detail->item_id) {
                                         $returned_quantity += $sub_item_receive_detail->quantity;
                                     }
                                 }
-                                $row = array(
+                                $row = [
                                     'id' => $main_item_receive_detail->Item->id,
-                                    'quantity' => $returned_quantity
-                                );
+                                    'quantity' => $returned_quantity,
+                                ];
                                 array_push($returned_items, $row);
                                 array_push($returned_item_ids, $main_item_receive_detail->item_id);
                             }
@@ -593,7 +595,7 @@ class JobController extends Controller
                     }
                 }
 
-                $balance_items = array();
+                $balance_items = [];
                 foreach ($issued_items as $issued_item) {
                     $balance_quantity = $issued_item['quantity'];
                     $returned_quantity = 0;
@@ -603,14 +605,14 @@ class JobController extends Controller
                             $returned_quantity += $returned_item['quantity'];
                         }
                     }
-                    $row = array(
+                    $row = [
                         'id' => $issued_item['id'],
-                        'quantity' => $balance_quantity
-                    );
+                        'quantity' => $balance_quantity,
+                    ];
                     array_push($balance_items, $row);
                 }
 
-                $job_card_ids = $job_card_items = $installation_items = array();
+                $job_card_ids = $job_card_items = $installation_items = [];
                 $quotations = \App\Model\Quotation::where('inquiry_id', $job->inquiry_id)
                     ->where('is_confirmed', 1)
                     ->where('is_revised', 0)
@@ -628,10 +630,10 @@ class JobController extends Controller
                     ->groupBy('item_id')
                     ->get();
                 foreach ($job_card_details as $job_card_detail) {
-                    $row = array(
+                    $row = [
                         'id' => $job_card_detail->Item->id,
-                        'quantity' => $job_card_detail->total_quantity
-                    );
+                        'quantity' => $job_card_detail->total_quantity,
+                    ];
                     array_push($job_card_items, $row);
                 }
 
@@ -643,16 +645,16 @@ class JobController extends Controller
                     ->groupBy('item_id')
                     ->get();
                 foreach ($installation_sheet_details as $installation_sheet_detail) {
-                    $row = array(
+                    $row = [
                         'id' => $installation_sheet_detail->Item->id,
-                        'quantity' => $installation_sheet_detail->total_quantity
-                    );
+                        'quantity' => $installation_sheet_detail->total_quantity,
+                    ];
                     array_push($installation_items, $row);
                 }
 
-                $request_ids = $request_items = array();
+                $request_ids = $request_items = [];
                 foreach ($job_card_items as $job_card_main_item) {
-                    if (!in_array($job_card_main_item['id'], $request_ids)) {
+                    if (! in_array($job_card_main_item['id'], $request_ids)) {
                         $total_qunatity = 0;
                         foreach ($job_card_items as $job_card_sub_item) {
                             if ($job_card_main_item['id'] == $job_card_sub_item['id']) {
@@ -665,16 +667,16 @@ class JobController extends Controller
                             }
                         }
 
-                        $row = array(
+                        $row = [
                             'id' => $job_card_main_item['id'],
-                            'quantity' => $total_qunatity
-                        );
+                            'quantity' => $total_qunatity,
+                        ];
                         array_push($request_items, $row);
                         array_push($request_ids, $job_card_main_item['id']);
                     }
                 }
                 foreach ($installation_items as $installation_main_item) {
-                    if (!in_array($installation_main_item['id'], $request_ids)) {
+                    if (! in_array($installation_main_item['id'], $request_ids)) {
                         $total_qunatity = 0;
                         foreach ($installation_items as $installation_sub_item) {
                             if ($installation_main_item['id'] == $installation_sub_item['id']) {
@@ -682,16 +684,16 @@ class JobController extends Controller
                             }
                         }
 
-                        $row = array(
+                        $row = [
                             'id' => $installation_main_item['id'],
-                            'quantity' => $total_qunatity
-                        );
+                            'quantity' => $total_qunatity,
+                        ];
                         array_push($request_items, $row);
                         array_push($request_ids, $installation_main_item['id']);
                     }
                 }
 
-                $pending_items = array();
+                $pending_items = [];
                 foreach ($balance_items as $balance_item) {
                     $requested_quantity = 0;
                     foreach ($request_items as $request_item) {
@@ -701,10 +703,10 @@ class JobController extends Controller
                     }
                     $pending_quantity = $requested_quantity - $balance_item['quantity'];
                     if ($pending_quantity < 0) {
-                        $row = array(
+                        $row = [
                             'id' => $balance_item['id'],
-                            'quantity' => $pending_quantity
-                        );
+                            'quantity' => $pending_quantity,
+                        ];
                         array_push($pending_items, $row);
                     }
                 }
@@ -721,17 +723,17 @@ class JobController extends Controller
             if ($completed) {
                 $job_status = new \App\Model\JobDetails();
                 $job_status->job_id = $job->id;
-                $job_status->update_date_time = date('Y-m-d', strtotime($request->update_date)) . ' ' . $request->update_time;
+                $job_status->update_date_time = date('Y-m-d', strtotime($request->update_date)).' '.$request->update_time;
                 $job_status->job_status_id = isset($request->update_status['id']) ? $request->update_status['id'] : 0;
-                $job_status->job_scheduled_date_time = isset($request->update_status['id']) && $request->update_status['id'] == 4 ? date('Y-m-d', strtotime($request->job_scheduled_date)) . ' ' . $request->job_scheduled_time : '';
+                $job_status->job_scheduled_date_time = isset($request->update_status['id']) && $request->update_status['id'] == 4 ? date('Y-m-d', strtotime($request->job_scheduled_date)).' '.$request->job_scheduled_time : '';
                 $job_status->start_date = isset($request->update_status['id']) && $request->update_status['id'] == 10 ? date('Y-m-d', strtotime($request->start_date)) : '';
                 $job_status->end_date = isset($request->update_status['id']) && $request->update_status['id'] == 10 ? date('Y-m-d', strtotime($request->end_date)) : '';
                 $job_status->remarks = $request->remarks;
                 $job_status->user_id = $request->session()->get('users_id');
 
                 if ($job_status->save()) {
-                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/job_controller.csv', 'a+') or die('Unable to open/create file!');
-                    fwrite($myfile, 'Created,' . $job_status->id . ',' . $job_status->job_id . ',' . $job_status->update_date_time . ',' . $job_status->job_status_id . ',' . $job_status->job_scheduled_date_time . ',' . $job_status->start_date . ',' . $job_status->end_date . ',' . str_replace(',', ' ', $job_status->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/job_controller.csv', 'a+') or die('Unable to open/create file!');
+                    fwrite($myfile, 'Created,'.$job_status->id.','.$job_status->job_id.','.$job_status->update_date_time.','.$job_status->job_status_id.','.$job_status->job_scheduled_date_time.','.$job_status->start_date.','.$job_status->end_date.','.str_replace(',', ' ', $job_status->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                     fclose($myfile);
 
                     if ($job->is_job_scheduled == 0) {
@@ -748,12 +750,12 @@ class JobController extends Controller
                             $contact->start_date = $job_status->start_date;
                             $contact->end_date = $job_status->end_date;
                             $contact->save();
-                            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/contact_controller.csv', 'a+') or die('Unable to open/create file!');
-                            fwrite($myfile, 'Updated,' . $contact->id . ',' . $contact->contact_type_id . ',' . $contact->business_type_id . ',' . $contact->contact_id . ',' . $contact->code . ',' . str_replace(',', ' ', $contact->name) . ',' . str_replace(',', ' ', $contact->nic) . ',' . str_replace(',', ' ', $contact->address) . ',' . str_replace(',', ' ', $contact->contact_no) . ',' . str_replace(',', ' ', $contact->email) . ',' . $contact->region_id . ',' . $contact->collection_manager_id . ',' . str_replace(',', ' ', $contact->contact_person_1) . ',' . str_replace(',', ' ', $contact->contact_person_no_1) . ',' . str_replace(',', ' ', $contact->contact_person_2) . ',' . str_replace(',', ' ', $contact->contact_person_no_2) . ',' . str_replace(',', ' ', $contact->contact_person_3) . ',' . str_replace(',', ' ', $contact->contact_person_no_3) . ',' . $contact->start_date . ',' . $contact->end_date . ',' . str_replace(',', ' ', $contact->invoice_name) . ',' . str_replace(',', ' ', $contact->invoice_delivering_address) . ',' . str_replace(',', ' ', $contact->collection_address) . ',' . str_replace(',', ' ', $contact->invoice_email) . ',' . str_replace(',', ' ', $contact->vat_no) . ',' . str_replace(',', ' ', $contact->svat_no) . ',' . str_replace(',', ' ', $contact->monitoring_fee) . ',' . $contact->service_mode_id . ',' . $contact->client_type_id . ',' . $contact->group_id . ',' . $contact->is_group . ',' . $contact->is_active . ',,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/contact_controller.csv', 'a+') or die('Unable to open/create file!');
+                            fwrite($myfile, 'Updated,'.$contact->id.','.$contact->contact_type_id.','.$contact->business_type_id.','.$contact->contact_id.','.$contact->code.','.str_replace(',', ' ', $contact->name).','.str_replace(',', ' ', $contact->nic).','.str_replace(',', ' ', $contact->address).','.str_replace(',', ' ', $contact->contact_no).','.str_replace(',', ' ', $contact->email).','.$contact->region_id.','.$contact->collection_manager_id.','.str_replace(',', ' ', $contact->contact_person_1).','.str_replace(',', ' ', $contact->contact_person_no_1).','.str_replace(',', ' ', $contact->contact_person_2).','.str_replace(',', ' ', $contact->contact_person_no_2).','.str_replace(',', ' ', $contact->contact_person_3).','.str_replace(',', ' ', $contact->contact_person_no_3).','.$contact->start_date.','.$contact->end_date.','.str_replace(',', ' ', $contact->invoice_name).','.str_replace(',', ' ', $contact->invoice_delivering_address).','.str_replace(',', ' ', $contact->collection_address).','.str_replace(',', ' ', $contact->invoice_email).','.str_replace(',', ' ', $contact->vat_no).','.str_replace(',', ' ', $contact->svat_no).','.str_replace(',', ' ', $contact->monitoring_fee).','.$contact->service_mode_id.','.$contact->client_type_id.','.$contact->group_id.','.$contact->is_group.','.$contact->is_active.',,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                             fclose($myfile);
                         }
 
-                        $quotation_ids = array();
+                        $quotation_ids = [];
                         $total_value = 0;
                         $quotations = \App\Model\Quotation::where('inquiry_id', $job->inquiry_id)
                             ->where('is_confirmed', 1)
@@ -773,7 +775,7 @@ class JobController extends Controller
                         $job_done_customer = \App\Model\JobDoneCustomer::where('contact_id', $job->Inquiry->contact_id)
                             ->where('is_delete', 0)
                             ->first();
-                        if (!$job_done_customer) {
+                        if (! $job_done_customer) {
                             $job_done_customer = new \App\Model\JobDoneCustomer();
                             $job_done_customer->contact_id = $job->Inquiry->contact_id;
                             $job_done_customer->pending_amount = 0;
@@ -790,8 +792,8 @@ class JobController extends Controller
                             $last_job_done_customer_invoice = \App\Model\JobDoneCustomerInvoice::select('id')->where('is_delete', 0)->orderBy('id', 'desc')->first();
                             $last_id = $last_job_done_customer_invoice ? $last_job_done_customer_invoice->id : $last_id;
 
-                            $job_done_customer_invoice->invoice_date =  date('Y-m-d');
-                            $job_done_customer_invoice->invoice_no = 'INV/JB/' . date('m') . '/' . date('y') . '/' . sprintf('%05d', $last_id + 1);
+                            $job_done_customer_invoice->invoice_date = date('Y-m-d');
+                            $job_done_customer_invoice->invoice_no = 'INV/JB/'.date('m').'/'.date('y').'/'.sprintf('%05d', $last_id + 1);
                             $job_done_customer_invoice->save();
                         }
 
@@ -843,38 +845,38 @@ class JobController extends Controller
                         }
                     }
 
-                    $result = array(
+                    $result = [
                         'response' => true,
-                        'message' => 'Job Status created successfully'
-                    );
+                        'message' => 'Job Status created successfully',
+                    ];
                 } else {
-                    $result = array(
+                    $result = [
                         'response' => false,
-                        'message' => 'Job Status creation failed'
-                    );
+                        'message' => 'Job Status creation failed',
+                    ];
                 }
-            } else if (!$remote_monitoring) {
-                $result = array(
+            } elseif (! $remote_monitoring) {
+                $result = [
                     'response' => false,
-                    'message' => 'Remote Monitoring not connected'
-                );
-            } else if (!$hand_over) {
-                $result = array(
+                    'message' => 'Remote Monitoring not connected',
+                ];
+            } elseif (! $hand_over) {
+                $result = [
                     'response' => false,
-                    'message' => 'Handover Document required'
-                );
-            } else if (!$item_issue) {
-                $result = array(
+                    'message' => 'Handover Document required',
+                ];
+            } elseif (! $item_issue) {
+                $result = [
                     'response' => false,
-                    'message' => 'Job card items not issued'
-                );
-            } else if (!$item_mismatch) {
-                $result = array(
+                    'message' => 'Job card items not issued',
+                ];
+            } elseif (! $item_mismatch) {
+                $result = [
                     'response' => false,
-                    'message' => 'Job items mismatched'
-                );
+                    'message' => 'Job items mismatched',
+                ];
             }
-        } else if ($request->type == 1) {
+        } elseif ($request->type == 1) {
             $document_upload = new \App\Model\DocumentUpload();
             $document_upload->inquiry_id = $request->inquiry_id;
             $document_upload->document_type_id = isset($request->document_type['id']) ? $request->document_type['id'] : 0;
@@ -882,8 +884,8 @@ class JobController extends Controller
             $document_upload->upload_document = $request->upload_document;
 
             if ($document_upload->save()) {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/document_upload_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Uploaded,' . $document_upload->id . ',' . $document_upload->inquiry_id . ',' . $document_upload->document_type_id . ',' . str_replace(',', ' ', $document_upload->document_name) . ',' . str_replace(',', ' ', $document_upload->upload_document) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/document_upload_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Uploaded,'.$document_upload->id.','.$document_upload->inquiry_id.','.$document_upload->document_type_id.','.str_replace(',', ' ', $document_upload->document_name).','.str_replace(',', ' ', $document_upload->upload_document).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
                 if ($document_upload->document_type_id == 2) {
@@ -892,30 +894,30 @@ class JobController extends Controller
                     $job_status->update_date_time = date('Y-m-d H:i');
                     $job_status->job_status_id = 9;
                     $job_status->job_scheduled_date_time = '';
-                    $job_status->remarks = isset($request->document_type['name']) ? $request->document_type['name'] . ' - ' . $document_upload->document_name . ' ( ' . $request->doc_name . ' )' : $document_upload->document_name . ' ( ' . $request->doc_name . ' )';
+                    $job_status->remarks = isset($request->document_type['name']) ? $request->document_type['name'].' - '.$document_upload->document_name.' ( '.$request->doc_name.' )' : $document_upload->document_name.' ( '.$request->doc_name.' )';
                     $job_status->user_id = $request->session()->get('users_id');
                     $job_status->save();
 
-                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/job_controller.csv', 'a+') or die('Unable to open/create file!');
-                    fwrite($myfile, 'Created,' . $job_status->id . ',' . $job_status->job_id . ',' . $job_status->update_date_time . ',' . $job_status->job_status_id . ',' . $job_status->job_scheduled_date_time . ',' . str_replace(',', ' ', $job_status->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/job_controller.csv', 'a+') or die('Unable to open/create file!');
+                    fwrite($myfile, 'Created,'.$job_status->id.','.$job_status->job_id.','.$job_status->update_date_time.','.$job_status->job_status_id.','.$job_status->job_scheduled_date_time.','.str_replace(',', ' ', $job_status->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                     fclose($myfile);
                 }
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Document uploaded successfully'
-                );
+                    'message' => 'Document uploaded successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Document upload failed'
-                );
+                    'message' => 'Document upload failed',
+                ];
             }
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Creation failed'
-            );
+                'message' => 'Creation failed',
+            ];
         }
 
         echo json_encode($result);
@@ -956,8 +958,8 @@ class JobController extends Controller
             $job = \App\Model\Job::find($request->job_id);
             $completed = isset($request->update_status['id']) && $request->update_status['id'] == 10 ? false : true;
             $remote_monitoring = $hand_over = $item_issue = true;
-            if (!$completed) {
-                if (in_array($job->Inquiry->inquiry_type_id, array(2, 4))) {
+            if (! $completed) {
+                if (in_array($job->Inquiry->inquiry_type_id, [2, 4])) {
                     $job_status = \App\Model\JobDetails::where('job_id', $job->id)
                         ->where('job_status_id', 8)
                         ->where('is_delete', 0)
@@ -965,7 +967,7 @@ class JobController extends Controller
                     $remote_monitoring = $job_status ? true : false;
                 }
 
-                if (!in_array($job->Inquiry->inquiry_type_id, array(3, 6))) {
+                if (! in_array($job->Inquiry->inquiry_type_id, [3, 6])) {
                     $job_status = \App\Model\JobDetails::where('job_id', $job->id)
                         ->where('job_status_id', 9)
                         ->where('is_delete', 0)
@@ -973,7 +975,7 @@ class JobController extends Controller
                     $hand_over = $job_status ? true : false;
                 }
 
-                $job_card_ids = array();
+                $job_card_ids = [];
                 $quotations = \App\Model\Quotation::where('inquiry_id', $job->inquiry_id)
                     ->where('is_confirmed', 1)
                     ->where('is_revised', 0)
@@ -985,17 +987,17 @@ class JobController extends Controller
                     }
                 }
 
-                $items = array();
+                $items = [];
                 $job_card_details = \App\Model\QuotationJobCardDetails::selectRaw('SUM(quantity) AS total_quantity, item_id AS item_id')
                     ->whereIn('quotation_job_card_id', $job_card_ids)
                     ->where('is_delete', 0)
                     ->groupBy('item_id')
                     ->get();
                 foreach ($job_card_details as $job_card_detail) {
-                    $row = array(
+                    $row = [
                         'id' => $job_card_detail->item_id,
-                        'quantity' => $job_card_detail->total_quantity
-                    );
+                        'quantity' => $job_card_detail->total_quantity,
+                    ];
                     array_push($items, $row);
                 }
 
@@ -1018,7 +1020,7 @@ class JobController extends Controller
 
                 ///////////////////////////////////
 
-                $issued_item_ids = $issued_items = $returned_item_ids = $returned_items = array();
+                $issued_item_ids = $issued_items = $returned_item_ids = $returned_items = [];
                 $item_issue_details = \App\Model\ItemIssueDetails::whereHas('ItemIssue', function ($query) use ($job) {
                     $query->where('item_issue_type_id', 1)
                         ->where('document_id', $job->id)
@@ -1028,21 +1030,21 @@ class JobController extends Controller
                     ->where('is_delete', 0)
                     ->get();
                 foreach ($item_issue_details as $main_item_issue_detail) {
-                    if (!in_array($main_item_issue_detail->item_id, $issued_item_ids)) {
+                    if (! in_array($main_item_issue_detail->item_id, $issued_item_ids)) {
                         $issued_quantity = 0;
-                        $item_issue_ids = array();
+                        $item_issue_ids = [];
                         foreach ($item_issue_details as $sub_item_issue_detail) {
                             if ($main_item_issue_detail->item_id == $sub_item_issue_detail->item_id) {
                                 $issued_quantity += $sub_item_issue_detail->quantity;
-                                if (!in_array($sub_item_issue_detail->item_issue_id, $item_issue_ids)) {
+                                if (! in_array($sub_item_issue_detail->item_issue_id, $item_issue_ids)) {
                                     array_push($item_issue_ids, $sub_item_issue_detail->item_issue_id);
                                 }
                             }
                         }
-                        $row = array(
+                        $row = [
                             'id' => $main_item_issue_detail->Item->id,
-                            'quantity' => $issued_quantity
-                        );
+                            'quantity' => $issued_quantity,
+                        ];
                         array_push($issued_items, $row);
 
                         $item_receive_details = \App\Model\ItemReceiveDetails::whereHas('ItemReceive', function ($query) use ($item_issue_ids) {
@@ -1053,17 +1055,17 @@ class JobController extends Controller
                             ->where('is_delete', 0)
                             ->get();
                         foreach ($item_receive_details as $main_item_receive_detail) {
-                            if (!in_array($main_item_receive_detail->item_id, $returned_item_ids)) {
+                            if (! in_array($main_item_receive_detail->item_id, $returned_item_ids)) {
                                 $returned_quantity = 0;
                                 foreach ($item_receive_details as $sub_item_receive_detail) {
                                     if ($main_item_receive_detail->item_id == $sub_item_receive_detail->item_id) {
                                         $returned_quantity += $sub_item_receive_detail->quantity;
                                     }
                                 }
-                                $row = array(
+                                $row = [
                                     'id' => $main_item_receive_detail->Item->id,
-                                    'quantity' => $returned_quantity
-                                );
+                                    'quantity' => $returned_quantity,
+                                ];
                                 array_push($returned_items, $row);
                                 array_push($returned_item_ids, $main_item_receive_detail->item_id);
                             }
@@ -1073,7 +1075,7 @@ class JobController extends Controller
                     }
                 }
 
-                $balance_items = array();
+                $balance_items = [];
                 foreach ($issued_items as $issued_item) {
                     $balance_quantity = $issued_item['quantity'];
                     $returned_quantity = 0;
@@ -1083,14 +1085,14 @@ class JobController extends Controller
                             $returned_quantity += $returned_item['quantity'];
                         }
                     }
-                    $row = array(
+                    $row = [
                         'id' => $issued_item['id'],
-                        'quantity' => $balance_quantity
-                    );
+                        'quantity' => $balance_quantity,
+                    ];
                     array_push($balance_items, $row);
                 }
 
-                $job_card_ids = $job_card_items = $installation_items = array();
+                $job_card_ids = $job_card_items = $installation_items = [];
                 $quotations = \App\Model\Quotation::where('inquiry_id', $job->inquiry_id)
                     ->where('is_confirmed', 1)
                     ->where('is_revised', 0)
@@ -1108,10 +1110,10 @@ class JobController extends Controller
                     ->groupBy('item_id')
                     ->get();
                 foreach ($job_card_details as $job_card_detail) {
-                    $row = array(
+                    $row = [
                         'id' => $job_card_detail->Item->id,
-                        'quantity' => $job_card_detail->total_quantity
-                    );
+                        'quantity' => $job_card_detail->total_quantity,
+                    ];
                     array_push($job_card_items, $row);
                 }
 
@@ -1123,16 +1125,16 @@ class JobController extends Controller
                     ->groupBy('item_id')
                     ->get();
                 foreach ($installation_sheet_details as $installation_sheet_detail) {
-                    $row = array(
+                    $row = [
                         'id' => $installation_sheet_detail->Item->id,
-                        'quantity' => $installation_sheet_detail->total_quantity
-                    );
+                        'quantity' => $installation_sheet_detail->total_quantity,
+                    ];
                     array_push($installation_items, $row);
                 }
 
-                $request_ids = $request_items = array();
+                $request_ids = $request_items = [];
                 foreach ($job_card_items as $job_card_main_item) {
-                    if (!in_array($job_card_main_item['id'], $request_ids)) {
+                    if (! in_array($job_card_main_item['id'], $request_ids)) {
                         $total_qunatity = 0;
                         foreach ($job_card_items as $job_card_sub_item) {
                             if ($job_card_main_item['id'] == $job_card_sub_item['id']) {
@@ -1145,16 +1147,16 @@ class JobController extends Controller
                             }
                         }
 
-                        $row = array(
+                        $row = [
                             'id' => $job_card_main_item['id'],
-                            'quantity' => $total_qunatity
-                        );
+                            'quantity' => $total_qunatity,
+                        ];
                         array_push($request_items, $row);
                         array_push($request_ids, $job_card_main_item['id']);
                     }
                 }
                 foreach ($installation_items as $installation_main_item) {
-                    if (!in_array($installation_main_item['id'], $request_ids)) {
+                    if (! in_array($installation_main_item['id'], $request_ids)) {
                         $total_qunatity = 0;
                         foreach ($installation_items as $installation_sub_item) {
                             if ($installation_main_item['id'] == $installation_sub_item['id']) {
@@ -1162,16 +1164,16 @@ class JobController extends Controller
                             }
                         }
 
-                        $row = array(
+                        $row = [
                             'id' => $installation_main_item['id'],
-                            'quantity' => $total_qunatity
-                        );
+                            'quantity' => $total_qunatity,
+                        ];
                         array_push($request_items, $row);
                         array_push($request_ids, $installation_main_item['id']);
                     }
                 }
 
-                $pending_items = array();
+                $pending_items = [];
                 foreach ($balance_items as $balance_item) {
                     $requested_quantity = 0;
                     foreach ($request_items as $request_item) {
@@ -1181,10 +1183,10 @@ class JobController extends Controller
                     }
                     $pending_quantity = $requested_quantity - $balance_item['quantity'];
                     if ($pending_quantity < 0) {
-                        $row = array(
+                        $row = [
                             'id' => $balance_item['id'],
-                            'quantity' => $pending_quantity
-                        );
+                            'quantity' => $pending_quantity,
+                        ];
                         array_push($pending_items, $row);
                     }
                 }
@@ -1201,17 +1203,17 @@ class JobController extends Controller
             if ($completed) {
                 $job_status = \App\Model\JobDetails::find($id);
                 $job_status->job_id = $request->job_id;
-                $job_status->update_date_time = date('Y-m-d', strtotime($request->update_date)) . ' ' . $request->update_time;
+                $job_status->update_date_time = date('Y-m-d', strtotime($request->update_date)).' '.$request->update_time;
                 $job_status->job_status_id = isset($request->update_status['id']) ? $request->update_status['id'] : 0;
-                $job_status->job_scheduled_date_time = isset($request->update_status['id']) && $request->update_status['id'] == 4 ? date('Y-m-d', strtotime($request->job_scheduled_date)) . ' ' . $request->job_scheduled_time : '';
+                $job_status->job_scheduled_date_time = isset($request->update_status['id']) && $request->update_status['id'] == 4 ? date('Y-m-d', strtotime($request->job_scheduled_date)).' '.$request->job_scheduled_time : '';
                 $job_status->start_date = isset($request->update_status['id']) && $request->update_status['id'] == 10 ? date('Y-m-d', strtotime($request->start_date)) : '';
                 $job_status->end_date = isset($request->update_status['id']) && $request->update_status['id'] == 10 ? date('Y-m-d', strtotime($request->end_date)) : '';
                 $job_status->remarks = $request->remarks;
                 $job_status->user_id = $request->session()->get('users_id');
 
                 if ($job_status->save()) {
-                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/job_controller.csv', 'a+') or die('Unable to open/create file!');
-                    fwrite($myfile, 'Updated,' . $job_status->id . ',' . $job_status->job_id . ',' . $job_status->update_date_time . ',' . $job_status->job_status_id . ',' . $job_status->job_scheduled_date_time . ',' . $job_status->start_date . ',' . $job_status->end_date . ',' . str_replace(',', ' ', $job_status->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/job_controller.csv', 'a+') or die('Unable to open/create file!');
+                    fwrite($myfile, 'Updated,'.$job_status->id.','.$job_status->job_id.','.$job_status->update_date_time.','.$job_status->job_status_id.','.$job_status->job_scheduled_date_time.','.$job_status->start_date.','.$job_status->end_date.','.str_replace(',', ' ', $job_status->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                     fclose($myfile);
 
                     if ($job->is_job_scheduled == 0) {
@@ -1228,12 +1230,12 @@ class JobController extends Controller
                             $contact->start_date = $job_status->start_date;
                             $contact->end_date = $job_status->end_date;
                             $contact->save();
-                            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/contact_controller.csv', 'a+') or die('Unable to open/create file!');
-                            fwrite($myfile, 'Updated,' . $contact->id . ',' . $contact->contact_type_id . ',' . $contact->business_type_id . ',' . $contact->contact_id . ',' . $contact->code . ',' . str_replace(',', ' ', $contact->name) . ',' . str_replace(',', ' ', $contact->nic) . ',' . str_replace(',', ' ', $contact->address) . ',' . str_replace(',', ' ', $contact->contact_no) . ',' . str_replace(',', ' ', $contact->email) . ',' . $contact->region_id . ',' . $contact->collection_manager_id . ',' . str_replace(',', ' ', $contact->contact_person_1) . ',' . str_replace(',', ' ', $contact->contact_person_no_1) . ',' . str_replace(',', ' ', $contact->contact_person_2) . ',' . str_replace(',', ' ', $contact->contact_person_no_2) . ',' . str_replace(',', ' ', $contact->contact_person_3) . ',' . str_replace(',', ' ', $contact->contact_person_no_3) . ',' . $contact->start_date . ',' . $contact->end_date . ',' . str_replace(',', ' ', $contact->invoice_name) . ',' . str_replace(',', ' ', $contact->invoice_delivering_address) . ',' . str_replace(',', ' ', $contact->collection_address) . ',' . str_replace(',', ' ', $contact->invoice_email) . ',' . str_replace(',', ' ', $contact->vat_no) . ',' . str_replace(',', ' ', $contact->svat_no) . ',' . str_replace(',', ' ', $contact->monitoring_fee) . ',' . $contact->service_mode_id . ',' . $contact->client_type_id . ',' . $contact->group_id . ',' . $contact->is_group . ',' . $contact->is_active . ',,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/contact_controller.csv', 'a+') or die('Unable to open/create file!');
+                            fwrite($myfile, 'Updated,'.$contact->id.','.$contact->contact_type_id.','.$contact->business_type_id.','.$contact->contact_id.','.$contact->code.','.str_replace(',', ' ', $contact->name).','.str_replace(',', ' ', $contact->nic).','.str_replace(',', ' ', $contact->address).','.str_replace(',', ' ', $contact->contact_no).','.str_replace(',', ' ', $contact->email).','.$contact->region_id.','.$contact->collection_manager_id.','.str_replace(',', ' ', $contact->contact_person_1).','.str_replace(',', ' ', $contact->contact_person_no_1).','.str_replace(',', ' ', $contact->contact_person_2).','.str_replace(',', ' ', $contact->contact_person_no_2).','.str_replace(',', ' ', $contact->contact_person_3).','.str_replace(',', ' ', $contact->contact_person_no_3).','.$contact->start_date.','.$contact->end_date.','.str_replace(',', ' ', $contact->invoice_name).','.str_replace(',', ' ', $contact->invoice_delivering_address).','.str_replace(',', ' ', $contact->collection_address).','.str_replace(',', ' ', $contact->invoice_email).','.str_replace(',', ' ', $contact->vat_no).','.str_replace(',', ' ', $contact->svat_no).','.str_replace(',', ' ', $contact->monitoring_fee).','.$contact->service_mode_id.','.$contact->client_type_id.','.$contact->group_id.','.$contact->is_group.','.$contact->is_active.',,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                             fclose($myfile);
                         }
 
-                        $quotation_ids = array();
+                        $quotation_ids = [];
                         $total_value = 0;
                         $quotations = \App\Model\Quotation::where('inquiry_id', $job->inquiry_id)
                             ->where('is_confirmed', 1)
@@ -1253,7 +1255,7 @@ class JobController extends Controller
                         $job_done_customer = \App\Model\JobDoneCustomer::where('contact_id', $job->Inquiry->contact_id)
                             ->where('is_delete', 0)
                             ->first();
-                        if (!$job_done_customer) {
+                        if (! $job_done_customer) {
                             $job_done_customer = new \App\Model\JobDoneCustomer();
                             $job_done_customer->contact_id = $job->Inquiry->contact_id;
                             $job_done_customer->pending_amount = 0;
@@ -1270,8 +1272,8 @@ class JobController extends Controller
                             $last_job_done_customer_invoice = \App\Model\JobDoneCustomerInvoice::select('id')->where('is_delete', 0)->orderBy('id', 'desc')->first();
                             $last_id = $last_job_done_customer_invoice ? $last_job_done_customer_invoice->id : $last_id;
 
-                            $job_done_customer_invoice->invoice_date =  date('Y-m-d');
-                            $job_done_customer_invoice->invoice_no = 'INV/JB/' . date('m') . '/' . date('y') . '/' . sprintf('%05d', $last_id + 1);
+                            $job_done_customer_invoice->invoice_date = date('Y-m-d');
+                            $job_done_customer_invoice->invoice_no = 'INV/JB/'.date('m').'/'.date('y').'/'.sprintf('%05d', $last_id + 1);
                             $job_done_customer_invoice->save();
                         }
 
@@ -1323,38 +1325,38 @@ class JobController extends Controller
                         }
                     }
 
-                    $result = array(
+                    $result = [
                         'response' => true,
-                        'message' => 'Job Status updated successfully'
-                    );
+                        'message' => 'Job Status updated successfully',
+                    ];
                 } else {
-                    $result = array(
+                    $result = [
                         'response' => false,
-                        'message' => 'Job Status updation failed'
-                    );
+                        'message' => 'Job Status updation failed',
+                    ];
                 }
-            } else if (!$remote_monitoring) {
-                $result = array(
+            } elseif (! $remote_monitoring) {
+                $result = [
                     'response' => false,
-                    'message' => 'Remote Monitoring not connected'
-                );
-            } else if (!$hand_over) {
-                $result = array(
+                    'message' => 'Remote Monitoring not connected',
+                ];
+            } elseif (! $hand_over) {
+                $result = [
                     'response' => false,
-                    'message' => 'Handover Document required'
-                );
-            } else if (!$item_issue) {
-                $result = array(
+                    'message' => 'Handover Document required',
+                ];
+            } elseif (! $item_issue) {
+                $result = [
                     'response' => false,
-                    'message' => 'Job card items not issued'
-                );
-            } else if (!$item_mismatch) {
-                $result = array(
+                    'message' => 'Job card items not issued',
+                ];
+            } elseif (! $item_mismatch) {
+                $result = [
                     'response' => false,
-                    'message' => 'Job items mismatched'
-                );
+                    'message' => 'Job items mismatched',
+                ];
             }
-        } else if ($request->type == 1) {
+        } elseif ($request->type == 1) {
             $document_upload = \App\Model\DocumentUpload::find($id);
             $document_upload->inquiry_id = $request->inquiry_id;
             $document_upload->document_type_id = isset($request->document_type['id']) ? $request->document_type['id'] : 0;
@@ -1362,8 +1364,8 @@ class JobController extends Controller
             $document_upload->upload_document = $request->upload_document;
 
             if ($document_upload->save()) {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/document_upload_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Uploaded,' . $document_upload->id . ',' . $document_upload->inquiry_id . ',' . $document_upload->document_type_id . ',' . str_replace(',', ' ', $document_upload->document_name) . ',' . str_replace(',', ' ', $document_upload->upload_document) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/document_upload_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Uploaded,'.$document_upload->id.','.$document_upload->inquiry_id.','.$document_upload->document_type_id.','.str_replace(',', ' ', $document_upload->document_name).','.str_replace(',', ' ', $document_upload->upload_document).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
                 if ($document_upload->document_type_id == 2) {
@@ -1372,30 +1374,30 @@ class JobController extends Controller
                     $job_status->update_date_time = date('Y-m-d H:i');
                     $job_status->job_status_id = 9;
                     $job_status->job_scheduled_date_time = '';
-                    $job_status->remarks = isset($request->document_type['name']) ? $request->document_type['name'] . ' - ' . $document_upload->document_name . ' ( ' . $request->doc_name . ' )' : $document_upload->document_name . ' ( ' . $request->doc_name . ' )';
+                    $job_status->remarks = isset($request->document_type['name']) ? $request->document_type['name'].' - '.$document_upload->document_name.' ( '.$request->doc_name.' )' : $document_upload->document_name.' ( '.$request->doc_name.' )';
                     $job_status->user_id = $request->session()->get('users_id');
                     $job_status->save();
 
-                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/job_controller.csv', 'a+') or die('Unable to open/create file!');
-                    fwrite($myfile, 'Created,' . $job_status->id . ',' . $job_status->job_id . ',' . $job_status->update_date_time . ',' . $job_status->job_status_id . ',' . $job_status->job_scheduled_date_time . ',' . str_replace(',', ' ', $job_status->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                    $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/job_controller.csv', 'a+') or die('Unable to open/create file!');
+                    fwrite($myfile, 'Created,'.$job_status->id.','.$job_status->job_id.','.$job_status->update_date_time.','.$job_status->job_status_id.','.$job_status->job_scheduled_date_time.','.str_replace(',', ' ', $job_status->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                     fclose($myfile);
                 }
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Document updated successfully'
-                );
+                    'message' => 'Document updated successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Document updation failed'
-                );
+                    'message' => 'Document updation failed',
+                ];
             }
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Updation failed'
-            );
+                'message' => 'Updation failed',
+            ];
         }
 
         echo json_encode($result);
@@ -1414,44 +1416,44 @@ class JobController extends Controller
             $job_status->is_delete = 1;
 
             if ($job_status->save()) {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/job_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Deleted,' . $job_status->id . ',,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/job_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Deleted,'.$job_status->id.',,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Job Status deleted successfully'
-                );
+                    'message' => 'Job Status deleted successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Job Status deletion failed'
-                );
+                    'message' => 'Job Status deletion failed',
+                ];
             }
-        } else if ($request->type == 1) {
+        } elseif ($request->type == 1) {
             $document_upload = \App\Model\DocumentUpload::find($id);
             $document_upload->is_delete = 1;
 
             if ($document_upload->save()) {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/document_upload_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Deleted,' . $document_upload->id . ',,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/document_upload_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Deleted,'.$document_upload->id.',,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Document Upload deleted successfully'
-                );
+                    'message' => 'Document Upload deleted successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Document Upload deletion failed'
-                );
+                    'message' => 'Document Upload deletion failed',
+                ];
             }
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Deletion failed'
-            );
+                'message' => 'Deletion failed',
+            ];
         }
 
         echo json_encode($result);

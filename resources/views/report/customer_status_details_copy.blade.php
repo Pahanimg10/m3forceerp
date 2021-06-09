@@ -419,8 +419,8 @@
                             
                             <?php 
                                 if($status_type == 1){
-                                    $upload_errors = array();
-                                    if(!in_array($result->inquiry_type_id, array(3,5,6))){
+                                    $upload_errors = [];
+                                    if(!in_array($result->inquiry_type_id, [3,5,6])){
                                         $drawing_uploaded = \App\Model\InquiryDetials::where('inquiry_id', $result->id)
                                                 ->where('inquiry_status_id', 5)
                                                 ->where('is_delete', 0)
@@ -441,7 +441,7 @@
                                             ->where('is_delete', 0)
                                             ->first();
                                     if($job){
-                                        $job_card_ids = array();
+                                        $job_card_ids = [];
                                         $quotations = \App\Model\Quotation::where('inquiry_id', $job->inquiry_id)
                                                 ->where('is_confirmed', 1)
                                                 ->where('is_delete', 0)
@@ -452,17 +452,17 @@
                                             }
                                         }
 
-                                        $items = array();
+                                        $items = [];
                                         $job_card_details = \App\Model\QuotationJobCardDetails::selectRaw('SUM(quantity) AS total_quantity, item_id AS item_id')
                                                 ->whereIn('quotation_job_card_id', $job_card_ids)
                                                 ->where('is_delete', 0)
                                                 ->groupBy('item_id')
                                                 ->get();
                                         foreach ($job_card_details as $job_card_detail){
-                                            $row = array(
+                                            $row = [
                                                 'id' => $job_card_detail->item_id,
                                                 'quantity' => $job_card_detail->total_quantity
-                                            );
+                                            ];
                                             array_push($items, $row);
                                         }
 
@@ -486,7 +486,7 @@
                                             array_push($upload_errors, 'Job card items not issued');
                                         }
                                         
-                                        if(in_array($job->Inquiry->inquiry_type_id, array(2,4))){
+                                        if(in_array($job->Inquiry->inquiry_type_id, [2,4])){
                                             $job_status = \App\Model\JobDetails::where('job_id', $job->id)
                                                     ->where('job_status_id', 8)
                                                     ->where('is_delete', 0)
@@ -496,7 +496,7 @@
                                             }        
                                         }
 
-                                        if(!in_array($job->Inquiry->inquiry_type_id, array(3,6))){
+                                        if(!in_array($job->Inquiry->inquiry_type_id, [3,6])){
                                             $job_status = \App\Model\JobDetails::where('job_id', $job->id)
                                                     ->where('job_status_id', 9)
                                                     ->where('is_delete', 0)
@@ -814,11 +814,11 @@
                                                     ->where('is_delete', 0)
                                                     ->get();
                                             foreach($quotations as $quotation){
-                                                $job_card_ids = array(); 
+                                                $job_card_ids = []; 
                                                 foreach ($quotation->QuotationJobCard as $detail){
                                                     array_push($job_card_ids, $detail['id']);
                                                 }
-                                                $cost_sheet_ids = array();
+                                                $cost_sheet_ids = [];
                                                 foreach ($quotation->QuotationCostSheet as $detail){
                                                     array_push($cost_sheet_ids, $detail['id']);
                                                 }
@@ -854,7 +854,7 @@
                                                 $cost_sheet_details = \App\Model\QuotationCostSheet::whereIn('id', $cost_sheet_ids)
                                                         ->where('is_delete', 0)
                                                         ->get();
-                                                $rate_ids = array();
+                                                $rate_ids = [];
                                                 foreach ($cost_sheet_details as $main_cost_sheet_detail){
                                                     if($main_cost_sheet_detail->InstallationRate && !in_array($main_cost_sheet_detail->InstallationRate->id, $rate_ids)){
                                                         $meters = 0;

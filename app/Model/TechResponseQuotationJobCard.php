@@ -17,21 +17,19 @@ class TechResponseQuotationJobCard extends Model
     protected $fillable = [
         'tech_response_quotation_id',
         'tech_response_job_card_id',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function TechResponseQuotation()
     {
-        return $this->belongsTo('App\Model\TechResponseQuotation', 'tech_response_quotation_id', 'id');
-    }
-    
-    public function TechResponseJobCard()
-    {
-        return $this->belongsTo('App\Model\TechResponseJobCard', 'tech_response_job_card_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponseQuotation::class, 'tech_response_quotation_id', 'id');
     }
 
+    public function TechResponseJobCard()
+    {
+        return $this->belongsTo(\App\Model\TechResponseJobCard::class, 'tech_response_job_card_id', 'id');
+    }
 }

@@ -473,8 +473,8 @@
 
                             <?php
                                 if ($status_type == 1) {
-                                    $upload_errors = array();
-                                    if (!in_array($result->inquiry_type_id, array(3, 5, 6))) {
+                                    $upload_errors = [];
+                                    if (!in_array($result->inquiry_type_id, [3, 5, 6])) {
                                         $drawing_uploaded = \App\Model\InquiryDetials::where('inquiry_id', $result->id)
                                             ->where('inquiry_status_id', 5)
                                             ->where('is_delete', 0)
@@ -495,7 +495,7 @@
                                         ->where('is_delete', 0)
                                         ->first();
                                     if ($job) {
-                                        $job_card_ids = array();
+                                        $job_card_ids = [];
                                         $quotations = \App\Model\Quotation::where('inquiry_id', $job->inquiry_id)
                                             ->where('is_confirmed', 1)
                                             ->where('is_delete', 0)
@@ -506,17 +506,17 @@
                                             }
                                         }
 
-                                        $items = array();
+                                        $items = [];
                                         $job_card_details = \App\Model\QuotationJobCardDetails::selectRaw('SUM(quantity) AS total_quantity, item_id AS item_id')
                                             ->whereIn('quotation_job_card_id', $job_card_ids)
                                             ->where('is_delete', 0)
                                             ->groupBy('item_id')
                                             ->get();
                                         foreach ($job_card_details as $job_card_detail) {
-                                            $row = array(
+                                            $row = [
                                                 'id' => $job_card_detail->item_id,
                                                 'quantity' => $job_card_detail->total_quantity
-                                            );
+                                            ];
                                             array_push($items, $row);
                                         }
 
@@ -540,7 +540,7 @@
                                             array_push($upload_errors, 'Job card items not issued');
                                         }
 
-                                        if (in_array($job->Inquiry->inquiry_type_id, array(2, 4))) {
+                                        if (in_array($job->Inquiry->inquiry_type_id, [2, 4])) {
                                             $job_status = \App\Model\JobDetails::where('job_id', $job->id)
                                                 ->where('job_status_id', 8)
                                                 ->where('is_delete', 0)
@@ -550,7 +550,7 @@
                                             }
                                         }
 
-                                        if (!in_array($job->Inquiry->inquiry_type_id, array(3, 6))) {
+                                        if (!in_array($job->Inquiry->inquiry_type_id, [3, 6])) {
                                             $job_status = \App\Model\JobDetails::where('job_id', $job->id)
                                                 ->where('job_status_id', 9)
                                                 ->where('is_delete', 0)
@@ -562,7 +562,7 @@
 
                                         ///////////////////////////////////
 
-                                        $issued_item_ids = $issued_items = $returned_item_ids = $returned_items = array();
+                                        $issued_item_ids = $issued_items = $returned_item_ids = $returned_items = [];
                                         $item_issue_details = \App\Model\ItemIssueDetails::whereHas('ItemIssue', function ($query) use ($job) {
                                             $query->where('item_issue_type_id', 1)
                                                 ->where('document_id', $job->id)
@@ -574,7 +574,7 @@
                                         foreach ($item_issue_details as $main_item_issue_detail) {
                                             if (!in_array($main_item_issue_detail->item_id, $issued_item_ids)) {
                                                 $issued_quantity = 0;
-                                                $item_issue_ids = array();
+                                                $item_issue_ids = [];
                                                 foreach ($item_issue_details as $sub_item_issue_detail) {
                                                     if ($main_item_issue_detail->item_id == $sub_item_issue_detail->item_id) {
                                                         $issued_quantity += $sub_item_issue_detail->quantity;
@@ -583,10 +583,10 @@
                                                         }
                                                     }
                                                 }
-                                                $row = array(
+                                                $row = [
                                                     'id' => $main_item_issue_detail->Item->id,
                                                     'quantity' => $issued_quantity
-                                                );
+                                                ];
                                                 array_push($issued_items, $row);
 
                                                 $item_receive_details = \App\Model\ItemReceiveDetails::whereHas('ItemReceive', function ($query) use ($item_issue_ids) {
@@ -604,10 +604,10 @@
                                                                 $returned_quantity += $sub_item_receive_detail->quantity;
                                                             }
                                                         }
-                                                        $row = array(
+                                                        $row = [
                                                             'id' => $main_item_receive_detail->Item->id,
                                                             'quantity' => $returned_quantity
-                                                        );
+                                                        ];
                                                         array_push($returned_items, $row);
                                                         array_push($returned_item_ids, $main_item_receive_detail->item_id);
                                                     }
@@ -617,7 +617,7 @@
                                             }
                                         }
 
-                                        $balance_items = array();
+                                        $balance_items = [];
                                         foreach ($issued_items as $issued_item) {
                                             $balance_quantity = $issued_item['quantity'];
                                             $returned_quantity = 0;
@@ -627,14 +627,14 @@
                                                     $returned_quantity += $returned_item['quantity'];
                                                 }
                                             }
-                                            $row = array(
+                                            $row = [
                                                 'id' => $issued_item['id'],
                                                 'quantity' => $balance_quantity
-                                            );
+                                            ];
                                             array_push($balance_items, $row);
                                         }
 
-                                        $job_card_ids = $job_card_items = $installation_items = array();
+                                        $job_card_ids = $job_card_items = $installation_items = [];
                                         $quotations = \App\Model\Quotation::where('inquiry_id', $job->inquiry_id)
                                             ->where('is_confirmed', 1)
                                             ->where('is_revised', 0)
@@ -652,10 +652,10 @@
                                             ->groupBy('item_id')
                                             ->get();
                                         foreach ($job_card_details as $job_card_detail) {
-                                            $row = array(
+                                            $row = [
                                                 'id' => $job_card_detail->Item->id,
                                                 'quantity' => $job_card_detail->total_quantity
-                                            );
+                                            ];
                                             array_push($job_card_items, $row);
                                         }
 
@@ -667,14 +667,14 @@
                                             ->groupBy('item_id')
                                             ->get();
                                         foreach ($installation_sheet_details as $installation_sheet_detail) {
-                                            $row = array(
+                                            $row = [
                                                 'id' => $installation_sheet_detail->Item->id,
                                                 'quantity' => $installation_sheet_detail->total_quantity
-                                            );
+                                            ];
                                             array_push($installation_items, $row);
                                         }
 
-                                        $request_ids = $request_items = array();
+                                        $request_ids = $request_items = [];
                                         foreach ($job_card_items as $job_card_main_item) {
                                             if (!in_array($job_card_main_item['id'], $request_ids)) {
                                                 $total_qunatity = 0;
@@ -689,10 +689,10 @@
                                                     }
                                                 }
 
-                                                $row = array(
+                                                $row = [
                                                     'id' => $job_card_main_item['id'],
                                                     'quantity' => $total_qunatity
-                                                );
+                                                ];
                                                 array_push($request_items, $row);
                                                 array_push($request_ids, $job_card_main_item['id']);
                                             }
@@ -706,16 +706,16 @@
                                                     }
                                                 }
 
-                                                $row = array(
+                                                $row = [
                                                     'id' => $installation_main_item['id'],
                                                     'quantity' => $total_qunatity
-                                                );
+                                                ];
                                                 array_push($request_items, $row);
                                                 array_push($request_ids, $installation_main_item['id']);
                                             }
                                         }
 
-                                        $pending_items = array();
+                                        $pending_items = [];
                                         foreach ($balance_items as $balance_item) {
                                             $requested_quantity = 0;
                                             foreach ($request_items as $request_item) {
@@ -725,10 +725,10 @@
                                             }
                                             $pending_quantity = $requested_quantity - $balance_item['quantity'];
                                             if ($pending_quantity < 0) {
-                                                $row = array(
+                                                $row = [
                                                     'id' => $balance_item['id'],
                                                     'quantity' => $pending_quantity
-                                                );
+                                                ];
                                                 array_push($pending_items, $row);
                                             }
                                         }

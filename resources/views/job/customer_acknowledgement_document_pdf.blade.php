@@ -133,7 +133,7 @@
                     ->where('is_confirmed', 1)
                     ->where('is_delete', 0)
                     ->get();
-            $job_card_ids = array();
+            $job_card_ids = [];
             foreach ($quotations as $quotation){
                 foreach ($quotation->QuotationJobCard as $detail){
                     array_push($job_card_ids, $detail['id']);
@@ -145,13 +145,13 @@
                     ->where('is_delete', 0)
                     ->groupBy('item_id')
                     ->get();
-            $item_details = array();
+            $item_details = [];
             foreach ($job_card_details as $job_card_detail){
-                $row = array(
+                $row = [
                     'name' => $job_card_detail->Item->name,
                     'unit_type' => $job_card_detail->Item->UnitType->code,
                     'quantity' => $job_card_detail->quantity
-                );
+                ];
                 array_push($item_details, $row);
             }
         ?>
