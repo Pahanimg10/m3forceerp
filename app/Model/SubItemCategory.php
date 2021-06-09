@@ -15,18 +15,16 @@ class SubItemCategory extends Model
     protected $table = 'm_sub_item_category';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'code', 
-        'name', 
-        'is_delete'
+        'code',
+        'name',
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function Item()
     {
         return $this->hasMany('App\Model\Item', 'sub_category_id', 'id')->where('is_delete', 0);
     }
-
 }

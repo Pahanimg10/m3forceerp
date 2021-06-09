@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers;
 
-require_once('ESMSWS.php');
+require_once 'ESMSWS.php';
 session_start();
 date_default_timezone_set('Asia/Colombo');
 set_time_limit(0);
 
-use Illuminate\Http\Request;
 use App\Http\Requests;
+use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-
-    function __construct()
+    public function __construct()
     {
         $this->middleware('user_access');
     }
@@ -45,7 +44,7 @@ class ReportController extends Controller
 
     public function inquiry_status_details(Request $request)
     {
-        $data = array();
+        $data = [];
         $inquiries = \App\Model\Inquiry::select('id', 'contact_id', 'inquiry_date_time', 'mode_of_inquiry_id', 'inquiry_type_id', 'sales_team_id', 'user_id')
             ->where(function ($q) use ($request) {
                 $request->mode_of_inquiry_id != -1 ? $q->where('mode_of_inquiry_id', $request->mode_of_inquiry_id) : '';
@@ -56,7 +55,7 @@ class ReportController extends Controller
             ->where(function ($q) use ($request) {
                 $request->sales_team_id != -1 ? $q->where('sales_team_id', $request->sales_team_id) : '';
             })
-            ->whereBetween('inquiry_date_time', array($request->from . ' 00:00:01', $request->to . ' 23:59:59'))
+            ->whereBetween('inquiry_date_time', [$request->from.' 00:00:01', $request->to.' 23:59:59'])
             ->where('is_delete', 0)
             ->get();
 
@@ -68,11 +67,11 @@ class ReportController extends Controller
                 ->where('is_delete', 0)
                 ->get();
             foreach ($quotations as $quotation) {
-                $job_card_ids = array();
+                $job_card_ids = [];
                 foreach ($quotation->QuotationJobCard as $detail) {
                     array_push($job_card_ids, $detail['id']);
                 }
-                $cost_sheet_ids = array();
+                $cost_sheet_ids = [];
                 foreach ($quotation->QuotationCostSheet as $detail) {
                     array_push($cost_sheet_ids, $detail['id']);
                 }
@@ -108,9 +107,9 @@ class ReportController extends Controller
                 $cost_sheet_details = \App\Model\QuotationCostSheet::whereIn('id', $cost_sheet_ids)
                     ->where('is_delete', 0)
                     ->get();
-                $rate_ids = array();
+                $rate_ids = [];
                 foreach ($cost_sheet_details as $main_cost_sheet_detail) {
-                    if ($main_cost_sheet_detail->InstallationRate && !in_array($main_cost_sheet_detail->InstallationRate->id, $rate_ids)) {
+                    if ($main_cost_sheet_detail->InstallationRate && ! in_array($main_cost_sheet_detail->InstallationRate->id, $rate_ids)) {
                         $meters = 0;
                         foreach ($cost_sheet_details as $sub_cost_sheet_detail) {
                             if ($main_cost_sheet_detail->InstallationRate->id == $sub_cost_sheet_detail->InstallationRate->id) {
@@ -171,7 +170,7 @@ class ReportController extends Controller
                     ->orderBy('update_date_time', 'DESC')
                     ->orderBy('id', 'DESC')
                     ->first();
-                $row = array(
+                $row = [
                     'id' => $inquiry->id,
                     'inquiry_date_time' => $inquiry->inquiry_date_time,
                     'customer_name' => $inquiry->Contact ? $inquiry->Contact->name : '',
@@ -186,8 +185,8 @@ class ReportController extends Controller
                     'update_date_time' => $job_detail ? $job_detail->update_date_time : '',
                     'update_status' => $job_detail ? $job_detail->JobStatus->name : '',
                     'remarks' => $job_detail ? $job_detail->remarks : '',
-                    'logged_user' => $inquiry->User ? $inquiry->User->first_name : ''
-                );
+                    'logged_user' => $inquiry->User ? $inquiry->User->first_name : '',
+                ];
                 array_push($data, $row);
             } else {
                 $inquiry_status = \App\Model\InquiryDetials::selectRaw('MAX(inquiry_status_id) AS inquiry_status_id')
@@ -202,7 +201,7 @@ class ReportController extends Controller
                         ->orderBy('update_date_time', 'DESC')
                         ->orderBy('id', 'DESC')
                         ->first();
-                    $row = array(
+                    $row = [
                         'id' => $inquiry->id,
                         'inquiry_date_time' => $inquiry->inquiry_date_time,
                         'customer_name' => $inquiry->Contact ? $inquiry->Contact->name : '',
@@ -217,10 +216,10 @@ class ReportController extends Controller
                         'update_date_time' => $inquiry_detail ? $inquiry_detail->update_date_time : '',
                         'update_status' => $inquiry_detail ? $inquiry_detail->InquiryStatus->name : '',
                         'remarks' => $inquiry_detail ? $inquiry_detail->remarks : '',
-                        'logged_user' => $inquiry->User ? $inquiry->User->first_name : ''
-                    );
+                        'logged_user' => $inquiry->User ? $inquiry->User->first_name : '',
+                    ];
                     array_push($data, $row);
-                } else if ($inquiry_status && $inquiry_status->inquiry_status_id) {
+                } elseif ($inquiry_status && $inquiry_status->inquiry_status_id) {
                     $inquiry_detail = \App\Model\InquiryDetials::select('update_date_time', 'inquiry_status_id', 'remarks')
                         ->where('inquiry_id', $inquiry->id)
                         ->where('inquiry_status_id', $inquiry_status->inquiry_status_id)
@@ -228,7 +227,7 @@ class ReportController extends Controller
                         ->orderBy('update_date_time', 'DESC')
                         ->orderBy('id', 'DESC')
                         ->first();
-                    $row = array(
+                    $row = [
                         'id' => $inquiry->id,
                         'inquiry_date_time' => $inquiry->inquiry_date_time,
                         'customer_name' => $inquiry->Contact ? $inquiry->Contact->name : '',
@@ -243,11 +242,11 @@ class ReportController extends Controller
                         'update_date_time' => $inquiry_detail ? $inquiry_detail->update_date_time : '',
                         'update_status' => $inquiry_detail ? $inquiry_detail->InquiryStatus->name : '',
                         'remarks' => $inquiry_detail ? $inquiry_detail->remarks : '',
-                        'logged_user' => $inquiry->User ? $inquiry->User->first_name : ''
-                    );
+                        'logged_user' => $inquiry->User ? $inquiry->User->first_name : '',
+                    ];
                     array_push($data, $row);
                 } else {
-                    $row = array(
+                    $row = [
                         'id' => $inquiry->id,
                         'inquiry_date_time' => $inquiry->inquiry_date_time,
                         'customer_name' => $inquiry->Contact ? $inquiry->Contact->name : '',
@@ -262,8 +261,8 @@ class ReportController extends Controller
                         'update_date_time' => '',
                         'update_status' => '',
                         'remarks' => '',
-                        'logged_user' => $inquiry->User ? $inquiry->User->first_name : ''
-                    );
+                        'logged_user' => $inquiry->User ? $inquiry->User->first_name : '',
+                    ];
                     array_push($data, $row);
                 }
             }
@@ -294,7 +293,7 @@ class ReportController extends Controller
 
     public function stock_movement_details(Request $request)
     {
-        $data = array();
+        $data = [];
         $items = \App\Model\Item::where(function ($q) use ($request) {
             $request->main_category != -1 ? $q->where('main_category_id', $request->main_category) : '';
         })
@@ -311,7 +310,7 @@ class ReportController extends Controller
             $opening_quantity = $opening_value = $grn_quantity = $grn_value = $issue_quantity = $issue_value = $return_quantity = $return_value = 0;
 
             $good_receive_details = \App\Model\GoodReceiveDetails::whereHas('GoodReceive', function ($query) use ($request) {
-                $query->where('good_receive_date_time', '<', $request->from . ' 00:00')->where('is_posted', 1)->where('is_delete', 0);
+                $query->where('good_receive_date_time', '<', $request->from.' 00:00')->where('is_posted', 1)->where('is_delete', 0);
             })
                 ->where('item_id', $item->id)
                 ->where('is_delete', 0)
@@ -321,7 +320,7 @@ class ReportController extends Controller
                 $opening_value += $good_receive_detail->quantity * $good_receive_detail->rate;
             }
             $item_issue_details = \App\Model\ItemIssueDetails::whereHas('ItemIssue', function ($query) use ($request) {
-                $query->where('item_issue_date_time', '<', $request->from . ' 00:00')->where('is_posted', 1)->where('is_delete', 0);
+                $query->where('item_issue_date_time', '<', $request->from.' 00:00')->where('is_posted', 1)->where('is_delete', 0);
             })
                 ->where('item_id', $item->id)
                 ->where('is_delete', 0)
@@ -336,7 +335,7 @@ class ReportController extends Controller
                 }
             }
             $item_receive_details = \App\Model\ItemReceiveDetails::whereHas('ItemReceive', function ($query) use ($request) {
-                $query->where('item_receive_date_time', '<', $request->from . ' 00:00')->where('is_posted', 1)->where('is_delete', 0);
+                $query->where('item_receive_date_time', '<', $request->from.' 00:00')->where('is_posted', 1)->where('is_delete', 0);
             })
                 ->where('item_id', $item->id)
                 ->where('is_delete', 0)
@@ -352,7 +351,7 @@ class ReportController extends Controller
             }
 
             $good_receive_details = \App\Model\GoodReceiveDetails::whereHas('GoodReceive', function ($query) use ($request) {
-                $query->whereBetween('good_receive_date_time', array($request->from . ' 00:01', $request->to . ' 23:59'))->where('is_posted', 1)->where('is_delete', 0);
+                $query->whereBetween('good_receive_date_time', [$request->from.' 00:01', $request->to.' 23:59'])->where('is_posted', 1)->where('is_delete', 0);
             })
                 ->where('item_id', $item->id)
                 ->where('is_delete', 0)
@@ -362,7 +361,7 @@ class ReportController extends Controller
                 $grn_value += $good_receive_detail->quantity * $good_receive_detail->rate;
             }
             $item_issue_details = \App\Model\ItemIssueDetails::whereHas('ItemIssue', function ($query) use ($request) {
-                $query->whereBetween('item_issue_date_time', array($request->from . ' 00:01', $request->to . ' 23:59'))->where('is_posted', 1)->where('is_delete', 0);
+                $query->whereBetween('item_issue_date_time', [$request->from.' 00:01', $request->to.' 23:59'])->where('is_posted', 1)->where('is_delete', 0);
             })
                 ->where('item_id', $item->id)
                 ->where('is_delete', 0)
@@ -377,7 +376,7 @@ class ReportController extends Controller
                 }
             }
             $item_receive_details = \App\Model\ItemReceiveDetails::whereHas('ItemReceive', function ($query) use ($request) {
-                $query->whereBetween('item_receive_date_time', array($request->from . ' 00:01', $request->to . ' 23:59'))->where('is_posted', 1)->where('is_delete', 0);
+                $query->whereBetween('item_receive_date_time', [$request->from.' 00:01', $request->to.' 23:59'])->where('is_posted', 1)->where('is_delete', 0);
             })
                 ->where('item_id', $item->id)
                 ->where('is_delete', 0)
@@ -402,7 +401,7 @@ class ReportController extends Controller
             $available_quantity = $serial_no_count = 0;
             foreach ($good_receive_details as $good_receive_detail) {
                 if ($good_receive_detail->available_quantity > 0) {
-                    $location .= $location != '' ? ' ' . $good_receive_detail->location : $good_receive_detail->location;
+                    $location .= $location != '' ? ' '.$good_receive_detail->location : $good_receive_detail->location;
                 }
 
                 $available_quantity += $good_receive_detail->available_quantity;
@@ -419,7 +418,7 @@ class ReportController extends Controller
 
             $balance_quantity = $opening_quantity + $grn_quantity + $return_quantity - $issue_quantity;
             $balance_value = $opening_value + $grn_value + $return_value - $issue_value;
-            $row = array(
+            $row = [
                 'id' => $item->id,
                 'main_category' => $item->MainItemCategory->name,
                 'sub_category' => $item->SubItemCategory->name,
@@ -444,8 +443,8 @@ class ReportController extends Controller
                 'stock' => $item->stock,
                 'available_quantity' => $available_quantity,
                 'serial_no_count' => $serial_no_count,
-                'location' => $location
-            );
+                'location' => $location,
+            ];
             array_push($data, $row);
 
             //            if($balance_quantity != 0){
@@ -468,12 +467,12 @@ class ReportController extends Controller
             //                        $balance_quantity = $balance_quantity - $grn_quantity;
             //                    }
             //                    $good_receive_detail->save();
-            //                    
+            //
             //                    if($balance_quantity == 0){
             //                        break;
             //                    }
             //                }
-            //                  
+            //
             // $item->stock = $balance_quantity;
             // $item->save();
             //            }
@@ -504,13 +503,13 @@ class ReportController extends Controller
 
     public function job_profit_loss_details(Request $request)
     {
-        $data = array();
+        $data = [];
         $jobs = \App\Model\Job::whereHas('Inquiry', function ($query) use ($request) {
             $query->where(function ($q) use ($request) {
                 $request->sales_team_id != -1 ? $q->where('sales_team_id', $request->sales_team_id) : '';
             });
         })
-            ->whereBetween('job_date_time', array($request->from . ' 00:00:01', $request->to . ' 23:59:59'))
+            ->whereBetween('job_date_time', [$request->from.' 00:00:01', $request->to.' 23:59:59'])
             ->where('is_completed', 0)
             ->where('is_delete', 0)
             ->get();
@@ -522,11 +521,11 @@ class ReportController extends Controller
                 ->where('is_delete', 0)
                 ->get();
             foreach ($quotations as $quotation) {
-                $job_card_ids = array();
+                $job_card_ids = [];
                 foreach ($quotation->QuotationJobCard as $detail) {
                     array_push($job_card_ids, $detail['id']);
                 }
-                $cost_sheet_ids = array();
+                $cost_sheet_ids = [];
                 foreach ($quotation->QuotationCostSheet as $detail) {
                     array_push($cost_sheet_ids, $detail['id']);
                 }
@@ -567,9 +566,9 @@ class ReportController extends Controller
                 $cost_sheet_details = \App\Model\QuotationCostSheet::whereIn('id', $cost_sheet_ids)
                     ->where('is_delete', 0)
                     ->get();
-                $rate_ids = array();
+                $rate_ids = [];
                 foreach ($cost_sheet_details as $main_cost_sheet_detail) {
-                    if ($main_cost_sheet_detail->InstallationRate && !in_array($main_cost_sheet_detail->InstallationRate->id, $rate_ids)) {
+                    if ($main_cost_sheet_detail->InstallationRate && ! in_array($main_cost_sheet_detail->InstallationRate->id, $rate_ids)) {
                         $meters = 0;
                         foreach ($cost_sheet_details as $sub_cost_sheet_detail) {
                             if ($main_cost_sheet_detail->InstallationRate->id == $sub_cost_sheet_detail->InstallationRate->id) {
@@ -683,7 +682,7 @@ class ReportController extends Controller
                 $actual_cost += $job_attendance->mandays * 1153.85;
             }
 
-            $row = array(
+            $row = [
                 'id' => $job->id,
                 'inquiry_id' => $job->inquiry_id,
                 'job_no' => $job->job_no,
@@ -699,8 +698,8 @@ class ReportController extends Controller
                 'actual_gp' => $quoted_price - $actual_cost,
                 'actual_gp_percentage' => $quoted_price != 0 ? ($quoted_price - $actual_cost) * (100 / $quoted_price) : 0,
                 'gp_status_id' => $quoted_price - $actual_cost > 0 ? 1 : 0,
-                'sales_person' => $job->Inquiry && $job->Inquiry->SalesTeam ? $job->Inquiry->SalesTeam->name : ''
-            );
+                'sales_person' => $job->Inquiry && $job->Inquiry->SalesTeam ? $job->Inquiry->SalesTeam->name : '',
+            ];
             array_push($data, $row);
         }
 
@@ -729,9 +728,9 @@ class ReportController extends Controller
 
     public function technical_attendance_details(Request $request)
     {
-        $details = array();
+        $details = [];
 
-        $to_date = date('Y-m-d', strtotime($request->to . ' +1 day'));
+        $to_date = date('Y-m-d', strtotime($request->to.' +1 day'));
         $period = new \DatePeriod(
             new \DateTime($request->from),
             new \DateInterval('P1D'),
@@ -742,28 +741,28 @@ class ReportController extends Controller
                 ->where('is_delete', 0)
                 ->get();
             foreach ($job_attendances as $job_attendance) {
-                $row = array(
+                $row = [
                     'attended_date_id' => $dt->format('Ymd'),
                     'technical_team_id' => $job_attendance->technical_team_id,
                     'technical_team_name' => $job_attendance->TechnicalTeam ? $job_attendance->TechnicalTeam->name : '',
-                    'mandays' => (float) $job_attendance->mandays
-                );
+                    'mandays' => (float) $job_attendance->mandays,
+                ];
                 array_push($details, $row);
             }
         }
 
-        $attended_dates = $attendances = $technical_team_ids = array();
+        $attended_dates = $attendances = $technical_team_ids = [];
         foreach ($period as $dt) {
-            $row = array(
+            $row = [
                 'attended_date_id' => $dt->format('Ymd'),
-                'attended_date' => $dt->format('Y-m-d')
-            );
+                'attended_date' => $dt->format('Y-m-d'),
+            ];
             array_push($attended_dates, $row);
         }
 
         foreach ($details as $main_detail) {
-            if (!in_array($main_detail['technical_team_id'], $technical_team_ids)) {
-                $row = array();
+            if (! in_array($main_detail['technical_team_id'], $technical_team_ids)) {
+                $row = [];
                 $row['id'] = $main_detail['technical_team_id'];
                 $row['technical_name'] = $main_detail['technical_team_name'];
                 $total_attendance = 0;
@@ -771,14 +770,14 @@ class ReportController extends Controller
                     foreach ($details as $sub_detail) {
                         if ($main_detail['technical_team_id'] == $sub_detail['technical_team_id']) {
                             if ($dt->format('Ymd') == $sub_detail['attended_date_id']) {
-                                if (!array_key_exists($dt->format('Ymd'), $row)) {
+                                if (! array_key_exists($dt->format('Ymd'), $row)) {
                                     $row[$dt->format('Ymd')] = $sub_detail['mandays'];
                                 } else {
                                     $row[$dt->format('Ymd')] += $sub_detail['mandays'];
                                 }
                                 $total_attendance += $sub_detail['mandays'];
                             } else {
-                                if (!array_key_exists($dt->format('Ymd'), $row)) {
+                                if (! array_key_exists($dt->format('Ymd'), $row)) {
                                     $row[$dt->format('Ymd')] = 0;
                                 } else {
                                     $row[$dt->format('Ymd')] += 0;
@@ -793,10 +792,10 @@ class ReportController extends Controller
             }
         }
 
-        $data = array(
+        $data = [
             'attended_date' => $attended_dates,
-            'attendances' => $attendances
-        );
+            'attendances' => $attendances,
+        ];
 
         return response($data);
     }
@@ -804,7 +803,7 @@ class ReportController extends Controller
     public function technical_job_details(Request $request)
     {
         $technical_team = \App\Model\TechnicalTeam::find($request->technical_id);
-        $job_attendances = \App\Model\JobAttendance::whereBetween('attended_date', array($request->from, $request->to))
+        $job_attendances = \App\Model\JobAttendance::whereBetween('attended_date', [$request->from, $request->to])
             ->where('technical_team_id', $request->technical_id)
             ->where('is_delete', 0)
             ->orderBy('attended_date')
@@ -836,12 +835,12 @@ class ReportController extends Controller
             }
             $view .= '
                     <tr>
-                        <td style="text-align: center; vertical-align: middle;">' . ($index + 1) . '</td>
-                        <td style="text-align: center; vertical-align: middle;">' . $job_type . '</td>
-                        <td style="vertical-align: middle;">' . $customer_name . '</td>
-                        <td style="vertical-align: middle;">' . $customer_address . '</td>
-                        <td style="text-align: center; vertical-align: middle;">' . $value->attended_date . '</td>
-                        <td style="text-align: center; vertical-align: middle;">' . $value->mandays . '</td>
+                        <td style="text-align: center; vertical-align: middle;">'.($index + 1).'</td>
+                        <td style="text-align: center; vertical-align: middle;">'.$job_type.'</td>
+                        <td style="vertical-align: middle;">'.$customer_name.'</td>
+                        <td style="vertical-align: middle;">'.$customer_address.'</td>
+                        <td style="text-align: center; vertical-align: middle;">'.$value->attended_date.'</td>
+                        <td style="text-align: center; vertical-align: middle;">'.$value->mandays.'</td>
                     </tr>
                 ';
         }
@@ -850,16 +849,16 @@ class ReportController extends Controller
                 <tfoot>
                     <tr>
                         <th colspan="5" style="text-align: right; vertical-align: middle;">Total</th>
-                        <th style="text-align: center; vertical-align: middle; border-top: 1px double black; border-bottom: 3px double black;">' . $total_mandays . '</th>
+                        <th style="text-align: center; vertical-align: middle; border-top: 1px double black; border-bottom: 3px double black;">'.$total_mandays.'</th>
                     </tr>
                 </tfoot>
             </table>    
             ';
 
-        $result = array(
+        $result = [
             'view' => $view,
-            'technical_team_name' => $technical_team ? $technical_team->name : ''
-        );
+            'technical_team_name' => $technical_team ? $technical_team->name : '',
+        ];
 
         echo json_encode($result);
     }
@@ -886,7 +885,7 @@ class ReportController extends Controller
 
     public function stock_check_details(Request $request)
     {
-        $data = array();
+        $data = [];
         $items = \App\Model\Item::where(function ($q) use ($request) {
             $request->main_category != -1 ? $q->where('main_category_id', $request->main_category) : '';
         })
@@ -901,7 +900,7 @@ class ReportController extends Controller
             ->get();
         foreach ($items as $item) {
             $current_stock = 0;
-            $serial_nos_array = array();
+            $serial_nos_array = [];
 
             $good_receive_details = \App\Model\GoodReceiveDetails::whereHas('GoodReceive', function ($query) use ($request) {
                 $query->where('is_posted', 1)->where('is_delete', 0);
@@ -955,10 +954,10 @@ class ReportController extends Controller
 
             $serial_nos = '';
             foreach ($serial_nos_array as $index => $value) {
-                $serial_nos .= $index == 0 ? $value : '|' . $value;
+                $serial_nos .= $index == 0 ? $value : '|'.$value;
             }
 
-            $row = array(
+            $row = [
                 'id' => $item->id,
                 'main_category' => $item->MainItemCategory->name,
                 'sub_category' => $item->SubItemCategory->name,
@@ -970,8 +969,8 @@ class ReportController extends Controller
                 'origin' => $item->origin,
                 'unit_type' => $item->UnitType->code,
                 'current_stock' => $current_stock,
-                'serial_nos' => $serial_nos
-            );
+                'serial_nos' => $serial_nos,
+            ];
             array_push($data, $row);
         }
 
@@ -1000,10 +999,10 @@ class ReportController extends Controller
 
     public function item_issue_details(Request $request)
     {
-        $data = array();
+        $data = [];
 
         $item_issue_details = \App\Model\ItemIssueDetails::whereHas('ItemIssue', function ($query) use ($request) {
-            $query->whereBetween('item_issue_date_time', array($request->from . ' 00:01', $request->to . ' 23:59'))
+            $query->whereBetween('item_issue_date_time', [$request->from.' 00:01', $request->to.' 23:59'])
                 ->where(function ($query) use ($request) {
                     $request->item_issue_type_id != -1 ? $query->where('item_issue_type_id', $request->item_issue_type_id) : '';
                 })
@@ -1018,13 +1017,13 @@ class ReportController extends Controller
         foreach ($item_issue_details as $item_issue_detail) {
             $document_no = $customer_name = $customer_address = '';
             if ($item_issue_detail->ItemIssue && $item_issue_detail->ItemIssue->item_issue_type_id == 1 && $item_issue_detail->ItemIssue->Job && $item_issue_detail->ItemIssue->Job->Inquiry && $item_issue_detail->ItemIssue->Job->Inquiry->Contact) {
-                $document_no =  $item_issue_detail->ItemIssue->Job->job_no;
-                $customer_name =  $item_issue_detail->ItemIssue->Job->Inquiry->Contact->name;
-                $customer_address =  $item_issue_detail->ItemIssue->Job->Inquiry->Contact->address;
-            } else if ($item_issue_detail->ItemIssue && $item_issue_detail->ItemIssue->item_issue_type_id == 2 && $item_issue_detail->ItemIssue->TechResponse && $item_issue_detail->ItemIssue->TechResponse->Contact) {
-                $document_no =  $item_issue_detail->ItemIssue->TechResponse->tech_response_no;
-                $customer_name =  $item_issue_detail->ItemIssue->TechResponse->Contact->name;
-                $customer_address =  $item_issue_detail->ItemIssue->TechResponse->Contact->address;
+                $document_no = $item_issue_detail->ItemIssue->Job->job_no;
+                $customer_name = $item_issue_detail->ItemIssue->Job->Inquiry->Contact->name;
+                $customer_address = $item_issue_detail->ItemIssue->Job->Inquiry->Contact->address;
+            } elseif ($item_issue_detail->ItemIssue && $item_issue_detail->ItemIssue->item_issue_type_id == 2 && $item_issue_detail->ItemIssue->TechResponse && $item_issue_detail->ItemIssue->TechResponse->Contact) {
+                $document_no = $item_issue_detail->ItemIssue->TechResponse->tech_response_no;
+                $customer_name = $item_issue_detail->ItemIssue->TechResponse->Contact->name;
+                $customer_address = $item_issue_detail->ItemIssue->TechResponse->Contact->address;
             }
 
             $quantity = $item_issue_detail->quantity;
@@ -1048,7 +1047,7 @@ class ReportController extends Controller
                 }
             }
 
-            $row = array(
+            $row = [
                 'id' => $item_issue_detail->id,
                 'item_issue_type' => $item_issue_detail->ItemIssue && $item_issue_detail->ItemIssue->ItemIssueType ? $item_issue_detail->ItemIssue->ItemIssueType->name : '',
                 'item_issue_no' => $item_issue_detail->ItemIssue ? $item_issue_detail->ItemIssue->item_issue_no : '',
@@ -1063,7 +1062,7 @@ class ReportController extends Controller
                 'rate' => $quantity != 0 ? $item_total / $quantity : 0,
                 'quantity' => $quantity,
                 'value' => $item_total,
-            );
+            ];
             array_push($data, $row);
         }
 
@@ -1092,22 +1091,22 @@ class ReportController extends Controller
 
     public function ongoing_job_item_issue_details(Request $request)
     {
-        $data = array();
+        $data = [];
 
-        $job_ids = array();
+        $job_ids = [];
         $job_details = \App\Model\JobDetails::selectRaw('job_id AS job_id, MAX(job_status_id) AS job_status_id')
-            ->where('update_date_time', '<', date('Y-m-d', strtotime($request->to)) . ' 23:59')
+            ->where('update_date_time', '<', date('Y-m-d', strtotime($request->to)).' 23:59')
             ->where('is_delete', 0)
             ->groupBy('job_id')
             ->get();
         foreach ($job_details as $job_detail) {
             if ($job_detail->job_status_id != 10) {
-                $row = array(
-                    'to_date' => date('Y-m-d', strtotime($request->to)) . ' 23:59',
+                $row = [
+                    'to_date' => date('Y-m-d', strtotime($request->to)).' 23:59',
                     'job_id' => $job_detail->job_id,
                     'job_no' => $job_detail->Job->job_no,
-                    'customer_name' => $job_detail->Job->Inquiry->Contact->name
-                );
+                    'customer_name' => $job_detail->Job->Inquiry->Contact->name,
+                ];
                 array_push($job_ids, $row);
             }
         }
@@ -1144,7 +1143,7 @@ class ReportController extends Controller
                 }
 
                 if ($quantity > 0) {
-                    $row = array(
+                    $row = [
                         'job_no' => $job_id['job_no'],
                         'customer_name' => $job_id['customer_name'],
                         'issue_date_time' => $item_issue_detail->ItemIssue->item_issue_date_time,
@@ -1153,8 +1152,8 @@ class ReportController extends Controller
                         'unit_type' => $item_issue_detail->Item->UnitType->code,
                         'rate' => number_format($value / $quantity, 2, '.', ''),
                         'quantity' => $quantity,
-                        'value' => number_format($value, 2, '.', '')
-                    );
+                        'value' => number_format($value, 2, '.', ''),
+                    ];
                     array_push($data, $row);
                 }
             }
@@ -1185,10 +1184,10 @@ class ReportController extends Controller
 
     public function item_purchase_history_details(Request $request)
     {
-        $data = array();
+        $data = [];
 
         $good_receive_details = \App\Model\GoodReceiveDetails::whereHas('GoodReceive', function ($query) use ($request) {
-            $query->whereBetween('good_receive_date_time', array($request->from . ' 00:01', $request->to . ' 23:59'))
+            $query->whereBetween('good_receive_date_time', [$request->from.' 00:01', $request->to.' 23:59'])
                 ->where('is_posted', 1)
                 ->where('is_delete', 0);
         })
@@ -1198,7 +1197,7 @@ class ReportController extends Controller
             ->where('is_delete', 0)
             ->get();
         foreach ($good_receive_details as $good_receive_detail) {
-            $row = array(
+            $row = [
                 'good_receive_no' => $good_receive_detail->GoodReceive->good_receive_no,
                 'good_receive_date_time' => $good_receive_detail->GoodReceive->good_receive_date_time,
                 'supplier' => $good_receive_detail->GoodReceive->PurchaseOrder ? $good_receive_detail->GoodReceive->PurchaseOrder->Contact->name : '',
@@ -1213,8 +1212,8 @@ class ReportController extends Controller
                 'unit_type' => $good_receive_detail->Item->UnitType->code,
                 'rate' => $good_receive_detail->rate,
                 'quantity' => $good_receive_detail->quantity,
-                'value' => $good_receive_detail->rate * $good_receive_detail->quantity
-            );
+                'value' => $good_receive_detail->rate * $good_receive_detail->quantity,
+            ];
             array_push($data, $row);
         }
 
@@ -1245,43 +1244,43 @@ class ReportController extends Controller
     {
         $item_issues = \App\Model\ItemIssue::select('id', 'item_issue_type_id', 'document_id')
             ->whereHas('TechResponse', function ($query) use ($request) {
-                $query->whereBetween('record_date_time', array($request->from . ' 00:01', $request->to . ' 23:59'))
+                $query->whereBetween('record_date_time', [$request->from.' 00:01', $request->to.' 23:59'])
                     ->where('is_completed', 1)
                     ->where('is_delete', 0);
             })
-            ->with(array('TechResponse' => function ($query) {
+            ->with(['TechResponse' => function ($query) {
                 $query->select('id', 'contact_id', 'tech_response_no', 'record_date_time', 'is_completed')
-                    ->with(array('Contact' => function ($query) {
+                    ->with(['Contact' => function ($query) {
                         $query->select('id', 'name');
-                    }));
-            }))
+                    }]);
+            }])
             ->where('item_issue_type_id', 2)
             ->where('is_posted', 1)
             ->where('is_delete', 0)
             ->groupBy('document_id')
             ->get();
         $tech_responses = \App\Model\TechResponse::select('id', 'contact_id', 'tech_response_no', 'record_date_time', 'is_completed')
-            ->with(array('Contact' => function ($query) {
+            ->with(['Contact' => function ($query) {
                 $query->select('id', 'name');
-            }))
-            ->whereBetween('record_date_time', array($request->from . ' 00:01', $request->to . ' 23:59'))
+            }])
+            ->whereBetween('record_date_time', [$request->from.' 00:01', $request->to.' 23:59'])
             ->where('is_completed', 1)
             ->where('is_delete', 0)
             ->get();
 
-        $data = array(
+        $data = [
             'tech_responses' => $tech_responses,
-            'item_issues' => $item_issues
-        );
+            'item_issues' => $item_issues,
+        ];
 
         return response($data);
     }
 
     public function tech_response_item_issue_details(Request $request)
     {
-        $data = array();
+        $data = [];
 
-        $tech_responses = \App\Model\TechResponse::whereBetween('record_date_time', array($request->from . ' 00:01', $request->to . ' 23:59'))
+        $tech_responses = \App\Model\TechResponse::whereBetween('record_date_time', [$request->from.' 00:01', $request->to.' 23:59'])
             ->where(function ($query) use ($request) {
                 $request->tech_response_id != -1 ? $query->where('id', $request->tech_response_id) : '';
             })
@@ -1296,7 +1295,7 @@ class ReportController extends Controller
                 ->where('is_delete', 0)
                 ->get();
             foreach ($tech_response_invoice_details as $tech_response_invoice_detail) {
-                $row = array(
+                $row = [
                     'id' => $tech_response_invoice_detail->id,
                     'tech_response_no' => $tech_response_invoice_detail->TechResponse ? $tech_response_invoice_detail->TechResponse->tech_response_no : '',
                     'customer_name' => $tech_response_invoice_detail->TechResponse && $tech_response_invoice_detail->TechResponse->Contact ? $tech_response_invoice_detail->TechResponse->Contact->name : '',
@@ -1307,8 +1306,8 @@ class ReportController extends Controller
                     'rate' => $tech_response_invoice_detail->rate,
                     'quantity' => $tech_response_invoice_detail->quantity,
                     'value' => $tech_response_invoice_detail->value,
-                    'invoice_value' => $tech_response_invoice_detail->invoice_value
-                );
+                    'invoice_value' => $tech_response_invoice_detail->invoice_value,
+                ];
                 array_push($data, $row);
             }
         }
@@ -1409,7 +1408,7 @@ class ReportController extends Controller
                         $good_receive_detail->save();
                     }
                 }
-            } else if ($balance_quantity != 0) {
+            } elseif ($balance_quantity != 0) {
                 $good_receive_details = \App\Model\GoodReceiveDetails::whereHas('GoodReceive', function ($query) {
                     $query->where('is_posted', 1)->where('is_delete', 0);
                 })
@@ -1432,10 +1431,10 @@ class ReportController extends Controller
             }
         }
 
-        $result = array(
+        $result = [
             'response' => true,
-            'message' => 'Stock updated successfully'
-        );
+            'message' => 'Stock updated successfully',
+        ];
 
         echo json_encode($result);
     }

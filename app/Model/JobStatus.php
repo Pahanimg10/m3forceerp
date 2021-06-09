@@ -16,16 +16,14 @@ class JobStatus extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
-        'show_update'
+        'show_update',
     ];
 
     /**
      * Relations
      */
-    
     public function JobDetails()
     {
         return $this->hasMany('App\Model\JobDetails', 'job_status_id', 'id')->where('is_delete', 0);
     }
-
 }

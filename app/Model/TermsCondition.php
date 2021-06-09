@@ -16,16 +16,14 @@ class TermsCondition extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
-        'description'
+        'description',
     ];
 
     /**
      * Relations
      */
-    
     public function QuotationTermsCondition()
     {
         return $this->hasMany('App\Model\QuotationTermsCondition', 'terms_condition_id', 'id')->where('is_delete', 0);
     }
-
 }

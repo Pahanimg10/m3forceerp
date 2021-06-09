@@ -15,21 +15,19 @@ class MonitoringCustomerInvoice extends Model
     protected $table = 'monitoring_customer_invoice';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'monitoring_customer_id',  
+        'monitoring_customer_id',
         'invoice_date',
-        'invoice_no', 
+        'invoice_no',
         'payment_received',
         'is_settled',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function MonitoringCustomer()
     {
         return $this->belongsTo('App\Model\MonitoringCustomer', 'monitoring_customer_id', 'id');
     }
-
 }

@@ -2,28 +2,27 @@
 
 namespace App\Http\Controllers;
 
-require_once('ESMSWS.php');
+require_once 'ESMSWS.php';
 session_start();
 date_default_timezone_set('Asia/Colombo');
 set_time_limit(0);
 
-use Illuminate\Http\Request;
-
 use App\Http\Requests;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class TechResponseController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('user_access');
     }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-
     public function new_fault(Request $request)
     {
         $data['main_menus'] = \App\Model\UserAccess::leftJoin('side_menu', 'side_menu.id', '=', 'user_access.side_menu_id')
@@ -71,7 +70,7 @@ class TechResponseController extends Controller
         $contact = \App\Model\Contact::where('name', $request->name)
             ->where('is_delete', 0)
             ->first();
-        if (!$contact) {
+        if (! $contact) {
             $response = 'true';
         } else {
             $response = 'false';
@@ -111,7 +110,7 @@ class TechResponseController extends Controller
                 ->where('is_completed', 0)
                 ->where('is_delete', 0)
                 ->first();
-            if (!$tech_response) {
+            if (! $tech_response) {
                 $response = 'true';
             } else {
                 $response = 'false';
@@ -126,31 +125,32 @@ class TechResponseController extends Controller
     public function find_tech_response(Request $request)
     {
         $tech_response = \App\Model\TechResponse::select('id', 'contact_id', 'tech_response_fault_id', 'tech_response_no', 'record_date_time', 'remarks', 'reported_person', 'reported_contact_no', 'reported_email', 'tech_response_value', 'is_completed', 'user_id')
-            ->with(array('Contact' => function ($query) {
+            ->with(['Contact' => function ($query) {
                 $query->select('id', 'name', 'address', 'contact_no', 'email', 'group_id', 'is_group')
-                    ->with(array('ContactTax' => function ($query) {
+                    ->with(['ContactTax' => function ($query) {
                         $query->select('id', 'contact_id', 'tax_id')
-                            ->with(array('CTaxType' => function ($query) {
+                            ->with(['CTaxType' => function ($query) {
                                 $query->select('id', 'code', 'name', 'percentage');
-                            }));
-                    }))
-                    ->with(array('CGroup' => function ($query) {
+                            }]);
+                    }])
+                    ->with(['CGroup' => function ($query) {
                         $query->select('id', 'name')
-                            ->with(array('CGroupTax' => function ($query) {
+                            ->with(['CGroupTax' => function ($query) {
                                 $query->select('id', 'group_id', 'tax_id')
-                                    ->with(array('CTaxType' => function ($query) {
+                                    ->with(['CTaxType' => function ($query) {
                                         $query->select('id', 'code', 'name', 'percentage');
-                                    }));
-                            }));
-                    }));
-            }))
-            ->with(array('TechResponseFault' => function ($query) {
+                                    }]);
+                            }]);
+                    }]);
+            }])
+            ->with(['TechResponseFault' => function ($query) {
                 $query->select('id', 'name');
-            }))
-            ->with(array('User' => function ($query) {
+            }])
+            ->with(['User' => function ($query) {
                 $query->select('id', 'first_name');
-            }))
+            }])
             ->find($request->id);
+
         return response($tech_response);
     }
 
@@ -176,7 +176,7 @@ class TechResponseController extends Controller
 
     public function ongoing_tech_response_list(Request $request)
     {
-        $tech_response_list = array();
+        $tech_response_list = [];
         $tech_responses = \App\Model\TechResponse::where(function ($q) use ($request) {
             $request->fault_type_id != -1 ? $q->where('tech_response_fault_id', $request->fault_type_id) : '';
         })
@@ -202,7 +202,7 @@ class TechResponseController extends Controller
                     ->where('is_delete', 0)
                     ->get()
                     ->count();
-                $row = array(
+                $row = [
                     'id' => $tech_response->id,
                     'critical_status' => $tech_response_count > 1 ? 1 : 0,
                     'contact_id' => $tech_response->contact_id,
@@ -220,8 +220,8 @@ class TechResponseController extends Controller
                     'update_status_id' => $tech_response_detail && $tech_response_detail->TechResponseStatus ? $tech_response_detail->TechResponseStatus->id : 1,
                     'update_status' => $tech_response_detail && $tech_response_detail->TechResponseStatus ? $tech_response_detail->TechResponseStatus->name : '',
                     'update_remarks' => $tech_response_detail ? $tech_response_detail->remarks : '',
-                    'record_person' => $tech_response->User ? $tech_response->User->first_name : ''
-                );
+                    'record_person' => $tech_response->User ? $tech_response->User->first_name : '',
+                ];
                 if ($request->update_status_id == 0) {
                     if ($tech_response_count > 1) {
                         array_push($tech_response_list, $row);
@@ -232,10 +232,10 @@ class TechResponseController extends Controller
             }
         }
 
-        $data = array(
+        $data = [
             'tech_response_list' => $tech_response_list,
-            'permission' => !in_array(1, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -264,8 +264,8 @@ class TechResponseController extends Controller
 
     public function validate_tech_response_status(Request $request)
     {
-        $avoid = array(2, 7, 11);
-        if ($request->value != $request->update_status && !in_array($request->update_status, $avoid)) {
+        $avoid = [2, 7, 11];
+        if ($request->value != $request->update_status && ! in_array($request->update_status, $avoid)) {
             $tech_response_detail = \App\Model\TechResponseDetails::where('tech_response_id', $request->tech_response_id)
                 ->where('tech_response_status_id', $request->update_status)
                 ->where('is_delete', 0)
@@ -286,10 +286,10 @@ class TechResponseController extends Controller
     {
         $tech_response_status = \App\Model\TechResponseStatus::select('id', 'name')->where('show_update', 1)->get();
 
-        $data = array(
+        $data = [
             'tech_response_status' => $tech_response_status,
-            'users_id' => session()->get('users_id')
-        );
+            'users_id' => session()->get('users_id'),
+        ];
 
         return response($data);
     }
@@ -297,46 +297,47 @@ class TechResponseController extends Controller
     public function find_tech_response_status(Request $request)
     {
         $tech_response_status = \App\Model\TechResponseDetails::select('id', 'tech_response_id', 'update_date_time', 'tech_response_status_id', 'job_scheduled_date_time', 'is_chargeable', 'invoice_no', 'invoice_value', 'remarks')
-            ->with(array('TechResponseStatus' => function ($query) {
+            ->with(['TechResponseStatus' => function ($query) {
                 $query->select('id', 'name', 'show_update');
-            }))
-            ->with(array('TechResponseInvoiceDetails' => function ($query) {
+            }])
+            ->with(['TechResponseInvoiceDetails' => function ($query) {
                 $query->select('id', 'tech_response_details_id', 'item_id', 'rate', 'quantity', 'value', 'invoice_value')
-                    ->with(array('Item' => function ($query) {
+                    ->with(['Item' => function ($query) {
                         $query->select('id', 'code', 'name', 'model_no', 'unit_type_id')
-                            ->with(array('UnitType' => function ($query) {
+                            ->with(['UnitType' => function ($query) {
                                 $query->select('id', 'code', 'name');
-                            }));
-                    }));
-            }))
+                            }]);
+                    }]);
+            }])
             ->find($request->id);
+
         return response($tech_response_status);
     }
 
     public function tech_response_status_list(Request $request)
     {
         $tech_response_status = \App\Model\TechResponseDetails::select('id', 'tech_response_id', 'update_date_time', 'tech_response_status_id', 'job_scheduled_date_time', 'remarks', 'user_id')
-            ->with(array('TechResponseStatus' => function ($query) {
+            ->with(['TechResponseStatus' => function ($query) {
                 $query->select('id', 'name', 'show_update');
-            }))
-            ->with(array('User' => function ($query) {
+            }])
+            ->with(['User' => function ($query) {
                 $query->select('id', 'first_name');
-            }))
+            }])
             ->where('tech_response_id', $request->tech_response_id)
             ->where('is_delete', 0)
             ->get();
 
-        $data = array(
+        $data = [
             'tech_response_status' => $tech_response_status,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
 
     public function get_issed_items(Request $request)
     {
-        $data = $issued_items = $item_issue_ids = $returned_items = array();
+        $data = $issued_items = $item_issue_ids = $returned_items = [];
 
         $item_issues = \App\Model\ItemIssue::where('item_issue_type_id', 2)
             ->where('document_id', $request->tech_response_id)
@@ -358,15 +359,15 @@ class TechResponseController extends Controller
                     $value += $item_issue_breakdown->type == 1 ? $item_issue_breakdown->GoodReceiveBreakdown->GoodReceiveDetails->rate * $item_issue_breakdown->quantity : $item_issue_breakdown->GoodReceiveDetails->rate * $item_issue_breakdown->quantity;
                 }
 
-                $row = array(
+                $row = [
                     'id' => $item_issue_detail->Item->id,
                     'code' => $item_issue_detail->Item->code,
                     'name' => $item_issue_detail->Item->name,
                     'unit_type' => $item_issue_detail->Item->UnitType->code,
                     'rate' => $quantity != 0 ? $value / $quantity : 0,
                     'quantity' => $quantity,
-                    'value' => $value
-                );
+                    'value' => $value,
+                ];
                 array_push($issued_items, $row);
             }
         }
@@ -389,23 +390,23 @@ class TechResponseController extends Controller
                     $value += $item_receive_breakdown->type == 1 ? $item_receive_breakdown->GoodReceiveBreakdown->GoodReceiveDetails->rate * $item_receive_breakdown->quantity : $item_receive_breakdown->GoodReceiveDetails->rate * $item_receive_breakdown->quantity;
                 }
 
-                $row = array(
+                $row = [
                     'id' => $item_receive_detail->Item->id,
                     'code' => $item_receive_detail->Item->code,
                     'name' => $item_receive_detail->Item->name,
                     'unit_type' => $item_receive_detail->Item->UnitType->code,
                     'rate' => $quantity != 0 ? $value / $quantity : 0,
                     'quantity' => $quantity,
-                    'value' => $value
-                );
+                    'value' => $value,
+                ];
                 array_push($returned_items, $row);
             }
         }
 
         $count = 0;
-        $issued_item_ids = array();
+        $issued_item_ids = [];
         foreach ($issued_items as $main_issued_item) {
-            if (!in_array($main_issued_item['id'], $issued_item_ids)) {
+            if (! in_array($main_issued_item['id'], $issued_item_ids)) {
                 $total_quantity = $total_value = 0;
                 foreach ($issued_items as $sub_issued_item) {
                     if ($main_issued_item['id'] == $sub_issued_item['id']) {
@@ -421,18 +422,18 @@ class TechResponseController extends Controller
                 }
 
                 if ($total_quantity != 0) {
-                    $row = array(
+                    $row = [
                         'index' => $count,
                         'id' => $main_issued_item['id'],
                         'column' => $count + 1,
                         'code' => $main_issued_item['code'],
                         'name' => $main_issued_item['name'],
                         'unit_type' => $main_issued_item['unit_type'],
-                        'rate' => number_format($total_value / $total_quantity, 2, ".", ""),
-                        'quantity' => number_format($total_quantity, 2, ".", ""),
-                        'value' => number_format($total_value, 2, ".", ""),
-                        'invoice_value' => 0
-                    );
+                        'rate' => number_format($total_value / $total_quantity, 2, '.', ''),
+                        'quantity' => number_format($total_quantity, 2, '.', ''),
+                        'value' => number_format($total_value, 2, '.', ''),
+                        'invoice_value' => 0,
+                    ];
                     array_push($data, $row);
                     $count++;
                 }
@@ -531,7 +532,7 @@ class TechResponseController extends Controller
             $tech_response = new \App\Model\TechResponse();
             $tech_response->contact_id = $request->contact_id;
             $tech_response->tech_response_fault_id = isset($request->fault_types['id']) ? $request->fault_types['id'] : 0;
-            $tech_response->record_date_time = date('Y-m-d', strtotime($request->record_date)) . ' ' . $request->record_time;
+            $tech_response->record_date_time = date('Y-m-d', strtotime($request->record_date)).' '.$request->record_time;
             $tech_response->remarks = $request->remarks;
             $tech_response->reported_person = $request->reported_person;
             $tech_response->reported_contact_no = $request->reported_contact_no;
@@ -539,23 +540,22 @@ class TechResponseController extends Controller
             $tech_response->user_id = $request->session()->get('users_id');
 
             if ($tech_response->save()) {
-                $tech_response->tech_response_no = 'TR/' . date('m') . '/' . date('y') . '/' . sprintf('%05d', $tech_response->id);
+                $tech_response->tech_response_no = 'TR/'.date('m').'/'.date('y').'/'.sprintf('%05d', $tech_response->id);
                 $tech_response->save();
 
-                $sms = '--- M3Force Tech Response ---' . PHP_EOL;
-                $sms .= 'Tech Response No : ' . $tech_response->tech_response_no . PHP_EOL;
-                $sms .= 'Customer ID : ' . $tech_response->Contact->contact_id . PHP_EOL;
-                $sms .= 'Customer Name : ' . $tech_response->Contact->name . PHP_EOL;
-                $sms .= 'Customer Address : ' . $tech_response->Contact->address . PHP_EOL;
-                $sms .= 'Customer Contact No : ' . $tech_response->Contact->contact_no . PHP_EOL;
-                $sms .= 'Contact End Date : ' . $tech_response->Contact->end_date . PHP_EOL;
-                $sms .= 'Fault Type : ' . $tech_response->TechResponseFault->name . PHP_EOL;
-                $sms .= 'Remarks : ' . $tech_response->remarks . PHP_EOL;
-                $sms .= 'Logged User : ' . $tech_response->User->first_name . ' ' . $tech_response->User->last_name;
+                $sms = '--- M3Force Tech Response ---'.PHP_EOL;
+                $sms .= 'Tech Response No : '.$tech_response->tech_response_no.PHP_EOL;
+                $sms .= 'Customer ID : '.$tech_response->Contact->contact_id.PHP_EOL;
+                $sms .= 'Customer Name : '.$tech_response->Contact->name.PHP_EOL;
+                $sms .= 'Customer Address : '.$tech_response->Contact->address.PHP_EOL;
+                $sms .= 'Customer Contact No : '.$tech_response->Contact->contact_no.PHP_EOL;
+                $sms .= 'Contact End Date : '.$tech_response->Contact->end_date.PHP_EOL;
+                $sms .= 'Fault Type : '.$tech_response->TechResponseFault->name.PHP_EOL;
+                $sms .= 'Remarks : '.$tech_response->remarks.PHP_EOL;
+                $sms .= 'Logged User : '.$tech_response->User->first_name.' '.$tech_response->User->last_name;
 
                 $session = createSession('', 'esmsusr_1na2', '3p4lfqe', '');
-                sendMessages($session, 'M3FORCE', $sms, array('0704599310', '0704599321', '0704599323'));
-
+                sendMessages($session, 'M3FORCE', $sms, ['0704599310', '0704599321', '0704599323']);
 
                 $tech_response_detail = new \App\Model\TechResponseDetails();
                 $tech_response_detail->tech_response_id = $tech_response->id;
@@ -567,26 +567,26 @@ class TechResponseController extends Controller
                 $tech_response_detail->user_id = $request->session()->get('users_id');
                 $tech_response_detail->save();
 
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Created,' . $tech_response->id . ',' . $tech_response->contact_id . ',' . $tech_response->tech_response_fault_id . ',' . $tech_response->record_date_time . ',' . str_replace(',', ' ', $tech_response->remarks) . ',' . str_replace(',', ' ', $tech_response->reported_person) . ',' . str_replace(',', ' ', $tech_response->reported_contact_no) . ',' . str_replace(',', ' ', $tech_response->reported_email) . ',' . $tech_response_detail->id . ',' . $tech_response_detail->update_date_time . ',' . $tech_response_detail->tech_response_status_id . ',' . $tech_response_detail->job_scheduled_date_time . ',' . $tech_response_detail->is_chargeable . ',' . str_replace(',', ' ', $tech_response_detail->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Created,'.$tech_response->id.','.$tech_response->contact_id.','.$tech_response->tech_response_fault_id.','.$tech_response->record_date_time.','.str_replace(',', ' ', $tech_response->remarks).','.str_replace(',', ' ', $tech_response->reported_person).','.str_replace(',', ' ', $tech_response->reported_contact_no).','.str_replace(',', ' ', $tech_response->reported_email).','.$tech_response_detail->id.','.$tech_response_detail->update_date_time.','.$tech_response_detail->tech_response_status_id.','.$tech_response_detail->job_scheduled_date_time.','.$tech_response_detail->is_chargeable.','.str_replace(',', ' ', $tech_response_detail->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Tech Response created successfully'
-                );
+                    'message' => 'Tech Response created successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Tech Response creation failed'
-                );
+                    'message' => 'Tech Response creation failed',
+                ];
             }
-        } else if ($request->type == 1) {
+        } elseif ($request->type == 1) {
             $tech_response_status = new \App\Model\TechResponseDetails();
             $tech_response_status->tech_response_id = $request->tech_response_id;
-            $tech_response_status->update_date_time = date('Y-m-d', strtotime($request->update_date)) . ' ' . $request->update_time;
+            $tech_response_status->update_date_time = date('Y-m-d', strtotime($request->update_date)).' '.$request->update_time;
             $tech_response_status->tech_response_status_id = isset($request->update_status['id']) ? $request->update_status['id'] : 0;
-            $tech_response_status->job_scheduled_date_time = isset($request->update_status['id']) && $request->update_status['id'] == 9 ? date('Y-m-d', strtotime($request->job_scheduled_date)) . ' ' . $request->job_scheduled_time : '';
+            $tech_response_status->job_scheduled_date_time = isset($request->update_status['id']) && $request->update_status['id'] == 9 ? date('Y-m-d', strtotime($request->job_scheduled_date)).' '.$request->job_scheduled_time : '';
             $tech_response_status->is_chargeable = isset($request->update_status['id']) && $request->update_status['id'] == 13 && $request->is_chargeable ? 1 : 0;
             $tech_response_status->invoice_no = isset($request->update_status['id']) && $request->update_status['id'] == 13 ? $request->invoice_no : '';
             $tech_response_status->invoice_value = isset($request->update_status['id']) && $request->update_status['id'] == 13 && is_numeric($request->invoice_value) ? $request->invoice_value : 0;
@@ -614,19 +614,19 @@ class TechResponseController extends Controller
                         $other_tech_response_status->user_id = $tech_response_status->user_id;
                         $other_tech_response_status->save();
 
-                        $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
-                        fwrite($myfile, 'Created,' . $other_tech_response->id . ',,,,,,,,,' . $other_tech_response_status->id . ',' . $other_tech_response_status->update_date_time . ',' . $other_tech_response_status->tech_response_status_id . ',' . $other_tech_response_status->job_scheduled_date_time . ',' . $other_tech_response_status->is_chargeable . ',' . str_replace(',', ' ', $other_tech_response_status->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                        $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
+                        fwrite($myfile, 'Created,'.$other_tech_response->id.',,,,,,,,,'.$other_tech_response_status->id.','.$other_tech_response_status->update_date_time.','.$other_tech_response_status->tech_response_status_id.','.$other_tech_response_status->job_scheduled_date_time.','.$other_tech_response_status->is_chargeable.','.str_replace(',', ' ', $other_tech_response_status->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                         fclose($myfile);
                     }
 
-                    $data = array(
+                    $data = [
                         'customer_contact_id' => $tech_response->Contact->contact_id,
                         'customer_name' => $tech_response->Contact->name,
                         'customer_address' => $tech_response->Contact->address,
                         'customer_contact_no' => $tech_response->Contact->contact_no,
                         'tech_response_update_date_time' => $tech_response_status->update_date_time,
-                        'tech_response_remarks' => $tech_response_status->remarks
-                    );
+                        'tech_response_remarks' => $tech_response_status->remarks,
+                    ];
 
                     Mail::send('emails.tech_response_complete_notification', $data, function ($message) {
                         $message->from('mail.smtp.m3force@gmail.com', 'M3Force ERP System');
@@ -635,7 +635,7 @@ class TechResponseController extends Controller
                         $message->cc('accountant@m3force.com', 'Account Assistant');
                         $message->subject('M3Force Tech Response Complete Notification');
                     });
-                } else if ($tech_response_status->tech_response_status_id == 13) {
+                } elseif ($tech_response_status->tech_response_status_id == 13) {
                     $tech_response->is_completed = 1;
                     $tech_response->save();
 
@@ -655,7 +655,7 @@ class TechResponseController extends Controller
                     }
 
                     if ($request->is_chargeable) {
-                        $tech_response_quotation_ids = array();
+                        $tech_response_quotation_ids = [];
                         $total_value = 0;
                         $tech_response_quotations = \App\Model\TechResponseQuotation::where('tech_response_id', $tech_response->id)
                             ->where('is_confirmed', 1)
@@ -669,7 +669,7 @@ class TechResponseController extends Controller
                         $tech_response_customer = \App\Model\TechResponseCustomer::where('contact_id', $tech_response->contact_id)
                             ->where('is_delete', 0)
                             ->first();
-                        if (!$tech_response_customer) {
+                        if (! $tech_response_customer) {
                             $tech_response_customer = new \App\Model\TechResponseCustomer();
                             $tech_response_customer->contact_id = $tech_response->contact_id;
                             $tech_response_customer->pending_amount = 0;
@@ -686,8 +686,8 @@ class TechResponseController extends Controller
                             $last_tech_response_customer_invoice = \App\Model\TechResponseCustomerInvoice::select('id')->where('is_delete', 0)->orderBy('id', 'desc')->first();
                             $last_id = $last_tech_response_customer_invoice ? $last_tech_response_customer_invoice->id : $last_id;
 
-                            $tech_response_customer_invoice->invoice_date =  date('Y-m-d');
-                            $tech_response_customer_invoice->invoice_no = 'INV/TR/' . date('m') . '/' . date('y') . '/' . sprintf('%05d', $last_id + 1);
+                            $tech_response_customer_invoice->invoice_date = date('Y-m-d');
+                            $tech_response_customer_invoice->invoice_no = 'INV/TR/'.date('m').'/'.date('y').'/'.sprintf('%05d', $last_id + 1);
                             $tech_response_customer_invoice->save();
                         }
 
@@ -720,19 +720,19 @@ class TechResponseController extends Controller
                     }
                 }
 
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Created,' . $tech_response->id . ',,,,,,,,' . $tech_response_status->id . ',' . $tech_response_status->update_date_time . ',' . $tech_response_status->tech_response_status_id . ',' . $tech_response_status->job_scheduled_date_time . ',' . $tech_response_status->is_chargeable . ',' . str_replace(',', ' ', $tech_response_status->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Created,'.$tech_response->id.',,,,,,,,'.$tech_response_status->id.','.$tech_response_status->update_date_time.','.$tech_response_status->tech_response_status_id.','.$tech_response_status->job_scheduled_date_time.','.$tech_response_status->is_chargeable.','.str_replace(',', ' ', $tech_response_status->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Tech Response Status created successfully'
-                );
+                    'message' => 'Tech Response Status created successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Tech Response Status creation failed'
-                );
+                    'message' => 'Tech Response Status creation failed',
+                ];
             }
         }
 
@@ -775,33 +775,33 @@ class TechResponseController extends Controller
             $tech_response->contact_id = $request->contact_id;
             $tech_response->tech_response_fault_id = isset($request->fault_types['id']) ? $request->fault_types['id'] : 0;
             $tech_response->tech_response_no = $request->tech_response_no;
-            $tech_response->record_date_time = date('Y-m-d', strtotime($request->record_date)) . ' ' . $request->record_time;
+            $tech_response->record_date_time = date('Y-m-d', strtotime($request->record_date)).' '.$request->record_time;
             $tech_response->remarks = $request->remarks;
             $tech_response->reported_person = $request->reported_person;
             $tech_response->reported_contact_no = $request->reported_contact_no;
             $tech_response->reported_email = $request->reported_email;
 
-            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Updated,' . $tech_response->id . ',' . $tech_response->contact_id . ',' . $tech_response->tech_response_fault_id . ',' . $tech_response->record_date_time . ',' . str_replace(',', ' ', $tech_response->remarks) . ',' . str_replace(',', ' ', $tech_response->reported_person) . ',' . str_replace(',', ' ', $tech_response->reported_contact_no) . ',' . str_replace(',', ' ', $tech_response->reported_email) . ',,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
+            fwrite($myfile, 'Updated,'.$tech_response->id.','.$tech_response->contact_id.','.$tech_response->tech_response_fault_id.','.$tech_response->record_date_time.','.str_replace(',', ' ', $tech_response->remarks).','.str_replace(',', ' ', $tech_response->reported_person).','.str_replace(',', ' ', $tech_response->reported_contact_no).','.str_replace(',', ' ', $tech_response->reported_email).',,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
 
             if ($tech_response->save()) {
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Tech Response updated successfully'
-                );
+                    'message' => 'Tech Response updated successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Tech Response updation failed'
-                );
+                    'message' => 'Tech Response updation failed',
+                ];
             }
-        } else if ($request->type == 1) {
+        } elseif ($request->type == 1) {
             $tech_response_status = \App\Model\TechResponseDetails::find($id);
             $tech_response_status->tech_response_id = $request->tech_response_id;
-            $tech_response_status->update_date_time = date('Y-m-d', strtotime($request->update_date)) . ' ' . $request->update_time;
+            $tech_response_status->update_date_time = date('Y-m-d', strtotime($request->update_date)).' '.$request->update_time;
             $tech_response_status->tech_response_status_id = isset($request->update_status['id']) ? $request->update_status['id'] : 0;
-            $tech_response_status->job_scheduled_date_time = isset($request->update_status['id']) && $request->update_status['id'] == 9 ? date('Y-m-d', strtotime($request->job_scheduled_date)) . ' ' . $request->job_scheduled_time : '';
+            $tech_response_status->job_scheduled_date_time = isset($request->update_status['id']) && $request->update_status['id'] == 9 ? date('Y-m-d', strtotime($request->job_scheduled_date)).' '.$request->job_scheduled_time : '';
             $tech_response_status->is_chargeable = isset($request->update_status['id']) && $request->update_status['id'] == 13 && $request->is_chargeable ? 1 : 0;
             $tech_response_status->invoice_no = isset($request->update_status['id']) && $request->update_status['id'] == 13 ? $request->invoice_no : '';
             $tech_response_status->invoice_value = isset($request->update_status['id']) && $request->update_status['id'] == 13 && is_numeric($request->invoice_value) ? $request->invoice_value : '';
@@ -829,19 +829,19 @@ class TechResponseController extends Controller
                         $other_tech_response_status->user_id = $tech_response_status->user_id;
                         $other_tech_response_status->save();
 
-                        $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
-                        fwrite($myfile, 'Created,' . $other_tech_response->id . ',,,,,,,,,' . $other_tech_response_status->id . ',' . $other_tech_response_status->update_date_time . ',' . $other_tech_response_status->tech_response_status_id . ',' . $other_tech_response_status->job_scheduled_date_time . ',' . $other_tech_response_status->is_chargeable . ',' . str_replace(',', ' ', $other_tech_response_status->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                        $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
+                        fwrite($myfile, 'Created,'.$other_tech_response->id.',,,,,,,,,'.$other_tech_response_status->id.','.$other_tech_response_status->update_date_time.','.$other_tech_response_status->tech_response_status_id.','.$other_tech_response_status->job_scheduled_date_time.','.$other_tech_response_status->is_chargeable.','.str_replace(',', ' ', $other_tech_response_status->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                         fclose($myfile);
                     }
 
-                    $data = array(
+                    $data = [
                         'customer_contact_id' => $tech_response->Contact->contact_id,
                         'customer_name' => $tech_response->Contact->name,
                         'customer_address' => $tech_response->Contact->address,
                         'customer_contact_no' => $tech_response->Contact->contact_no,
                         'tech_response_update_date_time' => $tech_response_status->update_date_time,
-                        'tech_response_remarks' => $tech_response_status->remarks
-                    );
+                        'tech_response_remarks' => $tech_response_status->remarks,
+                    ];
 
                     Mail::send('emails.tech_response_complete_notification', $data, function ($message) {
                         $message->from('mail.smtp.m3force@gmail.com', 'M3Force ERP System');
@@ -850,7 +850,7 @@ class TechResponseController extends Controller
                         $message->cc('accountant@m3force.com', 'Account Assistant');
                         $message->subject('M3Force Tech Response Complete Notification');
                     });
-                } else if ($tech_response_status->tech_response_status_id == 13) {
+                } elseif ($tech_response_status->tech_response_status_id == 13) {
                     $tech_response->is_completed = 1;
                     $tech_response->save();
 
@@ -870,7 +870,7 @@ class TechResponseController extends Controller
                     }
 
                     if ($request->is_chargeable) {
-                        $tech_response_quotation_ids = array();
+                        $tech_response_quotation_ids = [];
                         $total_value = 0;
                         $tech_response_quotations = \App\Model\TechResponseQuotation::where('tech_response_id', $tech_response->id)
                             ->where('is_confirmed', 1)
@@ -884,7 +884,7 @@ class TechResponseController extends Controller
                         $tech_response_customer = \App\Model\TechResponseCustomer::where('contact_id', $tech_response->contact_id)
                             ->where('is_delete', 0)
                             ->first();
-                        if (!$tech_response_customer) {
+                        if (! $tech_response_customer) {
                             $tech_response_customer = new \App\Model\TechResponseCustomer();
                             $tech_response_customer->contact_id = $tech_response->contact_id;
                             $tech_response_customer->pending_amount = 0;
@@ -901,8 +901,8 @@ class TechResponseController extends Controller
                             $last_tech_response_customer_invoice = \App\Model\TechResponseCustomerInvoice::select('id')->where('is_delete', 0)->orderBy('id', 'desc')->first();
                             $last_id = $last_tech_response_customer_invoice ? $last_tech_response_customer_invoice->id : $last_id;
 
-                            $tech_response_customer_invoice->invoice_date =  date('Y-m-d');
-                            $tech_response_customer_invoice->invoice_no = 'INV/TR/' . date('m') . '/' . date('y') . '/' . sprintf('%05d', $last_id + 1);
+                            $tech_response_customer_invoice->invoice_date = date('Y-m-d');
+                            $tech_response_customer_invoice->invoice_no = 'INV/TR/'.date('m').'/'.date('y').'/'.sprintf('%05d', $last_id + 1);
                             $tech_response_customer_invoice->save();
                         }
 
@@ -935,19 +935,19 @@ class TechResponseController extends Controller
                     }
                 }
 
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Updated,' . $tech_response->id . ',,,,,,,,' . $tech_response_status->id . ',' . $tech_response_status->update_date_time . ',' . $tech_response_status->tech_response_status_id . ',' . $tech_response_status->job_scheduled_date_time . ',' . $tech_response_status->is_chargeable . ',' . str_replace(',', ' ', $tech_response_status->remarks) . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Updated,'.$tech_response->id.',,,,,,,,'.$tech_response_status->id.','.$tech_response_status->update_date_time.','.$tech_response_status->tech_response_status_id.','.$tech_response_status->job_scheduled_date_time.','.$tech_response_status->is_chargeable.','.str_replace(',', ' ', $tech_response_status->remarks).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Tech Response Status updated successfully'
-                );
+                    'message' => 'Tech Response Status updated successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Tech Response Status updation failed'
-                );
+                    'message' => 'Tech Response Status updation failed',
+                ];
             }
         }
 
@@ -967,41 +967,41 @@ class TechResponseController extends Controller
             $tech_response->is_delete = 1;
 
             if ($tech_response->save()) {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Deleted,' . $tech_response->id . ',,,,,,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Deleted,'.$tech_response->id.',,,,,,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
                 $tech_response_details = \App\Model\TechResponseDetails::where('tech_response_id', $tech_response->id)
                     ->where('is_delete', 0)
                     ->update(['is_delete' => 1]);
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Tech Response deleted successfully'
-                );
+                    'message' => 'Tech Response deleted successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Tech Response deletion failed'
-                );
+                    'message' => 'Tech Response deletion failed',
+                ];
             }
-        } else if ($request->type == 1) {
+        } elseif ($request->type == 1) {
             $tech_response_detail = \App\Model\TechResponseDetails::find($id);
             $tech_response_detail->is_delete = 1;
 
             if ($tech_response_detail->save()) {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Deleted,' . $tech_response->id . ',,,,,,,,' . $tech_response_detail->id . ',,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/tech_response_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Deleted,'.$tech_response->id.',,,,,,,,'.$tech_response_detail->id.',,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Tech Response Status deleted successfully'
-                );
+                    'message' => 'Tech Response Status deleted successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Tech Response Status deletion failed'
-                );
+                    'message' => 'Tech Response Status deletion failed',
+                ];
             }
         }
 

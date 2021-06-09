@@ -15,23 +15,21 @@ class CGroupTax extends Model
     protected $table = 'm_c_group_tax';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'group_id', 
-        'tax_id', 
-        'is_delete'
+        'group_id',
+        'tax_id',
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function CGroup()
     {
         return $this->belongsTo('App\Model\CGroup', 'group_id', 'id');
     }
-    
+
     public function CTaxType()
     {
         return $this->belongsTo('App\Model\CTaxType', 'tax_id', 'id');
     }
-
 }

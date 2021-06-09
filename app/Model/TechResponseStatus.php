@@ -16,16 +16,14 @@ class TechResponseStatus extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
-        'show_update'
+        'show_update',
     ];
 
     /**
      * Relations
      */
-    
     public function TechResponseDetails()
     {
         return $this->hasMany('App\Model\TechResponseDetails', 'tech_response_status_id', 'id')->where('is_delete', 0);
     }
-
 }

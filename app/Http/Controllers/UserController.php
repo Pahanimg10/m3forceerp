@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-require_once('ESMSWS.php');
+require_once 'ESMSWS.php';
 session_start();
 date_default_timezone_set('Asia/Colombo');
 set_time_limit(0);
 
-use Illuminate\Http\Request;
-
 use App\Http\Requests;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('admin_access');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -25,7 +25,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        if (!session()->get('LoggedIn') || (!in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')))) {
+        if (! session()->get('LoggedIn') || (! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')))) {
             return redirect('/home');
         } else {
             $data['main_menus'] = \App\Model\UserAccess::leftJoin('side_menu', 'side_menu.id', '=', 'user_access.side_menu_id')
@@ -42,6 +42,7 @@ class UserController extends Controller
                 ->distinct('side_menu.id')
                 ->select('side_menu.id as id', 'side_menu.menu_order as menu_order', 'side_menu.menu_category as menu_category', 'side_menu.menu_name as menu_name', 'side_menu.menu_id as menu_id', 'side_menu.menu_icon as menu_icon', 'side_menu.menu_url as menu_url')
                 ->get();
+
             return view('admin.manage_user', $data);
         }
     }
@@ -50,27 +51,29 @@ class UserController extends Controller
     {
         $users = \App\Model\User::select('id', 'job_position_id', 'first_name', 'last_name', 'contact_no', 'email', 'username', 'user_image')
             ->where('is_delete', 0)
-            ->with(array('JobPosition' => function ($query) {
+            ->with(['JobPosition' => function ($query) {
                 $query->select('id', 'name');
-            }))
+            }])
             ->get();
-        $result = array(
+        $result = [
             'users' => $users,
-            'login_id' => session()->get('users_id')
-        );
+            'login_id' => session()->get('users_id'),
+        ];
+
         return response($result);
     }
 
     public function find_user(Request $request)
     {
         $users = \App\Model\User::select('id', 'job_position_id', 'first_name', 'last_name', 'contact_no', 'email', 'username', 'user_image')
-            ->with(array('JobPosition' => function ($query) {
+            ->with(['JobPosition' => function ($query) {
                 $query->select('id', 'name');
-            }))
-            ->with(array('UserGroupPermission' => function ($query) {
+            }])
+            ->with(['UserGroupPermission' => function ($query) {
                 $query->select('id', 'user_id', 'user_group_id');
-            }))
+            }])
             ->find($request->id);
+
         return response($users);
     }
 
@@ -80,6 +83,7 @@ class UserController extends Controller
             ->where('is_delete', 0)
             ->orderBy('name')
             ->get();
+
         return response($job_positions);
     }
 
@@ -88,6 +92,7 @@ class UserController extends Controller
         $groups = \App\Model\UserGroup::select('id', 'name', 'permission')
             ->orderBy('id', 'desc')
             ->get();
+
         return response($groups);
     }
 
@@ -111,25 +116,25 @@ class UserController extends Controller
 
     public function image_upload()
     {
-        if (!empty($_FILES['image'])) {
+        if (! empty($_FILES['image'])) {
             $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $image = time() . '.' . $ext;
-            move_uploaded_file($_FILES["image"]["tmp_name"], 'assets/images/users/' . $image);
+            $image = time().'.'.$ext;
+            move_uploaded_file($_FILES['image']['tmp_name'], 'assets/images/users/'.$image);
 
-            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/user_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Image Uploaded,,,,,,,assets/images/users/' . str_replace(',', ' ', $image) . ',,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/user_controller.csv', 'a+') or die('Unable to open/create file!');
+            fwrite($myfile, 'Image Uploaded,,,,,,,assets/images/users/'.str_replace(',', ' ', $image).',,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
 
-            $result = array(
+            $result = [
                 'response' => true,
                 'message' => 'success',
-                'image' => $image
-            );
+                'image' => $image,
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Image Is Empty'
-            );
+                'message' => 'Image Is Empty',
+            ];
         }
 
         echo json_encode($result);
@@ -153,7 +158,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        if (!session()->get('LoggedIn') || (!in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')))) {
+        if (! session()->get('LoggedIn') || (! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')))) {
             return redirect('/home');
         } else {
             $user = new \App\Model\User();
@@ -176,16 +181,16 @@ class UserController extends Controller
                         $permission->user_group_id = $types[$i]['id'];
                         $permission->save();
 
-                        $user_group_ids .= $user_group_ids != '' ? '|' . $permission->user_group_id : $permission->user_group_id;
+                        $user_group_ids .= $user_group_ids != '' ? '|'.$permission->user_group_id : $permission->user_group_id;
                     }
                 }
 
-                $data = array(
-                    'name' => $request->first_name . ' ' . $request->last_name,
+                $data = [
+                    'name' => $request->first_name.' '.$request->last_name,
                     'email' => $request->email,
                     'username' => $request->username,
-                    'password' => $request->password
-                );
+                    'password' => $request->password,
+                ];
 
                 Mail::send('emails.login_details', $data, function ($message) use ($data) {
                     $message->from('mail.smtp.m3force@gmail.com', 'M3Force ERP System');
@@ -195,28 +200,28 @@ class UserController extends Controller
                 });
 
                 if ($request->contact_no) {
-                    $sms = '--- M3FORCE ERP Login ---' . PHP_EOL;
-                    $sms .= 'Name : ' . $request->first_name . ' ' . $request->last_name . PHP_EOL;
-                    $sms .= 'Username : ' . $request->username . PHP_EOL;
-                    $sms .= 'Password : ' . $request->password;
+                    $sms = '--- M3FORCE ERP Login ---'.PHP_EOL;
+                    $sms .= 'Name : '.$request->first_name.' '.$request->last_name.PHP_EOL;
+                    $sms .= 'Username : '.$request->username.PHP_EOL;
+                    $sms .= 'Password : '.$request->password;
 
                     $session = createSession('', 'esmsusr_1na2', '3p4lfqe', '');
-                    sendMessages($session, 'M3FORCE', $sms, array($request->contact_no));
+                    sendMessages($session, 'M3FORCE', $sms, [$request->contact_no]);
                 }
 
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/user_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Created,' . $user->id . ',' . str_replace(',', ' ', $user->first_name) . ',' . str_replace(',', ' ', $user->last_name) . ',' . str_replace(',', ' ', $user->contact_no) . ',' . str_replace(',', ' ', $user->email) . ',' . $user->job_position_id . ',' . str_replace(',', ' ', $user->user_image) . ',' . str_replace(',', ' ', $user->username) . ',' . str_replace(',', ' ', $user->password) . ',' . $user_group_ids . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/user_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Created,'.$user->id.','.str_replace(',', ' ', $user->first_name).','.str_replace(',', ' ', $user->last_name).','.str_replace(',', ' ', $user->contact_no).','.str_replace(',', ' ', $user->email).','.$user->job_position_id.','.str_replace(',', ' ', $user->user_image).','.str_replace(',', ' ', $user->username).','.str_replace(',', ' ', $user->password).','.$user_group_ids.','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Profile created successfully'
-                );
+                    'message' => 'Profile created successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Profile creation failed'
-                );
+                    'message' => 'Profile creation failed',
+                ];
             }
 
             echo json_encode($result);
@@ -254,7 +259,7 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!session()->get('LoggedIn') || (!in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')))) {
+        if (! session()->get('LoggedIn') || (! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')))) {
             return redirect('/home');
         } else {
             $user = \App\Model\User::find($id);
@@ -295,23 +300,23 @@ class UserController extends Controller
                             $new_permission->user_group_id = $types[$i]['id'];
                             $new_permission->save();
                         }
-                        $user_group_ids .= $user_group_ids != '' ? '|' . $types[$i]['id'] : $types[$i]['id'];
+                        $user_group_ids .= $user_group_ids != '' ? '|'.$types[$i]['id'] : $types[$i]['id'];
                     }
                 }
 
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/user_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Updated,' . $user->id . ',' . str_replace(',', ' ', $user->first_name) . ',' . str_replace(',', ' ', $user->last_name) . ',' . str_replace(',', ' ', $user->contact_no) . ',' . str_replace(',', ' ', $user->email) . ',' . $user->job_position_id . ',' . str_replace(',', ' ', $user->user_image) . ',' . str_replace(',', ' ', $user->username) . ',' . str_replace(',', ' ', $user->password) . ',' . $user_group_ids . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/user_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Updated,'.$user->id.','.str_replace(',', ' ', $user->first_name).','.str_replace(',', ' ', $user->last_name).','.str_replace(',', ' ', $user->contact_no).','.str_replace(',', ' ', $user->email).','.$user->job_position_id.','.str_replace(',', ' ', $user->user_image).','.str_replace(',', ' ', $user->username).','.str_replace(',', ' ', $user->password).','.$user_group_ids.','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Profile updated successfully'
-                );
+                    'message' => 'Profile updated successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Profile updation failed'
-                );
+                    'message' => 'Profile updation failed',
+                ];
             }
 
             echo json_encode($result);
@@ -326,7 +331,7 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        if (!session()->get('LoggedIn') || (!in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')))) {
+        if (! session()->get('LoggedIn') || (! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')))) {
             return redirect('/home');
         } else {
             $user = \App\Model\User::find($id);
@@ -341,19 +346,19 @@ class UserController extends Controller
                     $permission->save();
                 }
 
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/user_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Deleted,' . $user->id . ',,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/user_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Deleted,'.$user->id.',,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Profile deleted successfully'
-                );
+                    'message' => 'Profile deleted successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Profile deletion failed'
-                );
+                    'message' => 'Profile deletion failed',
+                ];
             }
 
             echo json_encode($result);

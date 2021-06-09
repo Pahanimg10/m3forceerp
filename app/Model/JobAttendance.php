@@ -16,35 +16,33 @@ class JobAttendance extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'attended_date',
-        'technical_team_id', 
-        'job_type_id', 
-        'job_id',  
+        'technical_team_id',
+        'job_type_id',
+        'job_id',
         'mandays',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function TechnicalTeam()
     {
         return $this->belongsTo('App\Model\TechnicalTeam', 'technical_team_id', 'id');
     }
-    
+
     public function JobType()
     {
         return $this->belongsTo('App\Model\ItemIssueType', 'job_type_id', 'id');
     }
-    
+
     public function Job()
     {
         return $this->belongsTo('App\Model\Job', 'job_id', 'id');
     }
-    
+
     public function TechResponse()
     {
         return $this->belongsTo('App\Model\TechResponse', 'job_id', 'id');
     }
-
 }

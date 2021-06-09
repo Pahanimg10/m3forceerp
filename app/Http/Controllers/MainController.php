@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
-require_once('ESMSWS.php');
+require_once 'ESMSWS.php';
 session_start();
 date_default_timezone_set('Asia/Colombo');
 set_time_limit(0);
 
-use Illuminate\Http\Request;
-
 use App\Http\Requests;
-use App\Model\Productions;
-use App\Model\Gwipgrns;
 use App\Model\Gmaterailgrns;
+use App\Model\Gwipgrns;
+use App\Model\Productions;
+use Illuminate\Http\Request;
 
 class MainController extends Controller
 {
@@ -22,14 +21,14 @@ class MainController extends Controller
      * @return void
      */
     public function __construct()
-    { }
+    {
+    }
 
     /**
      * Show the application dashboard.
      *
      * @return \Illuminate\Http\Response
      */
-
     public function checkUsername(Request $request)
     {
         $user = \App\Model\User::where('username', $request->username)
@@ -60,20 +59,20 @@ class MainController extends Controller
             ->first();
         if ($user) {
             $permissions = \App\Model\User::find($user->id)->UserGroupPermission;
-            $group_ids = array();
+            $group_ids = [];
             foreach ($permissions as $permission) {
                 array_push($group_ids, $permission->user_group_id);
             }
 
-            $user_data = array(
+            $user_data = [
                 'users_id' => $user->id,
-                'name' => $user->first_name . ' ' . $user->last_name,
+                'name' => $user->first_name.' '.$user->last_name,
                 'position' => $user->JobPosition->name,
                 'user_image' => $user->user_image,
                 'username' => $user->username,
                 'user_group' => $group_ids,
-                'LoggedIn' => true
-            );
+                'LoggedIn' => true,
+            ];
             foreach ($user_data as $key => $value) {
                 session()->put($key, $value);
             }
@@ -102,8 +101,8 @@ class MainController extends Controller
             ->get();
 
         if ($request->type && $request->type == 1) {
-            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/main_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Log In,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . session()->get('username') . PHP_EOL);
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/main_controller.csv', 'a+') or die('Unable to open/create file!');
+            fwrite($myfile, 'Log In,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.session()->get('username').PHP_EOL);
             fclose($myfile);
         }
 
@@ -190,8 +189,8 @@ class MainController extends Controller
 
     public function logout(Request $request)
     {
-        $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/main_controller.csv', 'a+') or die('Unable to open/create file!');
-        fwrite($myfile, 'Log Out,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . session()->get('username') . PHP_EOL);
+        $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/main_controller.csv', 'a+') or die('Unable to open/create file!');
+        fwrite($myfile, 'Log Out,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.session()->get('username').PHP_EOL);
         fclose($myfile);
 
         session()->flush();

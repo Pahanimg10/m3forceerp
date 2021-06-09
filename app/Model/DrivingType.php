@@ -15,16 +15,14 @@ class DrivingType extends Model
     protected $table = 'driving_type';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'name'
+        'name',
     ];
 
     /**
      * Relations
      */
-    
     public function TechnicalTeamDrivingDetail()
     {
         return $this->hasMany('App\Model\TechnicalTeamDrivingDetail', 'driving_type_id', 'id')->where('is_delete', 0);
     }
-
 }

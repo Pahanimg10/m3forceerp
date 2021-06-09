@@ -19,21 +19,19 @@ class QuotationDiscount extends Model
         'discount_type_id',
         'description',
         'percentage',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function Quotation()
     {
         return $this->belongsTo('App\Model\Quotation', 'quotation_id', 'id');
     }
-    
+
     public function DiscountType()
     {
         return $this->belongsTo('App\Model\DiscountType', 'discount_type_id', 'id');
     }
-
 }

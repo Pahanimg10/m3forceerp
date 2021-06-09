@@ -14,12 +14,11 @@ class UserAccess
      * @return mixed
      */
     public function handle($request, Closure $next)
-    {       
-        if (!session()->get('LoggedIn')) {
+    {
+        if (! session()->get('LoggedIn')) {
             return redirect('/');
-        } 
+        }
 
         return $next($request);
     }
-
 }

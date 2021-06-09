@@ -15,18 +15,16 @@ class CompletedJobs extends Model
     protected $table = 'completed_jobs';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'inquiry_id', 
-        'completed_date', 
-        'invoice_value'
+        'inquiry_id',
+        'completed_date',
+        'invoice_value',
     ];
 
     /**
      * Relations
      */
-    
     public function Inquiry()
     {
         return $this->belongsTo('App\Model\Inquiry', 'inquiry_id', 'id');
     }
-
 }

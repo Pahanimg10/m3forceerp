@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-require_once('ESMSWS.php');
+require_once 'ESMSWS.php';
 session_start();
 date_default_timezone_set('Asia/Colombo');
 set_time_limit(0);
 
-use Illuminate\Http\Request;
-
 use App\Http\Requests;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class ItemReceiveController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('user_access');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -74,9 +74,9 @@ class ItemReceiveController extends Controller
 
         if ($item_issue && $item_issue->item_issue_type_id == 1 && $item_issue->Job->is_completed == 0) {
             $response = 'true';
-        } else if ($item_issue && $item_issue->item_issue_type_id == 2 && $item_issue->TechResponse->is_completed == 0) {
+        } elseif ($item_issue && $item_issue->item_issue_type_id == 2 && $item_issue->TechResponse->is_completed == 0) {
             $response = 'true';
-        } else if ($item_issue && ($item_issue->item_issue_type_id == 3 || $item_issue->item_issue_type_id == 4)) {
+        } elseif ($item_issue && ($item_issue->item_issue_type_id == 3 || $item_issue->item_issue_type_id == 4)) {
             $response = 'true';
         } else {
             $response = 'false';
@@ -100,7 +100,7 @@ class ItemReceiveController extends Controller
                 ->where('item_id', $request->item_id)
                 ->where('is_delete', 0)
                 ->first();
-            if ($item_issue_detail && !$item_receive_detail) {
+            if ($item_issue_detail && ! $item_receive_detail) {
                 $response = 'true';
             } else {
                 $response = 'false';
@@ -127,7 +127,7 @@ class ItemReceiveController extends Controller
                 ->where('item_id', $request->item_id)
                 ->where('is_delete', 0)
                 ->first();
-            if ($item_issue_detail && !$item_receive_detail) {
+            if ($item_issue_detail && ! $item_receive_detail) {
                 $response = 'true';
             } else {
                 $response = 'false';
@@ -202,10 +202,10 @@ class ItemReceiveController extends Controller
         $main_item_categories = \App\Model\MainItemCategory::select('id', 'code', 'name')->where('is_delete', 0)->orderBy('name')->get();
         $sub_item_categories = \App\Model\SubItemCategory::select('id', 'code', 'name')->where('is_delete', 0)->orderBy('name')->get();
 
-        $data = array(
+        $data = [
             'main_item_categories' => $main_item_categories,
-            'sub_item_categories' => $sub_item_categories
-        );
+            'sub_item_categories' => $sub_item_categories,
+        ];
 
         return response($data);
     }
@@ -221,14 +221,15 @@ class ItemReceiveController extends Controller
                 });
         })
             ->whereHas('GoodReceiveBreakdown', function ($query) use ($request) {
-                $query->where('serial_no', 'like', '%' . $request->serial_no . '%')->where('is_issued', 1);
+                $query->where('serial_no', 'like', '%'.$request->serial_no.'%')->where('is_issued', 1);
             })
-            ->with(array('GoodReceiveBreakdown' => function ($query) {
+            ->with(['GoodReceiveBreakdown' => function ($query) {
                 $query->select('id', 'serial_no')->orderBy('serial_no');
-            }))
+            }])
             ->where('type', 1)
             ->where('is_delete', 0)
             ->get();
+
         return response($item_issue_breakdowns);
     }
 
@@ -243,46 +244,47 @@ class ItemReceiveController extends Controller
                 });
         })
             ->whereHas('GoodReceiveBreakdown', function ($query) use ($request) {
-                $query->where('serial_no', 'like', '%' . $request->serial_no . '%')->where('is_issued', 1);
+                $query->where('serial_no', 'like', '%'.$request->serial_no.'%')->where('is_issued', 1);
             })
-            ->with(array('GoodReceiveBreakdown' => function ($query) {
+            ->with(['GoodReceiveBreakdown' => function ($query) {
                 $query->select('id', 'serial_no')->orderBy('serial_no');
-            }))
+            }])
             ->where('type', 1)
             ->where('is_delete', 0)
             ->first();
+
         return response($item_issue_breakdown);
     }
 
     public function item_receive_list(Request $request)
     {
         $item_receives = \App\Model\ItemReceive::select('id', 'item_issue_id', 'item_receive_no', 'item_receive_date_time', 'remarks', 'item_receive_value', 'is_posted')
-            ->with(array('ItemIssue' => function ($query) {
+            ->with(['ItemIssue' => function ($query) {
                 $query->select('id', 'item_issue_type_id', 'document_id', 'item_issue_no', 'issued_to')
-                    ->with(array('Job' => function ($query) {
+                    ->with(['Job' => function ($query) {
                         $query->select('id', 'inquiry_id', 'job_no')
-                            ->with(array('Inquiry' => function ($query) {
+                            ->with(['Inquiry' => function ($query) {
                                 $query->select('id', 'contact_id')
-                                    ->with(array('Contact' => function ($query) {
+                                    ->with(['Contact' => function ($query) {
                                         $query->select('id', 'name');
-                                    }));
-                            }));
-                    }))
-                    ->with(array('TechResponse' => function ($query) {
+                                    }]);
+                            }]);
+                    }])
+                    ->with(['TechResponse' => function ($query) {
                         $query->select('id', 'contact_id', 'tech_response_no')
-                            ->with(array('Contact' => function ($query) {
+                            ->with(['Contact' => function ($query) {
                                 $query->select('id', 'name');
-                            }));
-                    }));
-            }))
-            ->whereBetween('item_receive_date_time', array($request->from . ' 00:01', $request->to . ' 23:59'))
+                            }]);
+                    }]);
+            }])
+            ->whereBetween('item_receive_date_time', [$request->from.' 00:01', $request->to.' 23:59'])
             ->where('is_delete', 0)
             ->get();
 
-        $data = array(
+        $data = [
             'item_receives' => $item_receives,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -290,30 +292,30 @@ class ItemReceiveController extends Controller
     public function find_item_receive(Request $request)
     {
         $item_receive = \App\Model\ItemReceive::select('id', 'item_issue_id', 'item_receive_no', 'item_receive_date_time', 'remarks', 'item_receive_value', 'is_posted')
-            ->with(array('ItemIssue' => function ($query) {
+            ->with(['ItemIssue' => function ($query) {
                 $query->select('id', 'item_issue_type_id', 'document_id', 'item_issue_no', 'issued_to')
-                    ->with(array('Job' => function ($query) {
+                    ->with(['Job' => function ($query) {
                         $query->select('id', 'inquiry_id', 'job_no')
-                            ->with(array('Inquiry' => function ($query) {
+                            ->with(['Inquiry' => function ($query) {
                                 $query->select('id', 'contact_id')
-                                    ->with(array('Contact' => function ($query) {
+                                    ->with(['Contact' => function ($query) {
                                         $query->select('id', 'name');
-                                    }));
-                            }));
-                    }))
-                    ->with(array('TechResponse' => function ($query) {
+                                    }]);
+                            }]);
+                    }])
+                    ->with(['TechResponse' => function ($query) {
                         $query->select('id', 'contact_id', 'tech_response_no')
-                            ->with(array('Contact' => function ($query) {
+                            ->with(['Contact' => function ($query) {
                                 $query->select('id', 'name');
-                            }));
-                    }));
-            }))
+                            }]);
+                    }]);
+            }])
             ->find($request->id);
 
-        $data = array(
+        $data = [
             'item_receive' => $item_receive,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -321,93 +323,94 @@ class ItemReceiveController extends Controller
     public function find_item_receive_detail(Request $request)
     {
         $item_receive_detail = \App\Model\ItemReceiveDetails::select('id', 'item_receive_id', 'item_id', 'quantity')
-            ->with(array('ItemReceive' => function ($query) {
+            ->with(['ItemReceive' => function ($query) {
                 $query->select('id', 'item_issue_id', 'item_receive_no', 'item_receive_date_time', 'remarks', 'item_receive_value', 'is_posted')
-                    ->with(array('ItemIssue' => function ($query) {
+                    ->with(['ItemIssue' => function ($query) {
                         $query->select('id', 'item_issue_type_id', 'document_id', 'item_issue_no', 'issued_to')
-                            ->with(array('Job' => function ($query) {
+                            ->with(['Job' => function ($query) {
                                 $query->select('id', 'job_no');
-                            }))
-                            ->with(array('TechResponse' => function ($query) {
+                            }])
+                            ->with(['TechResponse' => function ($query) {
                                 $query->select('id', 'tech_response_no');
-                            }));
-                    }));
-            }))
-            ->with(array('Item' => function ($query) {
+                            }]);
+                    }]);
+            }])
+            ->with(['Item' => function ($query) {
                 $query->select('id', 'main_category_id', 'sub_category_id', 'code', 'name', 'model_no', 'unit_type_id', 'is_serial', 'is_warranty')
-                    ->with(array('MainItemCategory' => function ($query) {
+                    ->with(['MainItemCategory' => function ($query) {
                         $query->select('id', 'code', 'name');
-                    }))
-                    ->with(array('SubItemCategory' => function ($query) {
+                    }])
+                    ->with(['SubItemCategory' => function ($query) {
                         $query->select('id', 'code', 'name');
-                    }))
-                    ->with(array('UnitType' => function ($query) {
+                    }])
+                    ->with(['UnitType' => function ($query) {
                         $query->select('id', 'code', 'name');
-                    }));
-            }))
-            ->with(array('ItemReceiveBreakdown' => function ($query) {
+                    }]);
+            }])
+            ->with(['ItemReceiveBreakdown' => function ($query) {
                 $query->select('id', 'item_receive_detail_id', 'type', 'detail_id', 'quantity')
-                    ->with(array('GoodReceiveBreakdown' => function ($query) {
+                    ->with(['GoodReceiveBreakdown' => function ($query) {
                         $query->select('id', 'good_receive_detail_id', 'serial_no')
-                            ->with(array('GoodReceiveDetails' => function ($query) {
+                            ->with(['GoodReceiveDetails' => function ($query) {
                                 $query->select('id', 'model_no', 'brand', 'origin', 'rate');
-                            }));
-                    }))
-                    ->with(array('GoodReceiveDetails' => function ($query) {
+                            }]);
+                    }])
+                    ->with(['GoodReceiveDetails' => function ($query) {
                         $query->select('id', 'model_no', 'brand', 'origin', 'rate');
-                    }));
-            }))
+                    }]);
+            }])
             ->find($request->id);
+
         return response($item_receive_detail);
     }
 
     public function item_receive_detail_list(Request $request)
     {
         $item_receive_details = \App\Model\ItemReceiveDetails::select('id', 'item_receive_id', 'item_id', 'quantity')
-            ->with(array('ItemReceive' => function ($query) {
+            ->with(['ItemReceive' => function ($query) {
                 $query->select('id', 'item_issue_id', 'item_receive_no', 'item_receive_date_time', 'remarks', 'item_receive_value', 'is_posted')
-                    ->with(array('ItemIssue' => function ($query) {
+                    ->with(['ItemIssue' => function ($query) {
                         $query->select('id', 'item_issue_type_id', 'document_id', 'item_issue_no', 'issued_to')
-                            ->with(array('Job' => function ($query) {
+                            ->with(['Job' => function ($query) {
                                 $query->select('id', 'job_no');
-                            }))
-                            ->with(array('TechResponse' => function ($query) {
+                            }])
+                            ->with(['TechResponse' => function ($query) {
                                 $query->select('id', 'tech_response_no');
-                            }));
-                    }));
-            }))
-            ->with(array('Item' => function ($query) {
+                            }]);
+                    }]);
+            }])
+            ->with(['Item' => function ($query) {
                 $query->select('id', 'main_category_id', 'sub_category_id', 'code', 'name', 'model_no', 'unit_type_id', 'is_serial', 'is_warranty')
-                    ->with(array('MainItemCategory' => function ($query) {
+                    ->with(['MainItemCategory' => function ($query) {
                         $query->select('id', 'code', 'name');
-                    }))
-                    ->with(array('SubItemCategory' => function ($query) {
+                    }])
+                    ->with(['SubItemCategory' => function ($query) {
                         $query->select('id', 'code', 'name');
-                    }))
-                    ->with(array('UnitType' => function ($query) {
+                    }])
+                    ->with(['UnitType' => function ($query) {
                         $query->select('id', 'code', 'name');
-                    }));
-            }))
-            ->with(array('ItemReceiveBreakdown' => function ($query) {
+                    }]);
+            }])
+            ->with(['ItemReceiveBreakdown' => function ($query) {
                 $query->select('id', 'item_receive_detail_id', 'type', 'detail_id', 'quantity')
-                    ->with(array('GoodReceiveBreakdown' => function ($query) {
+                    ->with(['GoodReceiveBreakdown' => function ($query) {
                         $query->select('id', 'good_receive_detail_id', 'serial_no')
-                            ->with(array('GoodReceiveDetails' => function ($query) {
+                            ->with(['GoodReceiveDetails' => function ($query) {
                                 $query->select('id', 'model_no', 'brand', 'origin', 'rate');
-                            }));
-                    }))
-                    ->with(array('GoodReceiveDetails' => function ($query) {
+                            }]);
+                    }])
+                    ->with(['GoodReceiveDetails' => function ($query) {
                         $query->select('id', 'model_no', 'brand', 'origin', 'rate');
-                    }));
-            }))
+                    }]);
+            }])
             ->where('item_receive_id', $request->id)
             ->where('is_delete', 0)
             ->get();
 
-        $data = array(
+        $data = [
             'item_receive_details' => $item_receive_details,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -427,12 +430,12 @@ class ItemReceiveController extends Controller
                     ->where('is_delete', 0)
                     ->first();
                 if ($inquiry) {
-                    $data = array(
+                    $data = [
                         'customer' => $inquiry->Contact->name,
                         'name' => $inquiry->SalesTeam->name,
                         'email' => $inquiry->SalesTeam->email,
-                        'item_receive' => $item_receive
-                    );
+                        'item_receive' => $item_receive,
+                    ];
 
                     Mail::send('emails.item_receive_details', $data, function ($message) use ($data) {
                         $message->from('mail.smtp.m3force@gmail.com', 'M3Force ERP System');
@@ -440,18 +443,18 @@ class ItemReceiveController extends Controller
                         $message->to('chinthaka@m3force.com', 'Chinthaka Deshapriya');
                         $message->to('palitha@m3force.com', 'Palitha Wickramathunga');
                         $message->cc('stores@m3force.com', 'Nalin Silva');
-                        $message->subject('Item Return Details (' . $data['customer'] . ')');
+                        $message->subject('Item Return Details ('.$data['customer'].')');
                     });
                 }
-            } else if ($item_receive->ItemIssue->item_issue_type_id == 2) {
+            } elseif ($item_receive->ItemIssue->item_issue_type_id == 2) {
                 $tech_response = \App\Model\TechResponse::find($item_receive->ItemIssue->document_id);
                 if ($tech_response) {
-                    $data = array(
+                    $data = [
                         'customer' => $tech_response->Contact->name,
                         'name' => 'Sanjaya Perera',
                         'email' => 'sanjaya@m3force.com',
-                        'item_receive' => $item_receive
-                    );
+                        'item_receive' => $item_receive,
+                    ];
 
                     Mail::send('emails.item_receive_details', $data, function ($message) use ($data) {
                         $message->from('mail.smtp.m3force@gmail.com', 'M3Force ERP System');
@@ -459,15 +462,15 @@ class ItemReceiveController extends Controller
                         $message->to('chinthaka@m3force.com', 'Chinthaka Deshapriya');
                         $message->to('palitha@m3force.com', 'Palitha Wickramathunga');
                         $message->cc('stores@m3force.com', 'Nalin Silva');
-                        $message->subject('Item Return Details (' . $data['customer'] . ')');
+                        $message->subject('Item Return Details ('.$data['customer'].')');
                     });
                 }
             } else {
-                $data = array(
+                $data = [
                     'customer' => $item_receive->ItemIssue->issued_to,
                     'name' => 'All',
-                    'item_receive' => $item_receive
-                );
+                    'item_receive' => $item_receive,
+                ];
 
                 Mail::send('emails.item_receive_details', $data, function ($message) use ($data) {
                     $message->from('mail.smtp.m3force@gmail.com', 'M3Force ERP System');
@@ -475,12 +478,12 @@ class ItemReceiveController extends Controller
                     $message->to('chinthaka@m3force.com', 'Chinthaka Deshapriya');
                     $message->to('palitha@m3force.com', 'Palitha Wickramathunga');
                     $message->cc('stores@m3force.com', 'Nalin Silva');
-                    $message->subject('Item Return Details (' . $data['customer'] . ')');
+                    $message->subject('Item Return Details ('.$data['customer'].')');
                 });
             }
 
-            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/item_receive_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Posted,' . $item_receive->id . ',,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/item_receive_controller.csv', 'a+') or die('Unable to open/create file!');
+            fwrite($myfile, 'Posted,'.$item_receive->id.',,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
 
             $item_receive_breakdowns = \App\Model\ItemReceiveBreakdown::whereHas('ItemReceiveDetails', function ($query) use ($item_receive) {
@@ -506,7 +509,7 @@ class ItemReceiveController extends Controller
                         ->where('id', '!=', $item_receive_breakdown->detail_id)
                         ->where('is_delete', 0)
                         ->update(['is_issued' => 0]);
-                } else if ($item_receive_breakdown->type == 0) {
+                } elseif ($item_receive_breakdown->type == 0) {
                     $good_receive_detail = \App\Model\GoodReceiveDetails::find($item_receive_breakdown->detail_id);
                     $good_receive_detail->available_quantity += $item_receive_breakdown->quantity;
                     $good_receive_detail->save();
@@ -517,15 +520,15 @@ class ItemReceiveController extends Controller
                 }
             }
 
-            $result = array(
+            $result = [
                 'response' => true,
-                'message' => 'Item Receive posted successfully'
-            );
+                'message' => 'Item Receive posted successfully',
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Item Receive post failed'
-            );
+                'message' => 'Item Receive post failed',
+            ];
         }
 
         echo json_encode($result);
@@ -537,13 +540,13 @@ class ItemReceiveController extends Controller
 
         $item_receive = \App\Model\ItemReceive::find($request->id);
         $data['item_receive'] = $item_receive;
-        $title = $item_receive ? 'Item Receive Details ' . $item_receive->item_receive_no : 'Item Receive Details';
+        $title = $item_receive ? 'Item Receive Details '.$item_receive->item_receive_no : 'Item Receive Details';
 
         $html = view('stock.item_receive_pdf', $data);
 
-        $snappy = new \Knp\Snappy\Pdf($_SERVER['DOCUMENT_ROOT'] . '/m3force/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
+        $snappy = new \Knp\Snappy\Pdf($_SERVER['DOCUMENT_ROOT'].'/m3force/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
         header('Content-Type: application/pdf');
-        header('Content-Disposition: filename="' . $title . '.pdf"');
+        header('Content-Disposition: filename="'.$title.'.pdf"');
         $options = [
             'page-size' => 'A4',
             'margin-top' => 5,
@@ -552,7 +555,7 @@ class ItemReceiveController extends Controller
             'margin-bottom' => 15,
             'orientation' => 'Portrait',
             'footer-center' => 'Page [page] of [toPage]',
-            'footer-font-size' => 8
+            'footer-font-size' => 8,
         ];
         echo $snappy->getOutputFromHtml($html, $options);
     }
@@ -578,16 +581,16 @@ class ItemReceiveController extends Controller
         $item_receive = \App\Model\ItemReceive::find($request->item_receive_id);
 
         $item_issue_id = isset($request->item_issue['id']) ? $request->item_issue['id'] : 0;
-        if (!$item_receive) {
+        if (! $item_receive) {
             $item_receive = new \App\Model\ItemReceive();
             $last_id = 0;
             $last_item_receive = \App\Model\ItemReceive::select('id')->where('is_delete', 0)->orderBy('id', 'desc')->first();
             $last_id = $last_item_receive ? $last_item_receive->id : $last_id;
-            $item_receive->item_receive_no = 'IR/' . date('m') . '/' . date('y') . '/' . $item_issue_id . '/' . sprintf('%05d', $last_id + 1);
+            $item_receive->item_receive_no = 'IR/'.date('m').'/'.date('y').'/'.$item_issue_id.'/'.sprintf('%05d', $last_id + 1);
         }
 
         $item_receive->item_issue_id = $item_issue_id;
-        $item_receive->item_receive_date_time = date('Y-m-d', strtotime($request->item_receive_date)) . ' ' . $request->item_receive_time;
+        $item_receive->item_receive_date_time = date('Y-m-d', strtotime($request->item_receive_date)).' '.$request->item_receive_time;
         $item_receive->remarks = $request->remarks;
 
         if ($item_receive->save()) {
@@ -622,7 +625,7 @@ class ItemReceiveController extends Controller
                     }
                 } else {
                     $allocate_quantity = $request->quantity;
-                    $item_issue_breakdown_ids = array();
+                    $item_issue_breakdown_ids = [];
                     while ($allocate_quantity > 0) {
                         $item_issue_breakdown = \App\Model\ItemIssueBreakdown::whereNotIn('id', $item_issue_breakdown_ids)
                             ->whereHas('ItemIssueDetails', function ($query) use ($item_receive_detail) {
@@ -675,25 +678,25 @@ class ItemReceiveController extends Controller
 
             if ($item_receive_detail_id != '') {
                 $item_receive_detail = \App\Model\ItemReceiveDetails::find($item_receive_detail_id);
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/item_receive_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Created,' . $item_receive->id . ',' . $item_receive->item_receive_no . ',' . $item_receive->item_issue_id . ',' . $item_receive->item_receive_date_time . ',' . $item_receive->item_receive_value . ',' . str_replace(',', ' ', $item_receive->remarks) . ',' . $item_receive_detail->id . ',' . $item_receive_detail->item_id . ',' . $item_receive_detail->quantity . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/item_receive_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Created,'.$item_receive->id.','.$item_receive->item_receive_no.','.$item_receive->item_issue_id.','.$item_receive->item_receive_date_time.','.$item_receive->item_receive_value.','.str_replace(',', ' ', $item_receive->remarks).','.$item_receive_detail->id.','.$item_receive_detail->item_id.','.$item_receive_detail->quantity.','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
             } else {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/item_receive_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Created,' . $item_receive->id . ',' . $item_receive->item_receive_no . ',' . $item_receive->item_issue_id . ',' . $item_receive->item_receive_date_time . ',' . $item_receive->item_receive_value . ',' . str_replace(',', ' ', $item_receive->remarks) . ',,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/item_receive_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Created,'.$item_receive->id.','.$item_receive->item_receive_no.','.$item_receive->item_issue_id.','.$item_receive->item_receive_date_time.','.$item_receive->item_receive_value.','.str_replace(',', ' ', $item_receive->remarks).',,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
             }
 
-            $result = array(
+            $result = [
                 'response' => true,
                 'message' => 'Item Receive Detail created successfully',
-                'data' => $item_receive->id
-            );
+                'data' => $item_receive->id,
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Item Receive Detail creation failed'
-            );
+                'message' => 'Item Receive Detail creation failed',
+            ];
         }
 
         echo json_encode($result);
@@ -733,7 +736,7 @@ class ItemReceiveController extends Controller
         $item_receive = \App\Model\ItemReceive::find($request->item_receive_id);
         $item_receive->item_issue_id = isset($request->item_issue['id']) ? $request->item_issue['id'] : 0;
         $item_receive->item_receive_no = $request->item_receive_no;
-        $item_receive->item_receive_date_time = date('Y-m-d', strtotime($request->item_receive_date)) . ' ' . $request->item_receive_time;
+        $item_receive->item_receive_date_time = date('Y-m-d', strtotime($request->item_receive_date)).' '.$request->item_receive_time;
         $item_receive->remarks = $request->remarks;
 
         if ($item_receive->save()) {
@@ -775,7 +778,7 @@ class ItemReceiveController extends Controller
                     }
                 } else {
                     $allocate_quantity = $request->quantity;
-                    $item_issue_breakdown_ids = array();
+                    $item_issue_breakdown_ids = [];
                     while ($allocate_quantity > 0) {
                         $item_issue_breakdown = \App\Model\ItemIssueBreakdown::whereNotIn('id', $item_issue_breakdown_ids)
                             ->whereHas('ItemIssueDetails', function ($query) use ($item_receive_detail) {
@@ -828,25 +831,25 @@ class ItemReceiveController extends Controller
 
             if ($item_receive_detail_id != '') {
                 $item_receive_detail = \App\Model\ItemReceiveDetails::find($item_receive_detail_id);
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/item_receive_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Updated,' . $item_receive->id . ',' . $item_receive->item_receive_no . ',' . $item_receive->item_issue_id . ',' . $item_receive->item_receive_date_time . ',' . $item_receive->item_receive_value . ',' . str_replace(',', ' ', $item_receive->remarks) . ',' . $item_receive_detail->id . ',' . $item_receive_detail->item_id . ',' . $item_receive_detail->quantity . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/item_receive_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Updated,'.$item_receive->id.','.$item_receive->item_receive_no.','.$item_receive->item_issue_id.','.$item_receive->item_receive_date_time.','.$item_receive->item_receive_value.','.str_replace(',', ' ', $item_receive->remarks).','.$item_receive_detail->id.','.$item_receive_detail->item_id.','.$item_receive_detail->quantity.','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
             } else {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/item_receive_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Updated,' . $item_receive->id . ',' . $item_receive->item_receive_no . ',' . $item_receive->item_issue_id . ',' . $item_receive->item_receive_date_time . ',' . $item_receive->item_receive_value . ',' . str_replace(',', ' ', $item_receive->remarks) . ',,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/item_receive_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Updated,'.$item_receive->id.','.$item_receive->item_receive_no.','.$item_receive->item_issue_id.','.$item_receive->item_receive_date_time.','.$item_receive->item_receive_value.','.str_replace(',', ' ', $item_receive->remarks).',,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
             }
 
-            $result = array(
+            $result = [
                 'response' => true,
                 'message' => 'Item Receive Detail updated successfully',
-                'data' => $item_receive->id
-            );
+                'data' => $item_receive->id,
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Item Receive Detail updation failed'
-            );
+                'message' => 'Item Receive Detail updation failed',
+            ];
         }
 
         echo json_encode($result);
@@ -866,8 +869,8 @@ class ItemReceiveController extends Controller
 
             if ($item_receive->save()) {
                 $item_receive_detail = \App\Model\ItemReceiveDetails::find($item_receive_detail_id);
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/item_receive_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Deleted,' . $item_receive->id . ',,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/item_receive_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Deleted,'.$item_receive->id.',,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
                 $item_receive_details = \App\Model\ItemReceiveDetails::where('item_receive_id', $item_receive->id)->where('is_delete', 0)->get();
@@ -894,25 +897,25 @@ class ItemReceiveController extends Controller
                 $item_receive->item_receive_value = $total_value;
                 $item_receive->save();
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Item Receive deleted successfully'
-                );
+                    'message' => 'Item Receive deleted successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Item Receive deletion failed'
-                );
+                    'message' => 'Item Receive deletion failed',
+                ];
             }
-        } else if ($request->type == 1) {
+        } elseif ($request->type == 1) {
             $item_receive_detail = \App\Model\ItemReceiveDetails::find($id);
             $item_receive_detail->quantity = 0;
             $item_receive_detail->is_delete = 1;
 
             if ($item_receive_detail->save()) {
                 $item_receive_detail = \App\Model\ItemReceiveDetails::find($item_receive_detail->id);
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/item_receive_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Deleted,' . $item_receive_detail->item_receive_id . ',,,,,,' . $item_receive_detail->id . ',,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/item_receive_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Deleted,'.$item_receive_detail->item_receive_id.',,,,,,'.$item_receive_detail->id.',,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
                 $item_receive_breakdowns = \App\Model\ItemReceiveBreakdown::where('item_receive_detail_id', $item_receive_detail->id)->where('is_delete', 0)->get();
@@ -934,21 +937,21 @@ class ItemReceiveController extends Controller
                 $item_receive->item_receive_value = $total_value;
                 $item_receive->save();
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Item Receive Detail deleted successfully'
-                );
+                    'message' => 'Item Receive Detail deleted successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Item Receive Detail deletion failed'
-                );
+                    'message' => 'Item Receive Detail deletion failed',
+                ];
             }
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Deletion failed'
-            );
+                'message' => 'Deletion failed',
+            ];
         }
 
         echo json_encode($result);

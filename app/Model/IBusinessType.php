@@ -15,18 +15,16 @@ class IBusinessType extends Model
     protected $table = 'm_i_business_type';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'code', 
-        'name', 
-        'is_delete'
+        'code',
+        'name',
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function Contact()
     {
         return $this->hasMany('App\Model\Contact', 'business_type_id', 'id')->where('is_delete', 0);
     }
-
 }

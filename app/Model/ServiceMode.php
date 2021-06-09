@@ -15,16 +15,14 @@ class ServiceMode extends Model
     protected $table = 'service_mode';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'name'
+        'name',
     ];
 
     /**
      * Relations
      */
-    
     public function Contact()
     {
         return $this->hasMany('App\Model\Contact', 'service_mode_id', 'id')->where('is_delete', 0);
     }
-
 }

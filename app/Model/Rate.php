@@ -16,11 +16,10 @@ class Rate extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
-        'value'
+        'value',
     ];
 
     /**
      * Relations
      */
-
 }

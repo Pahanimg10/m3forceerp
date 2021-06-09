@@ -15,16 +15,14 @@ class ExpensesType extends Model
     protected $table = 'expenses_type';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'name'
+        'name',
     ];
 
     /**
      * Relations
      */
-    
     public function ActualExpenses()
     {
         return $this->hasMany('App\Model\ActualExpenses', 'expenses_type_id', 'id')->where('is_delete', 0);
     }
-
 }

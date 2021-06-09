@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-require_once('ESMSWS.php');
+require_once 'ESMSWS.php';
 session_start();
 date_default_timezone_set('Asia/Colombo');
 set_time_limit(0);
 
-use Illuminate\Http\Request;
-
 use App\Http\Requests;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class QuotationController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('user_access');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -66,13 +66,13 @@ class QuotationController extends Controller
         $discount_types = \App\Model\DiscountType::all();
         $terms_conditions = \App\Model\TermsCondition::all();
 
-        $data = array(
+        $data = [
             'job_cards' => $job_cards,
             'cost_sheets' => $cost_sheets,
             'discount_types' => $discount_types,
             'terms_conditions' => $terms_conditions,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -80,19 +80,19 @@ class QuotationController extends Controller
     public function quotation_list(Request $request)
     {
         $quotations = \App\Model\Quotation::select('id', 'inquiry_id', 'quotation_no', 'quotation_date_time', 'remarks', 'quotation_value', 'is_confirmed', 'is_revised', 'user_id')
-            ->with(array('User' => function ($query) {
+            ->with(['User' => function ($query) {
                 $query->select('id', 'first_name');
-            }))
+            }])
             ->where('inquiry_id', $request->id)
             ->where('is_delete', 0)
             ->get();
         $inquiry = \App\Model\Inquiry::select('id', 'inquiry_no')->find($request->id);
 
-        $data = array(
+        $data = [
             'quotations' => $quotations,
             'inquiry' => $inquiry,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -100,50 +100,51 @@ class QuotationController extends Controller
     public function find_quotation(Request $request)
     {
         $quotation = \App\Model\Quotation::select('id', 'inquiry_id', 'quotation_no', 'quotation_date_time', 'remarks', 'special_notes', 'show_brand', 'show_origin', 'show_installation_meters', 'is_currency', 'usd_rate', 'show_excavation_work', 'show_transport', 'show_food', 'show_accommodation', 'show_bata', 'show_other_expenses', 'other_expenses_text', 'quotation_value', 'is_confirmed', 'is_revised')
-            ->with(array('QuotationDiscount' => function ($query) {
+            ->with(['QuotationDiscount' => function ($query) {
                 $query->select('id', 'quotation_id', 'discount_type_id', 'description', 'percentage')
-                    ->with(array('DiscountType' => function ($query) {
+                    ->with(['DiscountType' => function ($query) {
                         $query->select('id', 'name');
-                    }));
-            }))
-            ->with(array('QuotationJobCard' => function ($query) {
+                    }]);
+            }])
+            ->with(['QuotationJobCard' => function ($query) {
                 $query->select('id', 'quotation_id', 'job_card_id')
-                    ->with(array('JobCard' => function ($query) {
+                    ->with(['JobCard' => function ($query) {
                         $query->select('id', 'job_card_no', 'job_card_value');
-                    }));
-            }))
-            ->with(array('QuotationCostSheet' => function ($query) {
+                    }]);
+            }])
+            ->with(['QuotationCostSheet' => function ($query) {
                 $query->select('id', 'quotation_id', 'cost_sheet_id')
-                    ->with(array('CostSheet' => function ($query) {
+                    ->with(['CostSheet' => function ($query) {
                         $query->select('id', 'cost_sheet_no', 'cost_sheet_value');
-                    }));
-            }))
-            ->with(array('QuotationTermsCondition' => function ($query) {
+                    }]);
+            }])
+            ->with(['QuotationTermsCondition' => function ($query) {
                 $query->select('id', 'quotation_id', 'terms_condition_id')
-                    ->with(array('TermsCondition' => function ($query) {
+                    ->with(['TermsCondition' => function ($query) {
                         $query->select('id', 'name');
-                    }));
-            }))
+                    }]);
+            }])
             ->find($request->id);
+
         return response($quotation);
     }
 
     public function discount_detail(Request $request)
     {
         $discounts = \App\Model\QuotationDiscount::select('id', 'quotation_id', 'discount_type_id', 'description', 'percentage')
-            ->with(array('DiscountType' => function ($query) {
+            ->with(['DiscountType' => function ($query) {
                 $query->select('id', 'name');
-            }))
+            }])
             ->where('quotation_id', $request->id)
             ->where('is_delete', 0)
             ->get();
         $quotation = \App\Model\Quotation::select('id', 'is_confirmed', 'is_revised')->find($request->id);
 
-        $data = array(
+        $data = [
             'discounts' => $discounts,
             'quotation' => $quotation,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -154,8 +155,8 @@ class QuotationController extends Controller
         $quotation->is_confirmed = 1;
 
         if ($quotation->save()) {
-            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/quotation_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Confirmed,' . $quotation->id . ',,,,,,,,,,,,,,,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/quotation_controller.csv', 'a+') or die('Unable to open/create file!');
+            fwrite($myfile, 'Confirmed,'.$quotation->id.',,,,,,,,,,,,,,,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
 
             $inquiry_status = new \App\Model\InquiryDetials();
@@ -209,14 +210,14 @@ class QuotationController extends Controller
                 $job->save();
             }
 
-            $data = array(
+            $data = [
                 'inquiry_id' => $quotation->inquiry_id,
                 'quotation_no' => $quotation->quotation_no,
                 'quotation_value' => $quotation->quotation_value,
                 'customer_name' => $quotation->Inquiry->Contact->name,
                 'customer_address' => $quotation->Inquiry->Contact->address,
-                'sales_person' => $quotation->Inquiry->SalesTeam->name
-            );
+                'sales_person' => $quotation->Inquiry->SalesTeam->name,
+            ];
 
             Mail::send('emails.advance_payment_notification', $data, function ($message) use ($quotation) {
                 $message->from('mail.smtp.m3force@gmail.com', 'M3Force ERP System');
@@ -230,13 +231,13 @@ class QuotationController extends Controller
             });
 
             $inquiry = \App\Model\Inquiry::find($quotation->inquiry_id);
-            $data = array(
+            $data = [
                 'id' => $inquiry->id,
                 'type' => 1,
                 'customer_name' => $inquiry->Contact->name,
-                'customer_address' => $inquiry->Contact->address
-            );
-    
+                'customer_address' => $inquiry->Contact->address,
+            ];
+
             Mail::send('emails.installation_update_notification', $data, function ($message) {
                 $message->from('mail.smtp.m3force@gmail.com', 'M3Force ERP System');
                 $message->to('stores@m3force.com', 'Nalin Silva');
@@ -244,15 +245,15 @@ class QuotationController extends Controller
                 $message->subject('M3Force Customer Installation Update Details');
             });
 
-            $result = array(
+            $result = [
                 'response' => true,
-                'message' => 'Quotation confirmed successfully'
-            );
+                'message' => 'Quotation confirmed successfully',
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Quotation confirm failed'
-            );
+                'message' => 'Quotation confirm failed',
+            ];
         }
 
         echo json_encode($result);
@@ -265,8 +266,8 @@ class QuotationController extends Controller
         $quotation->is_revised = 1;
 
         if ($quotation->save()) {
-            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/quotation_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Revised,' . $quotation->id . ',,,,,,,,,,,,,,,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/quotation_controller.csv', 'a+') or die('Unable to open/create file!');
+            fwrite($myfile, 'Revised,'.$quotation->id.',,,,,,,,,,,,,,,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
 
             $inquiry_status = new \App\Model\InquiryDetials();
@@ -320,15 +321,15 @@ class QuotationController extends Controller
                 $job->save();
             }
 
-            $result = array(
+            $result = [
                 'response' => true,
-                'message' => 'Quotation revised successfully'
-            );
+                'message' => 'Quotation revised successfully',
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Quotation revise failed'
-            );
+                'message' => 'Quotation revise failed',
+            ];
         }
 
         echo json_encode($result);
@@ -336,13 +337,13 @@ class QuotationController extends Controller
 
     public function preview_quotation(Request $request)
     {
-        $job_card_ids = array();
+        $job_card_ids = [];
         foreach ($request->data['job_cards'] as $detail) {
             if ($detail['selected']) {
                 array_push($job_card_ids, $detail['id']);
             }
         }
-        $cost_sheet_ids = array();
+        $cost_sheet_ids = [];
         foreach ($request->data['cost_sheets'] as $detail) {
             if ($detail['selected']) {
                 array_push($cost_sheet_ids, $detail['id']);
@@ -352,20 +353,20 @@ class QuotationController extends Controller
         $usd = false;
         $usd_rate = 0;
         $currency = 'LKR';
-        if (!$request->data['is_currency']) {
+        if (! $request->data['is_currency']) {
             $usd = true;
             $usd_rate = $request->data['usd_rate'];
             $currency = 'USD';
         }
 
-        $main_items = $sub_items = array();
+        $main_items = $sub_items = [];
         $job_card_details = \App\Model\JobCardDetails::whereIn('job_card_id', $job_card_ids)
             ->where('is_delete', 0)
             ->get();
         foreach ($job_card_details as $job_card_detail) {
             $margin = ($job_card_detail->margin + 100) / 100;
             $value = $usd ? ($job_card_detail->rate * $margin * $job_card_detail->quantity) / $usd_rate : $job_card_detail->rate * $margin * $job_card_detail->quantity;
-            $row = array(
+            $row = [
                 'description' => $job_card_detail->Item->name,
                 'model_no' => $job_card_detail->Item->model_no,
                 'brand' => $job_card_detail->Item->brand,
@@ -373,8 +374,8 @@ class QuotationController extends Controller
                 'unit_type' => $job_card_detail->Item->UnitType->code,
                 'rate' => $value / $job_card_detail->quantity,
                 'quantity' => $job_card_detail->quantity,
-                'value' => $value
-            );
+                'value' => $value,
+            ];
             if ($job_card_detail->is_main == 1) {
                 array_push($main_items, $row);
             } else {
@@ -385,20 +386,20 @@ class QuotationController extends Controller
         $cost_sheet_details = \App\Model\CostSheet::whereIn('id', $cost_sheet_ids)
             ->where('is_delete', 0)
             ->get();
-        $rate_ids = $rate_meters = array();
+        $rate_ids = $rate_meters = [];
         foreach ($cost_sheet_details as $main_cost_sheet_detail) {
-            if ($main_cost_sheet_detail->InstallationRate && !in_array($main_cost_sheet_detail->InstallationRate->id, $rate_ids)) {
+            if ($main_cost_sheet_detail->InstallationRate && ! in_array($main_cost_sheet_detail->InstallationRate->id, $rate_ids)) {
                 $meters = 0;
                 foreach ($cost_sheet_details as $sub_cost_sheet_detail) {
                     if ($main_cost_sheet_detail->InstallationRate->id == $sub_cost_sheet_detail->InstallationRate->id) {
                         $meters += $sub_cost_sheet_detail->meters;
                     }
                 }
-                $row = array(
+                $row = [
                     'installation_name' => $main_cost_sheet_detail->InstallationRate->name,
                     'installation_rate' => $usd ? $main_cost_sheet_detail->InstallationRate->rate / $usd_rate : $main_cost_sheet_detail->InstallationRate->rate,
-                    'meters' => $meters
-                );
+                    'meters' => $meters,
+                ];
                 array_push($rate_meters, $row);
                 array_push($rate_ids, $main_cost_sheet_detail->InstallationRate->id);
             }
@@ -423,7 +424,7 @@ class QuotationController extends Controller
                 $package_exist = true;
                 $package_description = $detail['description'];
                 $package_percentage = $detail['percentage'];
-            } else if ($detail['discount_type_id'] == 2) {
+            } elseif ($detail['discount_type_id'] == 2) {
                 $special_exist = true;
                 $special_description = $detail['description'];
                 $special_percentage = $detail['percentage'];
@@ -439,11 +440,11 @@ class QuotationController extends Controller
                     $nbt_exist = true;
                     $nbt_description = $detail['c_tax_type']['code'];
                     $nbt_percentage = $detail['c_tax_type']['percentage'];
-                } else if ($detail['c_tax_type']['id'] == 2) {
+                } elseif ($detail['c_tax_type']['id'] == 2) {
                     $svat_exist = true;
                     $svat_description = $detail['c_tax_type']['code'];
                     $svat_percentage = $detail['c_tax_type']['percentage'];
-                } else if ($detail['c_tax_type']['id'] == 3) {
+                } elseif ($detail['c_tax_type']['id'] == 3) {
                     $vat_exist = true;
                     $vat_description = $detail['c_tax_type']['code'];
                     $vat_percentage = $detail['c_tax_type']['percentage'];
@@ -471,9 +472,9 @@ class QuotationController extends Controller
         $view .= $request->data['show_origin'] ? '<th style="text-align: center; vertical-align: middle;">Origin</th>' : '';
         $view .= '
                             <th style="text-align: center; vertical-align: middle;">Unit Type</th>
-                            <th style="text-align: center; vertical-align: middle;">Rate (' . $currency . ')</th>
+                            <th style="text-align: center; vertical-align: middle;">Rate ('.$currency.')</th>
                             <th style="text-align: center; vertical-align: middle;">Quantity</th>
-                            <th style="text-align: center; vertical-align: middle;">Value (' . $currency . ')</th>
+                            <th style="text-align: center; vertical-align: middle;">Value ('.$currency.')</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -485,17 +486,17 @@ class QuotationController extends Controller
             $equipment_installation_total += $main_item['value'];
             $view .= '
                 <tr>
-                    <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                    <td style="vertical-align: middle;">' . $main_item['description'] . '</td>
-                    <td style="vertical-align: middle;">' . $main_item['model_no'] . '</td>
+                    <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                    <td style="vertical-align: middle;">'.$main_item['description'].'</td>
+                    <td style="vertical-align: middle;">'.$main_item['model_no'].'</td>
                 ';
-            $view .= $request->data['show_brand'] ? '<td style="vertical-align: middle;">' . $main_item['brand'] . '</td>' : '';
-            $view .= $request->data['show_origin'] ? '<td style="vertical-align: middle;">' . $main_item['origin'] . '</td>' : '';
+            $view .= $request->data['show_brand'] ? '<td style="vertical-align: middle;">'.$main_item['brand'].'</td>' : '';
+            $view .= $request->data['show_origin'] ? '<td style="vertical-align: middle;">'.$main_item['origin'].'</td>' : '';
             $view .= '
-                    <td style="text-align: center; vertical-align: middle;">' . $main_item['unit_type'] . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($main_item['rate'], 2) . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . $main_item['quantity'] . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($main_item['value'], 2) . '</td>
+                    <td style="text-align: center; vertical-align: middle;">'.$main_item['unit_type'].'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($main_item['rate'], 2).'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.$main_item['quantity'].'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($main_item['value'], 2).'</td>
                 </tr>
                 ';
             $count++;
@@ -504,23 +505,23 @@ class QuotationController extends Controller
         if ($package_exist) {
             $view .= '
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">Package Price</th>
-                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">' . number_format($equipment_installation_total, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">Package Price</th>
+                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">'.number_format($equipment_installation_total, 2).'</th>
                 </tr>
                 ';
             $discount_value = $equipment_installation_total * $package_percentage / 100;
             $equipment_installation_total -= $discount_value;
             $view .= '
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle; background-color: #fdff32;">' . $package_description . '</th>
-                    <th style="text-align: right; vertical-align: middle; background-color: #fdff32;">' . number_format($discount_value, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle; background-color: #fdff32;">'.$package_description.'</th>
+                    <th style="text-align: right; vertical-align: middle; background-color: #fdff32;">'.number_format($discount_value, 2).'</th>
                 </tr>
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">Sign up fee -Package Cost</th>
-                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">' . number_format($equipment_installation_total, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">Sign up fee -Package Cost</th>
+                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">'.number_format($equipment_installation_total, 2).'</th>
                 </tr>
                 <tr>
-                    <td colspan="' . ($colspan + 1) . '" style="vertical-align: middle;"><u>Extra Equipment</u></td>
+                    <td colspan="'.($colspan + 1).'" style="vertical-align: middle;"><u>Extra Equipment</u></td>
                 </tr>
                 ';
         }
@@ -529,17 +530,17 @@ class QuotationController extends Controller
             $equipment_installation_total += $sub_item['value'];
             $view .= '
                 <tr>
-                    <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                    <td style="vertical-align: middle;">' . $sub_item['description'] . '</td>
-                    <td style="vertical-align: middle;">' . $sub_item['model_no'] . '</td>
+                    <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                    <td style="vertical-align: middle;">'.$sub_item['description'].'</td>
+                    <td style="vertical-align: middle;">'.$sub_item['model_no'].'</td>
                 ';
-            $view .= $request->data['show_brand'] ? '<td style="vertical-align: middle;">' . $sub_item['brand'] . '</td>' : '';
-            $view .= $request->data['show_origin'] ? '<td style="vertical-align: middle;">' . $sub_item['origin'] . '</td>' : '';
+            $view .= $request->data['show_brand'] ? '<td style="vertical-align: middle;">'.$sub_item['brand'].'</td>' : '';
+            $view .= $request->data['show_origin'] ? '<td style="vertical-align: middle;">'.$sub_item['origin'].'</td>' : '';
             $view .= '
-                    <td style="text-align: center; vertical-align: middle;">' . $sub_item['unit_type'] . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($sub_item['rate'], 2) . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . $sub_item['quantity'] . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($sub_item['value'], 2) . '</td>
+                    <td style="text-align: center; vertical-align: middle;">'.$sub_item['unit_type'].'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($sub_item['rate'], 2).'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.$sub_item['quantity'].'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($sub_item['value'], 2).'</td>
                 </tr>
                 ';
             $count++;
@@ -547,8 +548,8 @@ class QuotationController extends Controller
 
         $view .= '
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">Total - Equipment</th>
-                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">' . number_format($equipment_installation_total, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">Total - Equipment</th>
+                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">'.number_format($equipment_installation_total, 2).'</th>
                 </tr>
             ';
 
@@ -557,11 +558,11 @@ class QuotationController extends Controller
             $equipment_installation_total += $installation_value;
             $view .= '
                     <tr>
-                        <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
+                        <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
                 ';
-            $view .= $request->data['show_installation_meters'] ? '<td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">Installation ' . $rate_meter['installation_name'] . ' X ' . number_format($rate_meter['meters'], 2) . ' Meters</td>' : '<td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">Installation ' . $rate_meter['installation_name'] . '</td>';
+            $view .= $request->data['show_installation_meters'] ? '<td colspan="'.($colspan - 1).'" style="vertical-align: middle;">Installation '.$rate_meter['installation_name'].' X '.number_format($rate_meter['meters'], 2).' Meters</td>' : '<td colspan="'.($colspan - 1).'" style="vertical-align: middle;">Installation '.$rate_meter['installation_name'].'</td>';
             $view .= '
-                        <td style="text-align: right; vertical-align: middle;">' . number_format($installation_value, 2) . '</td>
+                        <td style="text-align: right; vertical-align: middle;">'.number_format($installation_value, 2).'</td>
                     </tr>
                 ';
             $count++;
@@ -572,9 +573,9 @@ class QuotationController extends Controller
             $equipment_installation_total += $other_expenses;
             $view .= '
                     <tr>
-                        <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                        <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">'. $request->data['other_expenses_text'] .'</td>
-                        <td style="text-align: right; vertical-align: middle;">' . number_format($other_expenses, 2) . '</td>
+                        <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                        <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">'.$request->data['other_expenses_text'].'</td>
+                        <td style="text-align: right; vertical-align: middle;">'.number_format($other_expenses, 2).'</td>
                     </tr>
                 ';
             $count++;
@@ -585,9 +586,9 @@ class QuotationController extends Controller
             $equipment_installation_total += $excavation_work;
             $view .= '
                     <tr>
-                        <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                        <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">Excavation Work</td>
-                        <td style="text-align: right; vertical-align: middle;">' . number_format($excavation_work, 2) . '</td>
+                        <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                        <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">Excavation Work</td>
+                        <td style="text-align: right; vertical-align: middle;">'.number_format($excavation_work, 2).'</td>
                     </tr>
                 ';
             $count++;
@@ -598,9 +599,9 @@ class QuotationController extends Controller
             $equipment_installation_total += $transport;
             $view .= '
                     <tr>
-                        <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                        <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">Transport</td>
-                        <td style="text-align: right; vertical-align: middle;">' . number_format($transport, 2) . '</td>
+                        <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                        <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">Transport</td>
+                        <td style="text-align: right; vertical-align: middle;">'.number_format($transport, 2).'</td>
                     </tr>
                 ';
             $count++;
@@ -611,9 +612,9 @@ class QuotationController extends Controller
             $equipment_installation_total += $food;
             $view .= '
                     <tr>
-                        <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                        <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">Food</td>
-                        <td style="text-align: right; vertical-align: middle;">' . number_format($food, 2) . '</td>
+                        <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                        <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">Food</td>
+                        <td style="text-align: right; vertical-align: middle;">'.number_format($food, 2).'</td>
                     </tr>
                 ';
             $count++;
@@ -624,9 +625,9 @@ class QuotationController extends Controller
             $equipment_installation_total += $accommodation;
             $view .= '
                     <tr>
-                        <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                        <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">Accommodation</td>
-                        <td style="text-align: right; vertical-align: middle;">' . number_format($accommodation, 2) . '</td>
+                        <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                        <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">Accommodation</td>
+                        <td style="text-align: right; vertical-align: middle;">'.number_format($accommodation, 2).'</td>
                     </tr>
                 ';
             $count++;
@@ -637,9 +638,9 @@ class QuotationController extends Controller
             $equipment_installation_total += $bata;
             $view .= '
                     <tr>
-                        <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                        <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">Bata</td>
-                        <td style="text-align: right; vertical-align: middle;">' . number_format($bata, 2) . '</td>
+                        <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                        <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">Bata</td>
+                        <td style="text-align: right; vertical-align: middle;">'.number_format($bata, 2).'</td>
                     </tr>
                 ';
             $count++;
@@ -648,9 +649,9 @@ class QuotationController extends Controller
         }
         $view .= '
                 <tr>
-                    <td style="text-align: center; vertical-align: middle;">' . $count . '</td>
-                    <td colspan="' . ($colspan - 1) . '" style="vertical-align: middle;">Engineering & Commissioning</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($engineering_commissioning, 2) . '</td>
+                    <td style="text-align: center; vertical-align: middle;">'.$count.'</td>
+                    <td colspan="'.($colspan - 1).'" style="vertical-align: middle;">Engineering & Commissioning</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($engineering_commissioning, 2).'</td>
                 </tr>
             ';
         $count++;
@@ -658,8 +659,8 @@ class QuotationController extends Controller
         $equipment_installation_total += $engineering_commissioning;
         $view .= '
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">Total - Equipment & Installation</th>
-                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">' . number_format($equipment_installation_total, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">Total - Equipment & Installation</th>
+                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">'.number_format($equipment_installation_total, 2).'</th>
                 </tr>
             ';
 
@@ -668,12 +669,12 @@ class QuotationController extends Controller
             $equipment_installation_total -= $discount_value;
             $view .= '
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle; background-color: #fdff32;">' . $special_description . '</th>
-                    <th style="text-align: right; vertical-align: middle; background-color: #fdff32;">' . number_format($discount_value, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle; background-color: #fdff32;">'.$special_description.'</th>
+                    <th style="text-align: right; vertical-align: middle; background-color: #fdff32;">'.number_format($discount_value, 2).'</th>
                 </tr>
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;"></th>
-                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">' . number_format($equipment_installation_total, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;"></th>
+                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">'.number_format($equipment_installation_total, 2).'</th>
                 </tr>
                 ';
         }
@@ -683,12 +684,12 @@ class QuotationController extends Controller
             $equipment_installation_total += $nbt_value;
             $view .= '
                 <tr>
-                    <td colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">' . $nbt_percentage . '% ' . $nbt_description . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($nbt_value, 2) . '</td>
+                    <td colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">'.$nbt_percentage.'% '.$nbt_description.'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($nbt_value, 2).'</td>
                 </tr>
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;"></th>
-                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">' . number_format($equipment_installation_total, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;"></th>
+                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black;">'.number_format($equipment_installation_total, 2).'</th>
                 </tr>
                 ';
         }
@@ -696,8 +697,8 @@ class QuotationController extends Controller
             $svat_value = $equipment_installation_total * $svat_percentage / 100;
             $view .= '
                 <tr>
-                    <td colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">' . $svat_percentage . '% ' . $svat_description . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($svat_value, 2) . '</td>
+                    <td colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">'.$svat_percentage.'% '.$svat_description.'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($svat_value, 2).'</td>
                 </tr>
                 ';
         }
@@ -706,15 +707,15 @@ class QuotationController extends Controller
             $equipment_installation_total += $vat_value;
             $view .= '
                 <tr>
-                    <td colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">' . $vat_percentage . '% ' . $vat_description . '</td>
-                    <td style="text-align: right; vertical-align: middle;">' . number_format($vat_value, 2) . '</td>
+                    <td colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">'.$vat_percentage.'% '.$vat_description.'</td>
+                    <td style="text-align: right; vertical-align: middle;">'.number_format($vat_value, 2).'</td>
                 </tr>
                 ';
         }
-        if (!$nbt_exist && !$svat_exist && !$vat_exist) {
+        if (! $nbt_exist && ! $svat_exist && ! $vat_exist) {
             $view .= '
                 <tr>
-                    <td colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">VAT EXEMPTED</td>
+                    <td colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">VAT EXEMPTED</td>
                     <td style="text-align: right; vertical-align: middle;"></td>
                 </tr>
                 ';
@@ -722,8 +723,8 @@ class QuotationController extends Controller
 
         $view .= '
                 <tr>
-                    <th colspan="' . $colspan . '" style="text-align: right; vertical-align: middle;">Grand Total – Equipment & Installation</th>
-                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black; border-bottom: 3px double black;">' . number_format($equipment_installation_total, 2) . '</th>
+                    <th colspan="'.$colspan.'" style="text-align: right; vertical-align: middle;">Grand Total – Equipment & Installation</th>
+                    <th style="text-align: right; vertical-align: middle; border-top: 1px double black; border-bottom: 3px double black;">'.number_format($equipment_installation_total, 2).'</th>
                 </tr>
             ';
 
@@ -732,10 +733,10 @@ class QuotationController extends Controller
                 </table>
             ';
 
-        $result = array(
+        $result = [
             'view' => $view,
-            'quotation_value' => $equipment_installation_total
-        );
+            'quotation_value' => $equipment_installation_total,
+        ];
 
         echo json_encode($result);
     }
@@ -746,13 +747,13 @@ class QuotationController extends Controller
 
         $quotation = \App\Model\Quotation::find($request->id);
         $data['quotation'] = $quotation;
-        $title = $quotation ? 'Quotation Details ' . $quotation->quotation_no : 'Quotation Details';
+        $title = $quotation ? 'Quotation Details '.$quotation->quotation_no : 'Quotation Details';
 
         $html = view('inquiry.quotation_pdf', $data);
 
-        $snappy = new \Knp\Snappy\Pdf($_SERVER['DOCUMENT_ROOT'] . '/m3force/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
+        $snappy = new \Knp\Snappy\Pdf($_SERVER['DOCUMENT_ROOT'].'/m3force/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
         header('Content-Type: application/pdf');
-        header('Content-Disposition: filename="' . $title . '.pdf"');
+        header('Content-Disposition: filename="'.$title.'.pdf"');
         $options = [
             'page-size' => 'A4',
             'margin-top' => 5,
@@ -761,7 +762,7 @@ class QuotationController extends Controller
             'margin-bottom' => 15,
             'orientation' => 'Portrait',
             'footer-center' => 'Page [page] of [toPage]',
-            'footer-font-size' => 8
+            'footer-font-size' => 8,
         ];
         echo $snappy->getOutputFromHtml($html, $options);
     }
@@ -772,13 +773,13 @@ class QuotationController extends Controller
 
         $quotation = \App\Model\Quotation::find($request->id);
         $data['quotation'] = $quotation;
-        $title = $quotation ? 'Quotation Details ' . $quotation->quotation_no : 'Quotation Details';
+        $title = $quotation ? 'Quotation Details '.$quotation->quotation_no : 'Quotation Details';
 
         $html = view('inquiry.quotation_file_pdf', $data);
 
-        $snappy = new \Knp\Snappy\Pdf($_SERVER['DOCUMENT_ROOT'] . '/m3force/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
+        $snappy = new \Knp\Snappy\Pdf($_SERVER['DOCUMENT_ROOT'].'/m3force/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
         header('Content-Type: application/pdf');
-        header('Content-Disposition: filename="' . $title . '.pdf"');
+        header('Content-Disposition: filename="'.$title.'.pdf"');
         $options = [
             'page-size' => 'A4',
             'margin-top' => 5,
@@ -787,7 +788,7 @@ class QuotationController extends Controller
             'margin-bottom' => 15,
             'orientation' => 'Portrait',
             'footer-center' => 'Page [page] of [toPage]',
-            'footer-font-size' => 8
+            'footer-font-size' => 8,
         ];
         echo $snappy->getOutputFromHtml($html, $options);
     }
@@ -813,13 +814,13 @@ class QuotationController extends Controller
         $valid = true;
         $job_card_exist = $cost_sheet_exist = false;
 
-        $job_card_ids = array();
+        $job_card_ids = [];
         foreach ($request->job_cards as $detail) {
             if ($detail['selected']) {
                 array_push($job_card_ids, $detail['id']);
             }
         }
-        $cost_sheet_ids = array();
+        $cost_sheet_ids = [];
         foreach ($request->cost_sheets as $detail) {
             if ($detail['selected']) {
                 array_push($cost_sheet_ids, $detail['id']);
@@ -828,7 +829,7 @@ class QuotationController extends Controller
 
         $usd = false;
         $usd_rate = 0;
-        if (!$request->is_currency) {
+        if (! $request->is_currency) {
             $usd = true;
             $usd_rate = $request->usd_rate;
         }
@@ -848,10 +849,10 @@ class QuotationController extends Controller
         $cost_sheet_details = \App\Model\CostSheet::whereIn('id', $cost_sheet_ids)
             ->where('is_delete', 0)
             ->get();
-        $rate_ids = array();
+        $rate_ids = [];
         foreach ($cost_sheet_details as $main_cost_sheet_detail) {
             $cost_sheet_exist = true;
-            if ($main_cost_sheet_detail->InstallationRate && !in_array($main_cost_sheet_detail->InstallationRate->id, $rate_ids)) {
+            if ($main_cost_sheet_detail->InstallationRate && ! in_array($main_cost_sheet_detail->InstallationRate->id, $rate_ids)) {
                 $meters = 0;
                 foreach ($cost_sheet_details as $sub_cost_sheet_detail) {
                     if ($main_cost_sheet_detail->InstallationRate->id == $sub_cost_sheet_detail->InstallationRate->id) {
@@ -895,9 +896,9 @@ class QuotationController extends Controller
             $last_id = 0;
             $last_quotation = \App\Model\Quotation::select('id')->where('is_delete', 0)->orderBy('id', 'desc')->first();
             $last_id = $last_quotation ? $last_quotation->id : $last_id;
-            $quotation->quotation_no = 'QT/' . date('m') . '/' . date('y') . '/' . $request->inquiry_id . '/' . sprintf('%05d', $last_id + 1);
+            $quotation->quotation_no = 'QT/'.date('m').'/'.date('y').'/'.$request->inquiry_id.'/'.sprintf('%05d', $last_id + 1);
 
-            $quotation->quotation_date_time = date('Y-m-d', strtotime($request->quotation_date)) . ' ' . $request->quotation_time;
+            $quotation->quotation_date_time = date('Y-m-d', strtotime($request->quotation_date)).' '.$request->quotation_time;
             $quotation->remarks = $request->remarks;
             $quotation->special_notes = $request->special_notes;
             $quotation->show_brand = $request->show_brand ? 1 : 0;
@@ -924,7 +925,7 @@ class QuotationController extends Controller
                         $quotation_job_card->job_card_id = $job_card['id'];
                         $quotation_job_card->save();
 
-                        $job_card_id_list .= $job_card_id_list != '' ? '|' . $quotation_job_card->job_card_id : $quotation_job_card->job_card_id;
+                        $job_card_id_list .= $job_card_id_list != '' ? '|'.$quotation_job_card->job_card_id : $quotation_job_card->job_card_id;
 
                         $job_card_details = \App\Model\JobCardDetails::where('job_card_id', $quotation_job_card->job_card_id)
                             ->where('is_delete', 0)
@@ -948,7 +949,7 @@ class QuotationController extends Controller
                         $quotation_cost_sheet->quotation_id = $quotation->id;
                         $quotation_cost_sheet->cost_sheet_id = $cost_sheet['id'];
 
-                        $cost_sheet_id_list .= $cost_sheet_id_list != '' ? '|' . $quotation_cost_sheet->cost_sheet_id : $quotation_cost_sheet->cost_sheet_id;
+                        $cost_sheet_id_list .= $cost_sheet_id_list != '' ? '|'.$quotation_cost_sheet->cost_sheet_id : $quotation_cost_sheet->cost_sheet_id;
 
                         $cost_sheet = \App\Model\CostSheet::find($cost_sheet['id']);
                         if ($cost_sheet) {
@@ -982,7 +983,7 @@ class QuotationController extends Controller
                         $quotation_terms_condition->terms_condition_id = $terms_condition['id'];
                         $quotation_terms_condition->save();
 
-                        $terms_condition_id_list .= $terms_condition_id_list != '' ? '|' . $quotation_terms_condition->terms_condition_id : $quotation_terms_condition->terms_condition_id;
+                        $terms_condition_id_list .= $terms_condition_id_list != '' ? '|'.$quotation_terms_condition->terms_condition_id : $quotation_terms_condition->terms_condition_id;
                     }
                 }
                 $discount_list = '';
@@ -994,7 +995,7 @@ class QuotationController extends Controller
                     $quotation_discount->percentage = $details['percentage'];
                     $quotation_discount->save();
 
-                    $discount_list .= $discount_list != '' ? '|' . $quotation_discount->discount_type_id . '-' . $quotation_discount->percentage : $quotation_discount->discount_type_id . '-' . $quotation_discount->percentage;
+                    $discount_list .= $discount_list != '' ? '|'.$quotation_discount->discount_type_id.'-'.$quotation_discount->percentage : $quotation_discount->discount_type_id.'-'.$quotation_discount->percentage;
                 }
 
                 $inquiry_status = new \App\Model\InquiryDetials();
@@ -1008,26 +1009,26 @@ class QuotationController extends Controller
                 $inquiry_status->user_id = $request->session()->get('users_id');
                 $inquiry_status->save();
 
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/quotation_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Created,' . $quotation->id . ',' . $quotation->inquiry_id . ',' . str_replace(',', ' ', $quotation->quotation_no) . ',' . str_replace(',', ' ', $quotation->quotation_date_time) . ',' . str_replace(',', ' ', $quotation->remarks) . ',' . str_replace(',', ' ', $quotation->special_notes) . ',' . $quotation->show_brand . ',' . $quotation->show_origin . ',' . $quotation->show_installation_meters . ',' . $quotation->is_currency . ',' . $quotation->usd_rate . ',' . $quotation->show_excavation_work . ',' . $quotation->show_transport . ',' . $quotation->show_food . ',' . $quotation->show_accommodation . ',' . $quotation->show_bata . ',' . $quotation->show_other_expenses . ',' . str_replace(',', ' ', $quotation->other_expenses_text) . ',' . $quotation->quotation_value . ',' . $job_card_id_list . ',' . $cost_sheet_id_list . ',' . $terms_condition_id_list . ',' . $discount_list . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/quotation_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Created,'.$quotation->id.','.$quotation->inquiry_id.','.str_replace(',', ' ', $quotation->quotation_no).','.str_replace(',', ' ', $quotation->quotation_date_time).','.str_replace(',', ' ', $quotation->remarks).','.str_replace(',', ' ', $quotation->special_notes).','.$quotation->show_brand.','.$quotation->show_origin.','.$quotation->show_installation_meters.','.$quotation->is_currency.','.$quotation->usd_rate.','.$quotation->show_excavation_work.','.$quotation->show_transport.','.$quotation->show_food.','.$quotation->show_accommodation.','.$quotation->show_bata.','.$quotation->show_other_expenses.','.str_replace(',', ' ', $quotation->other_expenses_text).','.$quotation->quotation_value.','.$job_card_id_list.','.$cost_sheet_id_list.','.$terms_condition_id_list.','.$discount_list.','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
                     'message' => 'Quotation created successfully',
-                    'data' => $quotation->id
-                );
+                    'data' => $quotation->id,
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Quotation creation failed'
-                );
+                    'message' => 'Quotation creation failed',
+                ];
             }
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Quotation does not meet the profit margin'
-            );
+                'message' => 'Quotation does not meet the profit margin',
+            ];
         }
 
         echo json_encode($result);
@@ -1067,13 +1068,13 @@ class QuotationController extends Controller
         $valid = true;
         $job_card_exist = $cost_sheet_exist = false;
 
-        $job_card_ids = array();
+        $job_card_ids = [];
         foreach ($request->job_cards as $detail) {
             if ($detail['selected']) {
                 array_push($job_card_ids, $detail['id']);
             }
         }
-        $cost_sheet_ids = array();
+        $cost_sheet_ids = [];
         foreach ($request->cost_sheets as $detail) {
             if ($detail['selected']) {
                 array_push($cost_sheet_ids, $detail['id']);
@@ -1082,7 +1083,7 @@ class QuotationController extends Controller
 
         $usd = false;
         $usd_rate = 0;
-        if (!$request->is_currency) {
+        if (! $request->is_currency) {
             $usd = true;
             $usd_rate = $request->usd_rate;
         }
@@ -1102,10 +1103,10 @@ class QuotationController extends Controller
         $cost_sheet_details = \App\Model\CostSheet::whereIn('id', $cost_sheet_ids)
             ->where('is_delete', 0)
             ->get();
-        $rate_ids = array();
+        $rate_ids = [];
         foreach ($cost_sheet_details as $main_cost_sheet_detail) {
             $cost_sheet_exist = true;
-            if ($main_cost_sheet_detail->InstallationRate && !in_array($main_cost_sheet_detail->InstallationRate->id, $rate_ids)) {
+            if ($main_cost_sheet_detail->InstallationRate && ! in_array($main_cost_sheet_detail->InstallationRate->id, $rate_ids)) {
                 $meters = 0;
                 foreach ($cost_sheet_details as $sub_cost_sheet_detail) {
                     if ($main_cost_sheet_detail->InstallationRate->id == $sub_cost_sheet_detail->InstallationRate->id) {
@@ -1146,7 +1147,7 @@ class QuotationController extends Controller
             $quotation = \App\Model\Quotation::find($request->quotation_id);
             $quotation->inquiry_id = $request->inquiry_id;
             $quotation->quotation_no = $request->quotation_no;
-            $quotation->quotation_date_time = date('Y-m-d', strtotime($request->quotation_date)) . ' ' . $request->quotation_time;
+            $quotation->quotation_date_time = date('Y-m-d', strtotime($request->quotation_date)).' '.$request->quotation_time;
             $quotation->remarks = $request->remarks;
             $quotation->special_notes = $request->special_notes;
             $quotation->show_brand = $request->show_brand ? 1 : 0;
@@ -1214,7 +1215,7 @@ class QuotationController extends Controller
                         $quotation_job_card->is_delete = 0;
                         $quotation_job_card->save();
 
-                        $job_card_id_list .= $job_card_id_list != '' ? '|' . $quotation_job_card->job_card_id : $quotation_job_card->job_card_id;
+                        $job_card_id_list .= $job_card_id_list != '' ? '|'.$quotation_job_card->job_card_id : $quotation_job_card->job_card_id;
 
                         $job_card_details = \App\Model\JobCardDetails::where('job_card_id', $quotation_job_card->job_card_id)
                             ->where('is_delete', 0)
@@ -1270,7 +1271,7 @@ class QuotationController extends Controller
                         $quotation_cost_sheet->is_delete = 0;
                         $quotation_cost_sheet->save();
 
-                        $cost_sheet_id_list .= $cost_sheet_id_list != '' ? '|' . $quotation_cost_sheet->cost_sheet_id : $quotation_cost_sheet->cost_sheet_id;
+                        $cost_sheet_id_list .= $cost_sheet_id_list != '' ? '|'.$quotation_cost_sheet->cost_sheet_id : $quotation_cost_sheet->cost_sheet_id;
                     }
                 }
                 $terms_condition_id_list = '';
@@ -1285,7 +1286,7 @@ class QuotationController extends Controller
                         $quotation_terms_condition->is_delete = 0;
                         $quotation_terms_condition->save();
 
-                        $terms_condition_id_list .= $terms_condition_id_list != '' ? '|' . $quotation_terms_condition->terms_condition_id : $quotation_terms_condition->terms_condition_id;
+                        $terms_condition_id_list .= $terms_condition_id_list != '' ? '|'.$quotation_terms_condition->terms_condition_id : $quotation_terms_condition->terms_condition_id;
                     }
                 }
                 $discount_list = '';
@@ -1301,30 +1302,30 @@ class QuotationController extends Controller
                     $quotation_discount->is_delete = 0;
                     $quotation_discount->save();
 
-                    $discount_list .= $discount_list != '' ? '|' . $quotation_discount->discount_type_id . '-' . $quotation_discount->percentage : $quotation_discount->discount_type_id . '-' . $quotation_discount->percentage;
+                    $discount_list .= $discount_list != '' ? '|'.$quotation_discount->discount_type_id.'-'.$quotation_discount->percentage : $quotation_discount->discount_type_id.'-'.$quotation_discount->percentage;
                 }
 
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/quotation_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Updated,' . $quotation->id . ',' . $quotation->inquiry_id . ',' . str_replace(',', ' ', $quotation->quotation_no) . ',' . str_replace(',', ' ', $quotation->quotation_date_time) . ',' . str_replace(',', ' ', $quotation->remarks) . ',' . str_replace(',', ' ', $quotation->special_notes) . ',' . $quotation->show_brand . ',' . $quotation->show_origin . ',' . $quotation->show_installation_meters . ',' . $quotation->is_currency . ',' . $quotation->usd_rate . ',' . $quotation->show_excavation_work . ',' . $quotation->show_transport . ',' . $quotation->show_food . ',' . $quotation->show_accommodation . ',' . $quotation->show_bata . ',' . $quotation->show_other_expenses . ',' . str_replace(',', ' ', $quotation->other_expenses_text) . ',' . $quotation->quotation_value . ',' . $job_card_id_list . ',' . $cost_sheet_id_list . ',' . $terms_condition_id_list . ',' . $discount_list . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/quotation_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Updated,'.$quotation->id.','.$quotation->inquiry_id.','.str_replace(',', ' ', $quotation->quotation_no).','.str_replace(',', ' ', $quotation->quotation_date_time).','.str_replace(',', ' ', $quotation->remarks).','.str_replace(',', ' ', $quotation->special_notes).','.$quotation->show_brand.','.$quotation->show_origin.','.$quotation->show_installation_meters.','.$quotation->is_currency.','.$quotation->usd_rate.','.$quotation->show_excavation_work.','.$quotation->show_transport.','.$quotation->show_food.','.$quotation->show_accommodation.','.$quotation->show_bata.','.$quotation->show_other_expenses.','.str_replace(',', ' ', $quotation->other_expenses_text).','.$quotation->quotation_value.','.$job_card_id_list.','.$cost_sheet_id_list.','.$terms_condition_id_list.','.$discount_list.','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
-                $result = array(
+                $result = [
                     'response' => true,
                     'message' => 'Quotation updated successfully',
-                    'data' => $quotation->id
-                );
+                    'data' => $quotation->id,
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Quotation updation failed'
-                );
+                    'message' => 'Quotation updation failed',
+                ];
             }
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
                 'message' => 'Quotation does not meet the profit margin',
-                'data' => $request->quotation_id
-            );
+                'data' => $request->quotation_id,
+            ];
         }
 
         echo json_encode($result);
@@ -1342,18 +1343,18 @@ class QuotationController extends Controller
         $quotation->is_delete = 1;
 
         if ($quotation->save()) {
-            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/quotation_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Deleted,' . $quotation->id . ',,,,,,,,,,,,,,,,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/quotation_controller.csv', 'a+') or die('Unable to open/create file!');
+            fwrite($myfile, 'Deleted,'.$quotation->id.',,,,,,,,,,,,,,,,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
-            $result = array(
+            $result = [
                 'response' => true,
-                'message' => 'Quotation deleted successfully'
-            );
+                'message' => 'Quotation deleted successfully',
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Quotation deletion failed'
-            );
+                'message' => 'Quotation deletion failed',
+            ];
         }
 
         echo json_encode($result);

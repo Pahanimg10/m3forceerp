@@ -16,16 +16,14 @@ class InventoryLocation extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'code',
-        'name'
+        'name',
     ];
 
     /**
      * Relations
      */
-    
     public function InventoryRegister()
     {
         return $this->hasMany('App\Model\InventoryRegister', 'inventory_location_id', 'id')->where('is_delete', 0);
     }
-
 }

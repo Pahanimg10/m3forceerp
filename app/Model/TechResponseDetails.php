@@ -24,13 +24,12 @@ class TechResponseDetails extends Model
         'invoice_value',
         'remarks',
         'user_id',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-
     public function TechResponse()
     {
         return $this->belongsTo('App\Model\TechResponse', 'tech_response_id', 'id');

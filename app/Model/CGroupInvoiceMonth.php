@@ -15,18 +15,16 @@ class CGroupInvoiceMonth extends Model
     protected $table = 'm_c_group_inv_month';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'group_id', 
-        'month', 
-        'is_delete'
+        'group_id',
+        'month',
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function CGroup()
     {
         return $this->belongsTo('App\Model\CGroup', 'group_id', 'id');
     }
-
 }

@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         // Commands\Inspire::class,
         \App\Console\Commands\CronMinimumStockReminder::class,
-        \App\Console\Commands\CronMonitoringInvoice::class
+        \App\Console\Commands\CronMonitoringInvoice::class,
     ];
 
     /**

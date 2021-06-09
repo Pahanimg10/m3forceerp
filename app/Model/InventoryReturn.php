@@ -14,28 +14,26 @@ class InventoryReturn extends Model
     public $timestamps = true;
     protected $table = 'inventory_return';
     protected $primaryKey = 'id';
-    protected $fillable = [ 
+    protected $fillable = [
         'inventory_issue_id',
-        'inventory_return_no', 
+        'inventory_return_no',
         'inventory_return_date_time',
-        'remarks', 
+        'remarks',
         'inventory_return_value',
         'is_posted',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function InventoryIssue()
     {
         return $this->belongsTo('App\Model\InventoryIssue', 'inventory_issue_id', 'id');
     }
-    
+
     public function InventoryReturnDetails()
     {
         return $this->hasMany('App\Model\InventoryReturnDetails', 'inventory_return_id', 'id')->where('is_delete', 0);
     }
-
 }

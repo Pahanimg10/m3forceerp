@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-require_once('ESMSWS.php');
+require_once 'ESMSWS.php';
 session_start();
 date_default_timezone_set('Asia/Colombo');
 set_time_limit(0);
 
-use Illuminate\Http\Request;
-
 use App\Http\Requests;
+use Illuminate\Http\Request;
 
 class GoodReceiveController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         $this->middleware('user_access');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -87,7 +87,7 @@ class GoodReceiveController extends Controller
             })
             ->where('is_delete', 0)
             ->first();
-        if ($request->value == $request->purchase_order_no || ($purchase_order && !$good_receive)) {
+        if ($request->value == $request->purchase_order_no || ($purchase_order && ! $good_receive)) {
             $response = 'true';
         } else {
             $response = 'false';
@@ -111,7 +111,7 @@ class GoodReceiveController extends Controller
                 ->where('item_id', $request->item_id)
                 ->where('is_delete', 0)
                 ->first();
-            if ($item && !$good_receive_detail) {
+            if ($item && ! $good_receive_detail) {
                 $response = 'true';
             } else {
                 $response = 'false';
@@ -138,7 +138,7 @@ class GoodReceiveController extends Controller
                 ->where('item_id', $request->item_id)
                 ->where('is_delete', 0)
                 ->first();
-            if ($item && !$good_receive_detail) {
+            if ($item && ! $good_receive_detail) {
                 $response = 'true';
             } else {
                 $response = 'false';
@@ -187,20 +187,20 @@ class GoodReceiveController extends Controller
     public function good_receive_list(Request $request)
     {
         $good_receives = \App\Model\GoodReceive::select('id', 'purchase_order_id', 'invoice_no', 'good_receive_no', 'good_receive_date_time', 'remarks', 'good_receive_value', 'is_posted')
-            ->with(array('PurchaseOrder' => function ($query) {
+            ->with(['PurchaseOrder' => function ($query) {
                 $query->select('id', 'contact_id', 'purchase_order_no')
-                    ->with(array('Contact' => function ($query) {
+                    ->with(['Contact' => function ($query) {
                         $query->select('id', 'name');
-                    }));
-            }))
-            ->whereBetween('good_receive_date_time', array($request->from . ' 00:01', $request->to . ' 23:59'))
+                    }]);
+            }])
+            ->whereBetween('good_receive_date_time', [$request->from.' 00:01', $request->to.' 23:59'])
             ->where('is_delete', 0)
             ->get();
 
-        $data = array(
+        $data = [
             'good_receives' => $good_receives,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -208,18 +208,18 @@ class GoodReceiveController extends Controller
     public function find_good_receive(Request $request)
     {
         $good_receive = \App\Model\GoodReceive::select('id', 'purchase_order_id', 'invoice_no', 'good_receive_no', 'good_receive_date_time', 'remarks', 'good_receive_value', 'is_posted')
-            ->with(array('PurchaseOrder' => function ($query) {
+            ->with(['PurchaseOrder' => function ($query) {
                 $query->select('id', 'contact_id', 'purchase_order_no')
-                    ->with(array('Contact' => function ($query) {
+                    ->with(['Contact' => function ($query) {
                         $query->select('id', 'name');
-                    }));
-            }))
+                    }]);
+            }])
             ->find($request->id);
 
-        $data = array(
+        $data = [
             'good_receive' => $good_receive,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -227,54 +227,55 @@ class GoodReceiveController extends Controller
     public function find_good_receive_detail(Request $request)
     {
         $good_receive_detail = \App\Model\GoodReceiveDetails::select('id', 'good_receive_id', 'item_id', 'model_no', 'brand', 'origin', 'rate', 'quantity', 'location', 'warranty')
-            ->with(array('GoodReceive' => function ($query) {
+            ->with(['GoodReceive' => function ($query) {
                 $query->select('id', 'purchase_order_id', 'invoice_no', 'good_receive_no', 'good_receive_date_time', 'remarks', 'is_posted')
-                    ->with(array('PurchaseOrder' => function ($query) {
+                    ->with(['PurchaseOrder' => function ($query) {
                         $query->select('id', 'contact_id', 'purchase_order_no')
-                            ->with(array('Contact' => function ($query) {
+                            ->with(['Contact' => function ($query) {
                                 $query->select('id', 'name');
-                            }));
-                    }));
-            }))
-            ->with(array('Item' => function ($query) {
+                            }]);
+                    }]);
+            }])
+            ->with(['Item' => function ($query) {
                 $query->select('id', 'main_category_id', 'sub_category_id', 'code', 'name', 'unit_type_id', 'is_serial', 'is_warranty')
-                    ->with(array('MainItemCategory' => function ($query) {
+                    ->with(['MainItemCategory' => function ($query) {
                         $query->select('id', 'code', 'name');
-                    }))
-                    ->with(array('SubItemCategory' => function ($query) {
+                    }])
+                    ->with(['SubItemCategory' => function ($query) {
                         $query->select('id', 'code', 'name');
-                    }))
-                    ->with(array('UnitType' => function ($query) {
+                    }])
+                    ->with(['UnitType' => function ($query) {
                         $query->select('id', 'code', 'name');
-                    }));
-            }))
-            ->with(array('GoodReceiveBreakdown' => function ($query) {
+                    }]);
+            }])
+            ->with(['GoodReceiveBreakdown' => function ($query) {
                 $query->select('id', 'good_receive_detail_id', 'serial_no', 'is_main', 'main_id');
-            }))
+            }])
             ->find($request->id);
+
         return response($good_receive_detail);
     }
 
     public function good_receive_detail_list(Request $request)
     {
         $good_receive_details = \App\Model\GoodReceiveDetails::select('id', 'good_receive_id', 'item_id', 'rate', 'quantity')
-            ->with(array('GoodReceive' => function ($query) {
+            ->with(['GoodReceive' => function ($query) {
                 $query->select('id', 'is_posted');
-            }))
-            ->with(array('Item' => function ($query) {
+            }])
+            ->with(['Item' => function ($query) {
                 $query->select('id', 'code', 'name', 'unit_type_id')
-                    ->with(array('UnitType' => function ($query) {
+                    ->with(['UnitType' => function ($query) {
                         $query->select('id', 'code', 'name');
-                    }));
-            }))
+                    }]);
+            }])
             ->where('good_receive_id', $request->id)
             ->where('is_delete', 0)
             ->get();
 
-        $data = array(
+        $data = [
             'good_receive_details' => $good_receive_details,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
 
         return response($data);
     }
@@ -287,8 +288,8 @@ class GoodReceiveController extends Controller
         $good_receive->save();
 
         if ($is_posted) {
-            $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/good_receive_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Posted,' . $good_receive->id . ',,,,,,,,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/good_receive_controller.csv', 'a+') or die('Unable to open/create file!');
+            fwrite($myfile, 'Posted,'.$good_receive->id.',,,,,,,,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
 
             $good_receive_details = \App\Model\GoodReceiveDetails::where('good_receive_id', $good_receive->id)
@@ -323,15 +324,15 @@ class GoodReceiveController extends Controller
             $good_receive->good_receive_value = $total_value;
             $good_receive->save();
 
-            $result = array(
+            $result = [
                 'response' => true,
-                'message' => 'Good Receive posted successfully'
-            );
+                'message' => 'Good Receive posted successfully',
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Good Receive post failed'
-            );
+                'message' => 'Good Receive post failed',
+            ];
         }
 
         echo json_encode($result);
@@ -343,13 +344,13 @@ class GoodReceiveController extends Controller
 
         $good_receive = \App\Model\GoodReceive::find($request->id);
         $data['good_receive'] = $good_receive;
-        $title = $good_receive ? 'Good Receive Details ' . $good_receive->good_receive_no : 'Good Receive Details';
+        $title = $good_receive ? 'Good Receive Details '.$good_receive->good_receive_no : 'Good Receive Details';
 
         $html = view('stock.good_receive_pdf', $data);
 
-        $snappy = new \Knp\Snappy\Pdf($_SERVER['DOCUMENT_ROOT'] . '/m3force/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
+        $snappy = new \Knp\Snappy\Pdf($_SERVER['DOCUMENT_ROOT'].'/m3force/vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64');
         header('Content-Type: application/pdf');
-        header('Content-Disposition: filename="' . $title . '.pdf"');
+        header('Content-Disposition: filename="'.$title.'.pdf"');
         $options = [
             'page-size' => 'A4',
             'margin-top' => 5,
@@ -358,7 +359,7 @@ class GoodReceiveController extends Controller
             'margin-bottom' => 15,
             'orientation' => 'Portrait',
             'footer-center' => 'Page [page] of [toPage]',
-            'footer-font-size' => 8
+            'footer-font-size' => 8,
         ];
         echo $snappy->getOutputFromHtml($html, $options);
     }
@@ -385,18 +386,18 @@ class GoodReceiveController extends Controller
         $good_receive = \App\Model\GoodReceive::find($request->good_receive_id);
 
         $purchase_order_id = isset($request->purchase_order['id']) ? $request->purchase_order['id'] : 0;
-        if (!$good_receive) {
+        if (! $good_receive) {
             $exist = true;
             $good_receive = new \App\Model\GoodReceive();
             $last_id = 0;
             $last_good_receive = \App\Model\GoodReceive::select('id')->where('is_delete', 0)->orderBy('id', 'desc')->first();
             $last_id = $last_good_receive ? $last_good_receive->id : $last_id;
-            $good_receive->good_receive_no = 'G-REC/' . date('m') . '/' . date('y') . '/' . $purchase_order_id . '/' . sprintf('%05d', $last_id + 1);
+            $good_receive->good_receive_no = 'G-REC/'.date('m').'/'.date('y').'/'.$purchase_order_id.'/'.sprintf('%05d', $last_id + 1);
         }
 
         $good_receive->purchase_order_id = $purchase_order_id;
         $good_receive->invoice_no = $request->invoice_no;
-        $good_receive->good_receive_date_time = date('Y-m-d', strtotime($request->good_receive_date)) . ' ' . $request->good_receive_time;
+        $good_receive->good_receive_date_time = date('Y-m-d', strtotime($request->good_receive_date)).' '.$request->good_receive_time;
         $good_receive->remarks = $request->remarks;
 
         if ($good_receive->save()) {
@@ -421,7 +422,7 @@ class GoodReceiveController extends Controller
 
                 $good_receive_detail_id = $good_receive_detail->id;
 
-                $main_ids = array();
+                $main_ids = [];
                 foreach ($request->serial_details as $detail) {
                     if ($detail['is_main'] == 1) {
                         $old_good_receive_breakdown = \App\Model\GoodReceiveBreakdown::where('good_receive_detail_id', $good_receive_detail->id)
@@ -438,10 +439,10 @@ class GoodReceiveController extends Controller
                             $good_receive_breakdown->main_id = $good_receive_breakdown->id;
                             $good_receive_breakdown->save();
 
-                            $row = array(
+                            $row = [
                                 'id' => $detail['main_id'],
-                                'main_id' => $good_receive_breakdown->id
-                            );
+                                'main_id' => $good_receive_breakdown->id,
+                            ];
                             array_push($main_ids, $row);
                         }
                     }
@@ -478,25 +479,25 @@ class GoodReceiveController extends Controller
 
             if ($good_receive_detail_id != '') {
                 $good_receive_detail = \App\Model\GoodReceiveDetails::find($good_receive_detail_id);
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/good_receive_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Created,' . $good_receive->id . ',' . $good_receive->purchase_order_id . ',' . $good_receive->invoice_no . ',' . $good_receive->good_receive_date_time . ',' . $good_receive->good_receive_value . ',' . str_replace(',', ' ', $good_receive->remarks) . ',' . $good_receive_detail->id . ',' . $good_receive_detail->item_id . ',' . $good_receive_detail->model_no . ',' . $good_receive_detail->brand . ',' . $good_receive_detail->origin . ',' . $good_receive_detail->rate . ',' . $good_receive_detail->quantity . ',' . $good_receive_detail->available_quantity . ',' . $good_receive_detail->location . ',' . $good_receive_detail->warranty . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/good_receive_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Created,'.$good_receive->id.','.$good_receive->purchase_order_id.','.$good_receive->invoice_no.','.$good_receive->good_receive_date_time.','.$good_receive->good_receive_value.','.str_replace(',', ' ', $good_receive->remarks).','.$good_receive_detail->id.','.$good_receive_detail->item_id.','.$good_receive_detail->model_no.','.$good_receive_detail->brand.','.$good_receive_detail->origin.','.$good_receive_detail->rate.','.$good_receive_detail->quantity.','.$good_receive_detail->available_quantity.','.$good_receive_detail->location.','.$good_receive_detail->warranty.','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
             } else {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/good_receive_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Created,' . $good_receive->id . ',' . $good_receive->purchase_order_id . ',' . $good_receive->invoice_no . ',' . $good_receive->good_receive_date_time . ',' . $good_receive->good_receive_value . ',' . str_replace(',', ' ', $good_receive->remarks) . ',,,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/good_receive_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Created,'.$good_receive->id.','.$good_receive->purchase_order_id.','.$good_receive->invoice_no.','.$good_receive->good_receive_date_time.','.$good_receive->good_receive_value.','.str_replace(',', ' ', $good_receive->remarks).',,,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
             }
 
-            $result = array(
+            $result = [
                 'response' => true,
                 'message' => 'Good Receive Detail created successfully',
-                'data' => $good_receive->id
-            );
+                'data' => $good_receive->id,
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Good Receive Detail creation failed'
-            );
+                'message' => 'Good Receive Detail creation failed',
+            ];
         }
 
         echo json_encode($result);
@@ -537,7 +538,7 @@ class GoodReceiveController extends Controller
         $good_receive->purchase_order_id = isset($request->purchase_order['id']) ? $request->purchase_order['id'] : 0;
         $good_receive->invoice_no = $request->invoice_no;
         $good_receive->good_receive_no = $request->good_receive_no;
-        $good_receive->good_receive_date_time = date('Y-m-d', strtotime($request->good_receive_date)) . ' ' . $request->good_receive_time;
+        $good_receive->good_receive_date_time = date('Y-m-d', strtotime($request->good_receive_date)).' '.$request->good_receive_time;
         $good_receive->remarks = $request->remarks;
 
         if ($good_receive->save()) {
@@ -571,7 +572,7 @@ class GoodReceiveController extends Controller
 
                 $good_receive_detail_id = $good_receive_detail->id;
 
-                $main_ids = array();
+                $main_ids = [];
                 foreach ($request->serial_details as $detail) {
                     if ($detail['is_main'] == 1) {
                         $old_good_receive_breakdown = \App\Model\GoodReceiveBreakdown::where('good_receive_detail_id', $good_receive_detail->id)
@@ -588,10 +589,10 @@ class GoodReceiveController extends Controller
                             $good_receive_breakdown->main_id = $good_receive_breakdown->id;
                             $good_receive_breakdown->save();
 
-                            $row = array(
+                            $row = [
                                 'id' => $detail['main_id'],
-                                'main_id' => $good_receive_breakdown->id
-                            );
+                                'main_id' => $good_receive_breakdown->id,
+                            ];
                             array_push($main_ids, $row);
                         }
                     }
@@ -628,25 +629,25 @@ class GoodReceiveController extends Controller
 
             if ($good_receive_detail_id != '') {
                 $good_receive_detail = \App\Model\GoodReceiveDetails::find($good_receive_detail_id);
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/good_receive_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Updated,' . $good_receive->id . ',' . $good_receive->purchase_order_id . ',' . $good_receive->invoice_no . ',' . $good_receive->good_receive_date_time . ',' . $good_receive->good_receive_value . ',' . str_replace(',', ' ', $good_receive->remarks) . ',' . $good_receive_detail->id . ',' . $good_receive_detail->item_id . ',' . $good_receive_detail->model_no . ',' . $good_receive_detail->brand . ',' . $good_receive_detail->origin . ',' . $good_receive_detail->rate . ',' . $good_receive_detail->quantity . ',' . $good_receive_detail->available_quantity . ',' . $good_receive_detail->location . ',' . $good_receive_detail->warranty . ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/good_receive_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Updated,'.$good_receive->id.','.$good_receive->purchase_order_id.','.$good_receive->invoice_no.','.$good_receive->good_receive_date_time.','.$good_receive->good_receive_value.','.str_replace(',', ' ', $good_receive->remarks).','.$good_receive_detail->id.','.$good_receive_detail->item_id.','.$good_receive_detail->model_no.','.$good_receive_detail->brand.','.$good_receive_detail->origin.','.$good_receive_detail->rate.','.$good_receive_detail->quantity.','.$good_receive_detail->available_quantity.','.$good_receive_detail->location.','.$good_receive_detail->warranty.','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
             } else {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/good_receive_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Updated,' . $good_receive->id . ',' . $good_receive->purchase_order_id . ',' . $good_receive->invoice_no . ',' . $good_receive->good_receive_date_time . ',' . $good_receive->good_receive_value . ',' . str_replace(',', ' ', $good_receive->remarks) . ',,,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/good_receive_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Updated,'.$good_receive->id.','.$good_receive->purchase_order_id.','.$good_receive->invoice_no.','.$good_receive->good_receive_date_time.','.$good_receive->good_receive_value.','.str_replace(',', ' ', $good_receive->remarks).',,,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
             }
 
-            $result = array(
+            $result = [
                 'response' => true,
                 'message' => 'Good Receive Detail updated successfully',
-                'data' => $good_receive->id
-            );
+                'data' => $good_receive->id,
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Good Receive Detail updation failed'
-            );
+                'message' => 'Good Receive Detail updation failed',
+            ];
         }
 
         echo json_encode($result);
@@ -665,8 +666,8 @@ class GoodReceiveController extends Controller
             $good_receive->is_delete = 1;
 
             if ($good_receive->save()) {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/good_receive_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Deleted,' . $good_receive->id . ',,,,,,,,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/good_receive_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Deleted,'.$good_receive->id.',,,,,,,,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
                 $good_receive_details = \App\Model\GoodReceiveDetails::where('good_receive_id', $good_receive->id)->where('is_delete', 0)->get();
@@ -693,25 +694,25 @@ class GoodReceiveController extends Controller
                 $good_receive->good_receive_value = $total_value;
                 $good_receive->save();
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Good Receive deleted successfully'
-                );
+                    'message' => 'Good Receive deleted successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Good Receive deletion failed'
-                );
+                    'message' => 'Good Receive deletion failed',
+                ];
             }
-        } else if ($request->type == 1) {
+        } elseif ($request->type == 1) {
             $good_receive_detail = \App\Model\GoodReceiveDetails::find($id);
             $good_receive_detail->quantity = 0;
             $good_receive_detail->available_quantity = 0;
             $good_receive_detail->is_delete = 1;
 
             if ($good_receive_detail->save()) {
-                $myfile = fopen($_SERVER['DOCUMENT_ROOT'] . '/m3force/public/assets/system_logs/good_receive_controller.csv', 'a+') or die('Unable to open/create file!');
-                fwrite($myfile, 'Deleted,' . $good_receive_detail->good_receive_id . ',,,,,,' . $good_receive_detail->id . ',,,,,,,,,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',', ' ', session()->get('username')) . PHP_EOL);
+                $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/good_receive_controller.csv', 'a+') or die('Unable to open/create file!');
+                fwrite($myfile, 'Deleted,'.$good_receive_detail->good_receive_id.',,,,,,'.$good_receive_detail->id.',,,,,,,,,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
                 fclose($myfile);
 
                 $good_receive_breakdowns = \App\Model\GoodReceiveBreakdown::where('good_receive_detail_id', $good_receive_detail->id)->where('is_delete', 0)->get();
@@ -731,21 +732,21 @@ class GoodReceiveController extends Controller
                 $good_receive->good_receive_value = $total_value;
                 $good_receive->save();
 
-                $result = array(
+                $result = [
                     'response' => true,
-                    'message' => 'Good Receive Detail deleted successfully'
-                );
+                    'message' => 'Good Receive Detail deleted successfully',
+                ];
             } else {
-                $result = array(
+                $result = [
                     'response' => false,
-                    'message' => 'Good Receive Detail deletion failed'
-                );
+                    'message' => 'Good Receive Detail deletion failed',
+                ];
             }
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Deletion failed'
-            );
+                'message' => 'Deletion failed',
+            ];
         }
 
         echo json_encode($result);

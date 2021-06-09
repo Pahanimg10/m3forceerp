@@ -16,16 +16,14 @@ class CustomerComplainStatus extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
-        'show_update'
+        'show_update',
     ];
 
     /**
      * Relations
      */
-    
     public function CustomerComplainDetails()
     {
         return $this->hasMany('App\Model\CustomerComplainDetails', 'customer_complain_status_id', 'id')->where('is_delete', 0);
     }
-
 }

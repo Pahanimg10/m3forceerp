@@ -15,25 +15,23 @@ class DocumentUpload extends Model
     protected $table = 'document_upload';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'inquiry_id', 
-        'document_type_id', 
+        'inquiry_id',
+        'document_type_id',
         'document_name',
         'upload_document',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function Inquiry()
     {
         return $this->belongsTo('App\Model\Inquiry', 'inquiry_id', 'id');
     }
-    
+
     public function DocumentType()
     {
         return $this->belongsTo('App\Model\DocumentType', 'document_type_id', 'id');
     }
-
 }

@@ -15,19 +15,18 @@ class UserAccess extends Model
     protected $table = 'user_access';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'user_group_id', 
-        'side_menu_id'
+        'user_group_id',
+        'side_menu_id',
     ];
 
     /**
      * Relations
      */
-    
     public function UserGroup()
     {
         return $this->belongsTo('App\Model\UserGroup', 'user_group_id', 'id');
     }
-    
+
     public function SideMenu()
     {
         return $this->belongsTo('App\Model\SideMenu', 'side_menu_id', 'id');

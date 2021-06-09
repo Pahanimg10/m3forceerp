@@ -15,16 +15,14 @@ class RepairStatus extends Model
     protected $table = 'repair_status';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'name'
+        'name',
     ];
 
     /**
      * Relations
      */
-    
     public function RepairDetails()
     {
         return $this->hasMany('App\Model\RepairDetails', 'repair_status_id', 'id')->where('is_delete', 0);
     }
-
 }

@@ -17,37 +17,35 @@ class GoodRequestDocument extends Model
     protected $fillable = [
         'good_request_id',
         'type',
-        'document_id', 
-        'is_delete'
+        'document_id',
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function GoodRequest()
     {
         return $this->belongsTo('App\Model\GoodRequest', 'good_request_id', 'id');
     }
-    
+
     public function JobCard()
     {
         return $this->belongsTo('App\Model\JobCard', 'document_id', 'id');
     }
-    
+
     public function InstallationSheet()
     {
         return $this->belongsTo('App\Model\InstallationSheet', 'document_id', 'id');
     }
-    
+
     public function TechResponseJobCard()
     {
         return $this->belongsTo('App\Model\TechResponseJobCard', 'document_id', 'id');
     }
-    
+
     public function TechResponseInstallationSheet()
     {
         return $this->belongsTo('App\Model\TechResponseInstallationSheet', 'document_id', 'id');
     }
-
 }

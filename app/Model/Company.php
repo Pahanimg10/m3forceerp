@@ -15,18 +15,18 @@ class Company extends Model
     protected $table = 'm_company';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'company_name', 
-        'phone_number',  
-        'hotline_number', 
-        'email', 
-        'website', 
-        'address_line_1', 
-        'address_line_2', 
-        'address_line_3', 
-        'reg_number', 
+        'company_name',
+        'phone_number',
+        'hotline_number',
+        'email',
+        'website',
+        'address_line_1',
+        'address_line_2',
+        'address_line_3',
+        'reg_number',
         'svat',
         'vat',
-        'company_image'
+        'company_image',
     ];
 
     /**

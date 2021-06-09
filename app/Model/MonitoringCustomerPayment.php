@@ -15,7 +15,7 @@ class MonitoringCustomerPayment extends Model
     protected $table = 'monitoring_customer_payment';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'monitoring_customer_id',  
+        'monitoring_customer_id',
         'payment_mode_id',
         'collection_person_id',
         'receipt_no',
@@ -25,26 +25,24 @@ class MonitoringCustomerPayment extends Model
         'bank',
         'realize_date',
         'remarks',
-        'is_delete'
+        'is_delete',
     ];
 
     /**
      * Relations
      */
-    
     public function MonitoringCustomer()
     {
         return $this->belongsTo('App\Model\MonitoringCustomer', 'monitoring_customer_id', 'id');
     }
-    
+
     public function PaymentMode()
     {
         return $this->belongsTo('App\Model\PaymentMode', 'payment_mode_id', 'id');
     }
-    
+
     public function CollectionPerson()
     {
         return $this->belongsTo('App\Model\CollectionPerson', 'collection_person_id', 'id');
     }
-
 }

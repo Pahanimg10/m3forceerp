@@ -2,35 +2,35 @@
 
 namespace App\Http\Controllers;
 
-require_once('ESMSWS.php');
+require_once 'ESMSWS.php';
 session_start();
 date_default_timezone_set('Asia/Colombo');
 set_time_limit(0);
 
-use Illuminate\Http\Request;
-
 use App\Http\Requests;
+use Illuminate\Http\Request;
 
 class SubItemCategoryController extends Controller
 {
-    function __construct() 
+    public function __construct()
     {
         $this->middleware('user_access');
     }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {         
+    {
         $data['main_menus'] = \App\Model\UserAccess::leftJoin('side_menu', 'side_menu.id', '=', 'user_access.side_menu_id')
                 ->whereIn('user_access.user_group_id', session()->get('user_group'))
                 ->where('side_menu.menu_category', 0)
                 ->orderBy('side_menu.menu_order', 'asc')
                 ->distinct('side_menu.id')
                 ->select('side_menu.id as id', 'side_menu.menu_order as menu_order', 'side_menu.menu_category as menu_category', 'side_menu.menu_name as menu_name', 'side_menu.menu_id as menu_id', 'side_menu.menu_icon as menu_icon', 'side_menu.menu_url as menu_url')
-                ->get();    
+                ->get();
         $data['sub_menus'] = \App\Model\UserAccess::leftJoin('side_menu', 'side_menu.id', '=', 'user_access.side_menu_id')
                 ->whereIn('user_access.user_group_id', session()->get('user_group'))
                 ->where('side_menu.menu_category', '!=', 0)
@@ -38,45 +38,47 @@ class SubItemCategoryController extends Controller
                 ->distinct('side_menu.id')
                 ->select('side_menu.id as id', 'side_menu.menu_order as menu_order', 'side_menu.menu_category as menu_category', 'side_menu.menu_name as menu_name', 'side_menu.menu_id as menu_id', 'side_menu.menu_icon as menu_icon', 'side_menu.menu_url as menu_url')
                 ->get();
+
         return view('master.sub_item_category', $data);
     }
 
     public function sub_item_category_list()
     {
         $sub_item_categorys = \App\Model\SubItemCategory::select('id', 'code', 'name')->where('is_delete', 0)->get();
-                
-        $data = array(
+
+        $data = [
             'sub_item_categorys' => $sub_item_categorys,
-            'permission' => !in_array(1, session()->get('user_group')) && !in_array(2, session()->get('user_group')) && !in_array(3, session()->get('user_group'))
-        );
-        
+            'permission' => ! in_array(1, session()->get('user_group')) && ! in_array(2, session()->get('user_group')) && ! in_array(3, session()->get('user_group')),
+        ];
+
         return response($data);
     }
 
     public function validate_sub_item_category(Request $request)
     {
-        if($request->value != $request->code){
+        if ($request->value != $request->code) {
             $sub_item_category = \App\Model\SubItemCategory::where('code', $request->code)
                     ->where('is_delete', 0)
                     ->first();
-            if($sub_item_category){
+            if ($sub_item_category) {
                 $response = 'false';
-            } else{
+            } else {
                 $response = 'true';
             }
-        } else{
+        } else {
             $response = 'true';
         }
-        
+
         echo $response;
     }
 
     public function find_sub_item_category(Request $request)
     {
         $sub_item_category = \App\Model\SubItemCategory::select('id', 'code', 'name')->find($request->id);
+
         return response($sub_item_category);
     }
-    
+
     /**
      * Show the form for creating a new resource.
      *
@@ -94,24 +96,24 @@ class SubItemCategoryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    { 
+    {
         $sub_item_category = new \App\Model\SubItemCategory();
         $sub_item_category->code = $request->code;
         $sub_item_category->name = $request->name;
-        
-        if($sub_item_category->save()) {     
+
+        if ($sub_item_category->save()) {
             $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/sub_item_category_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Created,'. $sub_item_category->id. ',' . str_replace(',',' ',$sub_item_category->code). ',' . str_replace(',',' ',$sub_item_category->name). ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',',' ',session()->get('username')) . PHP_EOL); 
+            fwrite($myfile, 'Created,'.$sub_item_category->id.','.str_replace(',', ' ', $sub_item_category->code).','.str_replace(',', ' ', $sub_item_category->name).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
-            $result = array(
+            $result = [
                 'response' => true,
-                'message' => 'Sub Item Category created successfully'
-            );
+                'message' => 'Sub Item Category created successfully',
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Sub Item Category creation failed'
-            );
+                'message' => 'Sub Item Category creation failed',
+            ];
         }
 
         echo json_encode($result);
@@ -151,20 +153,20 @@ class SubItemCategoryController extends Controller
         $sub_item_category = \App\Model\SubItemCategory::find($id);
         $sub_item_category->code = $request->code;
         $sub_item_category->name = $request->name;
-        
-        if($sub_item_category->save()) {  
+
+        if ($sub_item_category->save()) {
             $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/sub_item_category_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Updated,'. $sub_item_category->id. ',' . str_replace(',',' ',$sub_item_category->code). ',' . str_replace(',',' ',$sub_item_category->name). ',' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',',' ',session()->get('username')) . PHP_EOL); 
+            fwrite($myfile, 'Updated,'.$sub_item_category->id.','.str_replace(',', ' ', $sub_item_category->code).','.str_replace(',', ' ', $sub_item_category->name).','.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
-            $result = array(
+            $result = [
                 'response' => true,
-                'message' => 'Sub Item Category updated successfully'
-            );
+                'message' => 'Sub Item Category updated successfully',
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Sub Item Category updation failed'
-            );
+                'message' => 'Sub Item Category updation failed',
+            ];
         }
 
         echo json_encode($result);
@@ -180,20 +182,20 @@ class SubItemCategoryController extends Controller
     {
         $sub_item_category = \App\Model\SubItemCategory::find($id);
         $sub_item_category->is_delete = 1;
-        
-        if($sub_item_category->save()) {  
+
+        if ($sub_item_category->save()) {
             $myfile = fopen($_SERVER['DOCUMENT_ROOT'].'/m3force/public/assets/system_logs/sub_item_category_controller.csv', 'a+') or die('Unable to open/create file!');
-            fwrite($myfile, 'Deleted,'. $sub_item_category->id. ',,,' . date('Y-m-d H:i:s') . ',' . session()->get('users_id') . ',' . str_replace(',',' ',session()->get('username')) . PHP_EOL); 
+            fwrite($myfile, 'Deleted,'.$sub_item_category->id.',,,'.date('Y-m-d H:i:s').','.session()->get('users_id').','.str_replace(',', ' ', session()->get('username')).PHP_EOL);
             fclose($myfile);
-            $result = array(
+            $result = [
                 'response' => true,
-                'message' => 'Sub Item Category deleted successfully'
-            );
+                'message' => 'Sub Item Category deleted successfully',
+            ];
         } else {
-            $result = array(
+            $result = [
                 'response' => false,
-                'message' => 'Sub Item Category deletion failed'
-            );
+                'message' => 'Sub Item Category deletion failed',
+            ];
         }
 
         echo json_encode($result);

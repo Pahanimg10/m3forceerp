@@ -38,16 +38,16 @@ class CronMinimumStockReminder extends Command
      */
     public function handle()
     {
-        $order_details = array();
-        
-        $items = \App\Model\Item::where('reorder_level', '!=', 0)                
+        $order_details = [];
+
+        $items = \App\Model\Item::where('reorder_level', '!=', 0)
                 ->where('is_active', 1)
                 ->where('is_delete', 0)
                 ->get();
-        foreach ($items as $item){
+        foreach ($items as $item) {
             $to_be_stock = $item->reorder_level * 1.5;
-            if($item->reorder_level != 0 && $item->stock < $to_be_stock){
-                $row = array(
+            if ($item->reorder_level != 0 && $item->stock < $to_be_stock) {
+                $row = [
                     'purchase_type' => $item->PurchaseType->name,
                     'code' => $item->code,
                     'name' => $item->name,
@@ -55,17 +55,17 @@ class CronMinimumStockReminder extends Command
                     'unit_type' => $item->UnitType->code,
                     'reorder_level' => $item->reorder_level,
                     'current_stock' => $item->stock,
-                    'to_be_order' => $to_be_stock - $item->stock
-                );
+                    'to_be_order' => $to_be_stock - $item->stock,
+                ];
                 array_push($order_details, $row);
             }
         }
-        
-        $data = array(
-            'details' => $order_details
-        );
 
-        Mail::send('emails.minimum_stock_details', $data, function($message){
+        $data = [
+            'details' => $order_details,
+        ];
+
+        Mail::send('emails.minimum_stock_details', $data, function ($message) {
             $message->from('mail.smtp.m3force@gmail.com', 'M3Force ERP System');
             $message->to('procurement@m3force.com', 'Deepal Gunasekera');
             $message->to('stores@m3force.com', 'Stores Assistant');
