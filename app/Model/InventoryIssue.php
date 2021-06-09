@@ -29,11 +29,11 @@ class InventoryIssue extends Model
      */
     public function InventoryIssueDetails()
     {
-        return $this->hasMany('App\Model\InventoryIssueDetails', 'inventory_issue_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\InventoryIssueDetails::class, 'inventory_issue_id', 'id')->where('is_delete', 0);
     }
 
     public function InventoryReturn()
     {
-        return $this->hasMany('App\Model\InventoryReturn', 'inventory_issue_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\InventoryReturn::class, 'inventory_issue_id', 'id')->where('is_delete', 0);
     }
 }

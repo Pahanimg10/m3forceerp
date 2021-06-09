@@ -27,11 +27,11 @@ class InventoryIssueDetails extends Model
      */
     public function InventoryIssue()
     {
-        return $this->belongsTo('App\Model\InventoryIssue', 'inventory_issue_id', 'id');
+        return $this->belongsTo(\App\Model\InventoryIssue::class, 'inventory_issue_id', 'id');
     }
 
     public function InventoryRegister()
     {
-        return $this->belongsTo('App\Model\InventoryRegister', 'inventory_register_id', 'id');
+        return $this->belongsTo(\App\Model\InventoryRegister::class, 'inventory_register_id', 'id');
     }
 }

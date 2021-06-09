@@ -25,6 +25,6 @@ class MainItemCategory extends Model
      */
     public function Item()
     {
-        return $this->hasMany('App\Model\Item', 'main_category_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Item::class, 'main_category_id', 'id')->where('is_delete', 0);
     }
 }

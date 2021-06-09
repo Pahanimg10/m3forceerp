@@ -23,6 +23,6 @@ class RepairStatus extends Model
      */
     public function RepairDetails()
     {
-        return $this->hasMany('App\Model\RepairDetails', 'repair_status_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\RepairDetails::class, 'repair_status_id', 'id')->where('is_delete', 0);
     }
 }

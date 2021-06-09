@@ -26,16 +26,16 @@ class ItemReceiveDetails extends Model
      */
     public function ItemReceive()
     {
-        return $this->belongsTo('App\Model\ItemReceive', 'item_receive_id', 'id');
+        return $this->belongsTo(\App\Model\ItemReceive::class, 'item_receive_id', 'id');
     }
 
     public function Item()
     {
-        return $this->belongsTo('App\Model\Item', 'item_id', 'id');
+        return $this->belongsTo(\App\Model\Item::class, 'item_id', 'id');
     }
 
     public function ItemReceiveBreakdown()
     {
-        return $this->hasMany('App\Model\ItemReceiveBreakdown', 'item_receive_detail_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\ItemReceiveBreakdown::class, 'item_receive_detail_id', 'id')->where('is_delete', 0);
     }
 }

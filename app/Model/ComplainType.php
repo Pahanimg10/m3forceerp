@@ -25,6 +25,6 @@ class ComplainType extends Model
      */
     public function CustomerComplain()
     {
-        return $this->hasMany('App\Model\CustomerComplain', 'complain_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CustomerComplain::class, 'complain_type_id', 'id')->where('is_delete', 0);
     }
 }

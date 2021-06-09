@@ -40,21 +40,21 @@ class CostSheet extends Model
      */
     public function Inquiry()
     {
-        return $this->belongsTo('App\Model\Inquiry', 'inquiry_id', 'id');
+        return $this->belongsTo(\App\Model\Inquiry::class, 'inquiry_id', 'id');
     }
 
     public function InstallationRate()
     {
-        return $this->belongsTo('App\Model\InstallationRate', 'installation_rate_id', 'id');
+        return $this->belongsTo(\App\Model\InstallationRate::class, 'installation_rate_id', 'id');
     }
 
     public function User()
     {
-        return $this->belongsTo('App\Model\User', 'user_id', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'user_id', 'id');
     }
 
     public function QuotationCostSheet()
     {
-        return $this->hasMany('App\Model\QuotationCostSheet', 'cost_sheet_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\QuotationCostSheet::class, 'cost_sheet_id', 'id')->where('is_delete', 0);
     }
 }

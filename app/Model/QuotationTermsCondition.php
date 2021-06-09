@@ -25,11 +25,11 @@ class QuotationTermsCondition extends Model
      */
     public function Quotation()
     {
-        return $this->belongsTo('App\Model\Quotation', 'quotation_id', 'id');
+        return $this->belongsTo(\App\Model\Quotation::class, 'quotation_id', 'id');
     }
 
     public function TermsCondition()
     {
-        return $this->belongsTo('App\Model\TermsCondition', 'terms_condition_id', 'id');
+        return $this->belongsTo(\App\Model\TermsCondition::class, 'terms_condition_id', 'id');
     }
 }

@@ -27,16 +27,16 @@ class CollectionPerson extends Model
      */
     public function JobDoneCustomerPayment()
     {
-        return $this->hasMany('App\Model\JobDoneCustomerPayment', 'collection_person_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\JobDoneCustomerPayment::class, 'collection_person_id', 'id')->where('is_delete', 0);
     }
 
     public function MonitoringCustomerPayment()
     {
-        return $this->hasMany('App\Model\MonitoringCustomerPayment', 'collection_person_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\MonitoringCustomerPayment::class, 'collection_person_id', 'id')->where('is_delete', 0);
     }
 
     public function TechResponseCustomerPayment()
     {
-        return $this->hasMany('App\Model\TechResponseCustomerPayment', 'collection_person_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseCustomerPayment::class, 'collection_person_id', 'id')->where('is_delete', 0);
     }
 }

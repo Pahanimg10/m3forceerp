@@ -23,6 +23,6 @@ class PurchaseType extends Model
      */
     public function Item()
     {
-        return $this->hasMany('App\Model\Item', 'purchase_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Item::class, 'purchase_type_id', 'id')->where('is_delete', 0);
     }
 }

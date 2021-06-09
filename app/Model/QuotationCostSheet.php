@@ -41,26 +41,26 @@ class QuotationCostSheet extends Model
      */
     public function Quotation()
     {
-        return $this->belongsTo('App\Model\Quotation', 'quotation_id', 'id');
+        return $this->belongsTo(\App\Model\Quotation::class, 'quotation_id', 'id');
     }
 
     public function CostSheet()
     {
-        return $this->belongsTo('App\Model\CostSheet', 'cost_sheet_id', 'id');
+        return $this->belongsTo(\App\Model\CostSheet::class, 'cost_sheet_id', 'id');
     }
 
     public function Inquiry()
     {
-        return $this->belongsTo('App\Model\Inquiry', 'inquiry_id', 'id');
+        return $this->belongsTo(\App\Model\Inquiry::class, 'inquiry_id', 'id');
     }
 
     public function InstallationRate()
     {
-        return $this->belongsTo('App\Model\InstallationRate', 'installation_rate_id', 'id');
+        return $this->belongsTo(\App\Model\InstallationRate::class, 'installation_rate_id', 'id');
     }
 
     public function User()
     {
-        return $this->belongsTo('App\Model\User', 'user_id', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'user_id', 'id');
     }
 }

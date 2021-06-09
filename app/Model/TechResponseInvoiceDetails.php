@@ -29,11 +29,11 @@ class TechResponseInvoiceDetails extends Model
      */
     public function TechResponse()
     {
-        return $this->belongsTo('App\Model\TechResponse', 'tech_response_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponse::class, 'tech_response_id', 'id');
     }
 
     public function Item()
     {
-        return $this->belongsTo('App\Model\Item', 'item_id', 'id');
+        return $this->belongsTo(\App\Model\Item::class, 'item_id', 'id');
     }
 }

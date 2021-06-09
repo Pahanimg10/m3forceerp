@@ -32,21 +32,21 @@ class InstallationSheet extends Model
      */
     public function Inquiry()
     {
-        return $this->belongsTo('App\Model\Inquiry', 'inquiry_id', 'id');
+        return $this->belongsTo(\App\Model\Inquiry::class, 'inquiry_id', 'id');
     }
 
     public function User()
     {
-        return $this->belongsTo('App\Model\User', 'user_id', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'user_id', 'id');
     }
 
     public function InstallationSheetDetails()
     {
-        return $this->hasMany('App\Model\InstallationSheetDetails', 'installation_sheet_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\InstallationSheetDetails::class, 'installation_sheet_id', 'id')->where('is_delete', 0);
     }
 
     public function GoodRequestDocument()
     {
-        return $this->hasMany('App\Model\GoodRequestDocument', 'document_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\GoodRequestDocument::class, 'document_id', 'id')->where('is_delete', 0);
     }
 }

@@ -25,6 +25,6 @@ class SubItemCategory extends Model
      */
     public function Item()
     {
-        return $this->hasMany('App\Model\Item', 'sub_category_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Item::class, 'sub_category_id', 'id')->where('is_delete', 0);
     }
 }

@@ -27,16 +27,16 @@ class TechResponseInstallationSheetDetails extends Model
      */
     public function TechResponseInstallationSheet()
     {
-        return $this->belongsTo('App\Model\TechResponseInstallationSheet', 'tech_response_installation_sheet_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponseInstallationSheet::class, 'tech_response_installation_sheet_id', 'id');
     }
 
     public function Item()
     {
-        return $this->belongsTo('App\Model\Item', 'item_id', 'id');
+        return $this->belongsTo(\App\Model\Item::class, 'item_id', 'id');
     }
 
     public function GoodRequestDetails()
     {
-        return $this->hasMany('App\Model\GoodRequestDetails', 'detail_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\GoodRequestDetails::class, 'detail_id', 'id')->where('is_delete', 0);
     }
 }

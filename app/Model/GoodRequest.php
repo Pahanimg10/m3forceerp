@@ -28,16 +28,16 @@ class GoodRequest extends Model
      */
     public function GoodRequestDetails()
     {
-        return $this->hasMany('App\Model\GoodRequestDetails', 'good_request_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\GoodRequestDetails::class, 'good_request_id', 'id')->where('is_delete', 0);
     }
 
     public function GoodRequestDocument()
     {
-        return $this->hasMany('App\Model\GoodRequestDocument', 'good_request_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\GoodRequestDocument::class, 'good_request_id', 'id')->where('is_delete', 0);
     }
 
     public function GoodRequest()
     {
-        return $this->hasMany('App\Model\GoodRequest', 'good_request_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\GoodRequest::class, 'good_request_id', 'id')->where('is_delete', 0);
     }
 }

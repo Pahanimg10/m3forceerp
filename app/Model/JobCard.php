@@ -31,26 +31,26 @@ class JobCard extends Model
      */
     public function Inquiry()
     {
-        return $this->belongsTo('App\Model\Inquiry', 'inquiry_id', 'id');
+        return $this->belongsTo(\App\Model\Inquiry::class, 'inquiry_id', 'id');
     }
 
     public function User()
     {
-        return $this->belongsTo('App\Model\User', 'user_id', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'user_id', 'id');
     }
 
     public function JobCardDetails()
     {
-        return $this->hasMany('App\Model\JobCardDetails', 'job_card_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\JobCardDetails::class, 'job_card_id', 'id')->where('is_delete', 0);
     }
 
     public function QuotationJobCard()
     {
-        return $this->hasMany('App\Model\QuotationJobCard', 'job_card_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\QuotationJobCard::class, 'job_card_id', 'id')->where('is_delete', 0);
     }
 
     public function GoodRequestDocument()
     {
-        return $this->hasMany('App\Model\GoodRequestDocument', 'document_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\GoodRequestDocument::class, 'document_id', 'id')->where('is_delete', 0);
     }
 }

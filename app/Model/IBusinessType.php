@@ -25,6 +25,6 @@ class IBusinessType extends Model
      */
     public function Contact()
     {
-        return $this->hasMany('App\Model\Contact', 'business_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Contact::class, 'business_type_id', 'id')->where('is_delete', 0);
     }
 }

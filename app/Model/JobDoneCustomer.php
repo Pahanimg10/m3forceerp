@@ -26,16 +26,16 @@ class JobDoneCustomer extends Model
      */
     public function Contact()
     {
-        return $this->belongsTo('App\Model\Contact', 'contact_id', 'id');
+        return $this->belongsTo(\App\Model\Contact::class, 'contact_id', 'id');
     }
 
     public function JobDoneCustomerInvoice()
     {
-        return $this->hasMany('App\Model\JobDoneCustomerInvoice', 'job_done_customer_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\JobDoneCustomerInvoice::class, 'job_done_customer_id', 'id')->where('is_delete', 0);
     }
 
     public function JobDoneCustomerPayment()
     {
-        return $this->hasMany('App\Model\JobDoneCustomerPayment', 'job_done_customer_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\JobDoneCustomerPayment::class, 'job_done_customer_id', 'id')->where('is_delete', 0);
     }
 }

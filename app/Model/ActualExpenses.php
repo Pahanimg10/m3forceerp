@@ -28,11 +28,11 @@ class ActualExpenses extends Model
      */
     public function Inquiry()
     {
-        return $this->belongsTo('App\Model\Inquiry', 'record_id', 'id');
+        return $this->belongsTo(\App\Model\Inquiry::class, 'record_id', 'id');
     }
 
     public function ExpensesType()
     {
-        return $this->belongsTo('App\Model\ExpensesType', 'expenses_type_id', 'id');
+        return $this->belongsTo(\App\Model\ExpensesType::class, 'expenses_type_id', 'id');
     }
 }

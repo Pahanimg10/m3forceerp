@@ -31,16 +31,16 @@ class PettyCashReturn extends Model
      */
     public function PettyCashIssue()
     {
-        return $this->belongsTo('App\Model\PettyCashIssue', 'petty_cash_issue_id', 'id');
+        return $this->belongsTo(\App\Model\PettyCashIssue::class, 'petty_cash_issue_id', 'id');
     }
 
     public function LoggedUser()
     {
-        return $this->belongsTo('App\Model\User', 'logged_user', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'logged_user', 'id');
     }
 
     public function PostedUser()
     {
-        return $this->belongsTo('App\Model\User', 'posted_user', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'posted_user', 'id');
     }
 }

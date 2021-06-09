@@ -30,21 +30,21 @@ class PurchaseOrder extends Model
      */
     public function Contact()
     {
-        return $this->belongsTo('App\Model\Contact', 'contact_id', 'id');
+        return $this->belongsTo(\App\Model\Contact::class, 'contact_id', 'id');
     }
 
     public function GoodRequest()
     {
-        return $this->belongsTo('App\Model\GoodRequest', 'good_request_id', 'id');
+        return $this->belongsTo(\App\Model\GoodRequest::class, 'good_request_id', 'id');
     }
 
     public function PurchaseOrderDetails()
     {
-        return $this->hasMany('App\Model\PurchaseOrderDetails', 'purchase_order_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\PurchaseOrderDetails::class, 'purchase_order_id', 'id')->where('is_delete', 0);
     }
 
     public function GoodReceive()
     {
-        return $this->hasOne('App\Model\GoodReceive', 'purchase_order_id', 'id');
+        return $this->hasOne(\App\Model\GoodReceive::class, 'purchase_order_id', 'id');
     }
 }

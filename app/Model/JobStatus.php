@@ -24,6 +24,6 @@ class JobStatus extends Model
      */
     public function JobDetails()
     {
-        return $this->hasMany('App\Model\JobDetails', 'job_status_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\JobDetails::class, 'job_status_id', 'id')->where('is_delete', 0);
     }
 }

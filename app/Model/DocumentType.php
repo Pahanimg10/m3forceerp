@@ -25,6 +25,6 @@ class DocumentType extends Model
      */
     public function DocumentUpload()
     {
-        return $this->hasMany('App\Model\DocumentUpload', 'document_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\DocumentUpload::class, 'document_type_id', 'id')->where('is_delete', 0);
     }
 }

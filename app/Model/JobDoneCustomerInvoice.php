@@ -27,11 +27,11 @@ class JobDoneCustomerInvoice extends Model
      */
     public function JobDoneCustomer()
     {
-        return $this->belongsTo('App\Model\JobDoneCustomer', 'job_done_customer_id', 'id');
+        return $this->belongsTo(\App\Model\JobDoneCustomer::class, 'job_done_customer_id', 'id');
     }
 
     public function Quotation()
     {
-        return $this->belongsTo('App\Model\Quotation', 'quotation_id', 'id');
+        return $this->belongsTo(\App\Model\Quotation::class, 'quotation_id', 'id');
     }
 }

@@ -29,16 +29,16 @@ class JobCardDetails extends Model
      */
     public function JobCard()
     {
-        return $this->belongsTo('App\Model\JobCard', 'job_card_id', 'id');
+        return $this->belongsTo(\App\Model\JobCard::class, 'job_card_id', 'id');
     }
 
     public function Item()
     {
-        return $this->belongsTo('App\Model\Item', 'item_id', 'id');
+        return $this->belongsTo(\App\Model\Item::class, 'item_id', 'id');
     }
 
     public function GoodRequestDetails()
     {
-        return $this->hasMany('App\Model\GoodRequestDetails', 'detail_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\GoodRequestDetails::class, 'detail_id', 'id')->where('is_delete', 0);
     }
 }

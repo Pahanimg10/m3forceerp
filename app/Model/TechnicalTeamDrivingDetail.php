@@ -25,11 +25,11 @@ class TechnicalTeamDrivingDetail extends Model
      */
     public function TechnicalTeam()
     {
-        return $this->belongsTo('App\Model\TechnicalTeam', 'technical_team_id', 'id');
+        return $this->belongsTo(\App\Model\TechnicalTeam::class, 'technical_team_id', 'id');
     }
 
     public function DrivingType()
     {
-        return $this->belongsTo('App\Model\DrivingType', 'driving_type_id', 'id');
+        return $this->belongsTo(\App\Model\DrivingType::class, 'driving_type_id', 'id');
     }
 }

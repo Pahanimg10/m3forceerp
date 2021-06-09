@@ -29,11 +29,11 @@ class InventoryReturn extends Model
      */
     public function InventoryIssue()
     {
-        return $this->belongsTo('App\Model\InventoryIssue', 'inventory_issue_id', 'id');
+        return $this->belongsTo(\App\Model\InventoryIssue::class, 'inventory_issue_id', 'id');
     }
 
     public function InventoryReturnDetails()
     {
-        return $this->hasMany('App\Model\InventoryReturnDetails', 'inventory_return_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\InventoryReturnDetails::class, 'inventory_return_id', 'id')->where('is_delete', 0);
     }
 }

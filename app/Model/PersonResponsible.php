@@ -32,6 +32,6 @@ class PersonResponsible extends Model
      */
     public function CustomerComplain()
     {
-        return $this->hasMany('App\Model\CustomerComplain', 'person_responsible_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CustomerComplain::class, 'person_responsible_id', 'id')->where('is_delete', 0);
     }
 }

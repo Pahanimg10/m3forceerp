@@ -42,36 +42,36 @@ class Quotation extends Model
      */
     public function Inquiry()
     {
-        return $this->belongsTo('App\Model\Inquiry', 'inquiry_id', 'id');
+        return $this->belongsTo(\App\Model\Inquiry::class, 'inquiry_id', 'id');
     }
 
     public function User()
     {
-        return $this->belongsTo('App\Model\User', 'user_id', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'user_id', 'id');
     }
 
     public function QuotationDiscount()
     {
-        return $this->hasMany('App\Model\QuotationDiscount', 'quotation_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\QuotationDiscount::class, 'quotation_id', 'id')->where('is_delete', 0);
     }
 
     public function QuotationJobCard()
     {
-        return $this->hasMany('App\Model\QuotationJobCard', 'quotation_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\QuotationJobCard::class, 'quotation_id', 'id')->where('is_delete', 0);
     }
 
     public function QuotationCostSheet()
     {
-        return $this->hasMany('App\Model\QuotationCostSheet', 'quotation_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\QuotationCostSheet::class, 'quotation_id', 'id')->where('is_delete', 0);
     }
 
     public function QuotationTermsCondition()
     {
-        return $this->hasMany('App\Model\QuotationTermsCondition', 'quotation_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\QuotationTermsCondition::class, 'quotation_id', 'id')->where('is_delete', 0);
     }
 
     public function JobDoneCustomerInvoice()
     {
-        return $this->hasMany('App\Model\JobDoneCustomerInvoice', 'quotation_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\JobDoneCustomerInvoice::class, 'quotation_id', 'id')->where('is_delete', 0);
     }
 }

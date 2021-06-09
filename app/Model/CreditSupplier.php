@@ -26,16 +26,16 @@ class CreditSupplier extends Model
      */
     public function Contact()
     {
-        return $this->belongsTo('App\Model\Contact', 'contact_id', 'id');
+        return $this->belongsTo(\App\Model\Contact::class, 'contact_id', 'id');
     }
 
     public function CreditSupplierGoodReceive()
     {
-        return $this->hasMany('App\Model\CreditSupplierGoodReceive', 'credit_supplier_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CreditSupplierGoodReceive::class, 'credit_supplier_id', 'id')->where('is_delete', 0);
     }
 
     public function CreditSupplierPayment()
     {
-        return $this->hasMany('App\Model\CreditSupplierPayment', 'credit_supplier_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CreditSupplierPayment::class, 'credit_supplier_id', 'id')->where('is_delete', 0);
     }
 }

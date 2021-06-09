@@ -29,16 +29,16 @@ class RepairDetails extends Model
      */
     public function Repair()
     {
-        return $this->belongsTo('App\Model\Repair', 'repair_id', 'id');
+        return $this->belongsTo(\App\Model\Repair::class, 'repair_id', 'id');
     }
 
     public function RepairStatus()
     {
-        return $this->belongsTo('App\Model\RepairStatus', 'repair_status_id', 'id');
+        return $this->belongsTo(\App\Model\RepairStatus::class, 'repair_status_id', 'id');
     }
 
     public function User()
     {
-        return $this->belongsTo('App\Model\User', 'user_id', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'user_id', 'id');
     }
 }

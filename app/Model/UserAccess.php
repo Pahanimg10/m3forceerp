@@ -24,11 +24,11 @@ class UserAccess extends Model
      */
     public function UserGroup()
     {
-        return $this->belongsTo('App\Model\UserGroup', 'user_group_id', 'id');
+        return $this->belongsTo(\App\Model\UserGroup::class, 'user_group_id', 'id');
     }
 
     public function SideMenu()
     {
-        return $this->belongsTo('App\Model\SideMenu', 'side_menu_id', 'id');
+        return $this->belongsTo(\App\Model\SideMenu::class, 'side_menu_id', 'id');
     }
 }

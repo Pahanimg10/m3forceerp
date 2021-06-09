@@ -39,26 +39,26 @@ class TechResponseQuotation extends Model
      */
     public function TechResponse()
     {
-        return $this->belongsTo('App\Model\TechResponse', 'tech_response_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponse::class, 'tech_response_id', 'id');
     }
 
     public function User()
     {
-        return $this->belongsTo('App\Model\User', 'user_id', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'user_id', 'id');
     }
 
     public function TechResponseQuotationDiscount()
     {
-        return $this->hasMany('App\Model\TechResponseQuotationDiscount', 'tech_response_quotation_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseQuotationDiscount::class, 'tech_response_quotation_id', 'id')->where('is_delete', 0);
     }
 
     public function TechResponseQuotationJobCard()
     {
-        return $this->hasMany('App\Model\TechResponseQuotationJobCard', 'tech_response_quotation_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseQuotationJobCard::class, 'tech_response_quotation_id', 'id')->where('is_delete', 0);
     }
 
     public function TechResponseCustomerInvoice()
     {
-        return $this->hasMany('App\Model\TechResponseCustomerInvoice', 'tech_response_quotation_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseCustomerInvoice::class, 'tech_response_quotation_id', 'id')->where('is_delete', 0);
     }
 }

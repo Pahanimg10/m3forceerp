@@ -26,16 +26,16 @@ class TechResponseCustomer extends Model
      */
     public function Contact()
     {
-        return $this->belongsTo('App\Model\Contact', 'contact_id', 'id');
+        return $this->belongsTo(\App\Model\Contact::class, 'contact_id', 'id');
     }
 
     public function TechResponseCustomerInvoice()
     {
-        return $this->hasMany('App\Model\TechResponseCustomerInvoice', 'tech_response_customer_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseCustomerInvoice::class, 'tech_response_customer_id', 'id')->where('is_delete', 0);
     }
 
     public function TechResponseCustomerPayment()
     {
-        return $this->hasMany('App\Model\TechResponseCustomerPayment', 'tech_response_customer_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseCustomerPayment::class, 'tech_response_customer_id', 'id')->where('is_delete', 0);
     }
 }

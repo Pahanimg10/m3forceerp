@@ -25,6 +25,6 @@ class CGroupInvoiceMonth extends Model
      */
     public function CGroup()
     {
-        return $this->belongsTo('App\Model\CGroup', 'group_id', 'id');
+        return $this->belongsTo(\App\Model\CGroup::class, 'group_id', 'id');
     }
 }

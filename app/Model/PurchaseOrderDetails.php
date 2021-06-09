@@ -27,11 +27,11 @@ class PurchaseOrderDetails extends Model
      */
     public function PurchaseOrder()
     {
-        return $this->belongsTo('App\Model\PurchaseOrder', 'purchase_order_id', 'id');
+        return $this->belongsTo(\App\Model\PurchaseOrder::class, 'purchase_order_id', 'id');
     }
 
     public function Item()
     {
-        return $this->belongsTo('App\Model\Item', 'item_id', 'id');
+        return $this->belongsTo(\App\Model\Item::class, 'item_id', 'id');
     }
 }

@@ -26,26 +26,26 @@ class GoodRequestDocument extends Model
      */
     public function GoodRequest()
     {
-        return $this->belongsTo('App\Model\GoodRequest', 'good_request_id', 'id');
+        return $this->belongsTo(\App\Model\GoodRequest::class, 'good_request_id', 'id');
     }
 
     public function JobCard()
     {
-        return $this->belongsTo('App\Model\JobCard', 'document_id', 'id');
+        return $this->belongsTo(\App\Model\JobCard::class, 'document_id', 'id');
     }
 
     public function InstallationSheet()
     {
-        return $this->belongsTo('App\Model\InstallationSheet', 'document_id', 'id');
+        return $this->belongsTo(\App\Model\InstallationSheet::class, 'document_id', 'id');
     }
 
     public function TechResponseJobCard()
     {
-        return $this->belongsTo('App\Model\TechResponseJobCard', 'document_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponseJobCard::class, 'document_id', 'id');
     }
 
     public function TechResponseInstallationSheet()
     {
-        return $this->belongsTo('App\Model\TechResponseInstallationSheet', 'document_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponseInstallationSheet::class, 'document_id', 'id');
     }
 }

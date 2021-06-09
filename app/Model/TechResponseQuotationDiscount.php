@@ -27,11 +27,11 @@ class TechResponseQuotationDiscount extends Model
      */
     public function TechResponseQuotation()
     {
-        return $this->belongsTo('App\Model\TechResponseQuotation', 'tech_response_quotation_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponseQuotation::class, 'tech_response_quotation_id', 'id');
     }
 
     public function DiscountType()
     {
-        return $this->belongsTo('App\Model\DiscountType', 'discount_type_id', 'id');
+        return $this->belongsTo(\App\Model\DiscountType::class, 'discount_type_id', 'id');
     }
 }

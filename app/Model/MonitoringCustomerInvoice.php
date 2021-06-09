@@ -28,6 +28,6 @@ class MonitoringCustomerInvoice extends Model
      */
     public function MonitoringCustomer()
     {
-        return $this->belongsTo('App\Model\MonitoringCustomer', 'monitoring_customer_id', 'id');
+        return $this->belongsTo(\App\Model\MonitoringCustomer::class, 'monitoring_customer_id', 'id');
     }
 }

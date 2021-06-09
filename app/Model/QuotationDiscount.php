@@ -27,11 +27,11 @@ class QuotationDiscount extends Model
      */
     public function Quotation()
     {
-        return $this->belongsTo('App\Model\Quotation', 'quotation_id', 'id');
+        return $this->belongsTo(\App\Model\Quotation::class, 'quotation_id', 'id');
     }
 
     public function DiscountType()
     {
-        return $this->belongsTo('App\Model\DiscountType', 'discount_type_id', 'id');
+        return $this->belongsTo(\App\Model\DiscountType::class, 'discount_type_id', 'id');
     }
 }

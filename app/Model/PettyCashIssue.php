@@ -37,36 +37,36 @@ class PettyCashIssue extends Model
      */
     public function ItemIssueType()
     {
-        return $this->belongsTo('App\Model\ItemIssueType', 'petty_cash_issue_type_id', 'id');
+        return $this->belongsTo(\App\Model\ItemIssueType::class, 'petty_cash_issue_type_id', 'id');
     }
 
     public function Job()
     {
-        return $this->belongsTo('App\Model\Job', 'document_id', 'id');
+        return $this->belongsTo(\App\Model\Job::class, 'document_id', 'id');
     }
 
     public function TechResponse()
     {
-        return $this->belongsTo('App\Model\TechResponse', 'document_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponse::class, 'document_id', 'id');
     }
 
     public function IssueMode()
     {
-        return $this->belongsTo('App\Model\PaymentMode', 'issue_mode_id', 'id');
+        return $this->belongsTo(\App\Model\PaymentMode::class, 'issue_mode_id', 'id');
     }
 
     public function PettyCashReturn()
     {
-        return $this->hasMany('App\Model\PettyCashReturn', 'petty_cash_issue_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\PettyCashReturn::class, 'petty_cash_issue_id', 'id')->where('is_delete', 0);
     }
 
     public function LoggedUser()
     {
-        return $this->belongsTo('App\Model\User', 'logged_user', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'logged_user', 'id');
     }
 
     public function PostedUser()
     {
-        return $this->belongsTo('App\Model\User', 'posted_user', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'posted_user', 'id');
     }
 }

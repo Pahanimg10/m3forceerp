@@ -31,26 +31,26 @@ class TechResponseJobCard extends Model
      */
     public function TechResponse()
     {
-        return $this->belongsTo('App\Model\TechResponse', 'tech_response_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponse::class, 'tech_response_id', 'id');
     }
 
     public function User()
     {
-        return $this->belongsTo('App\Model\User', 'user_id', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'user_id', 'id');
     }
 
     public function TechResponseJobCardDetails()
     {
-        return $this->hasMany('App\Model\TechResponseJobCardDetails', 'tech_response_job_card_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseJobCardDetails::class, 'tech_response_job_card_id', 'id')->where('is_delete', 0);
     }
 
     public function TechResponseQuotationJobCard()
     {
-        return $this->hasMany('App\Model\TechResponseQuotationJobCard', 'tech_response_job_card_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseQuotationJobCard::class, 'tech_response_job_card_id', 'id')->where('is_delete', 0);
     }
 
     public function GoodRequestDocument()
     {
-        return $this->hasMany('App\Model\GoodRequestDocument', 'document_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\GoodRequestDocument::class, 'document_id', 'id')->where('is_delete', 0);
     }
 }

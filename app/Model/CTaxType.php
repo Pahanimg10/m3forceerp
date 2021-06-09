@@ -26,11 +26,11 @@ class CTaxType extends Model
      */
     public function ContactTax()
     {
-        return $this->hasMany('App\Model\ContactTax', 'tax_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\ContactTax::class, 'tax_id', 'id')->where('is_delete', 0);
     }
 
     public function CGroupTax()
     {
-        return $this->hasMany('App\Model\CGroupTax', 'tax_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CGroupTax::class, 'tax_id', 'id')->where('is_delete', 0);
     }
 }

@@ -23,11 +23,11 @@ class DiscountType extends Model
      */
     public function QuotationDiscount()
     {
-        return $this->hasMany('App\Model\QuotationDiscount', 'discount_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\QuotationDiscount::class, 'discount_type_id', 'id')->where('is_delete', 0);
     }
 
     public function TechResponseQuotationDiscount()
     {
-        return $this->hasMany('App\Model\TechResponseQuotationDiscount', 'discount_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseQuotationDiscount::class, 'discount_type_id', 'id')->where('is_delete', 0);
     }
 }

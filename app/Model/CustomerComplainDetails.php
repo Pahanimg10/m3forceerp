@@ -28,16 +28,16 @@ class CustomerComplainDetails extends Model
      */
     public function CustomerComplain()
     {
-        return $this->belongsTo('App\Model\CustomerComplain', 'customer_complain_id', 'id');
+        return $this->belongsTo(\App\Model\CustomerComplain::class, 'customer_complain_id', 'id');
     }
 
     public function CustomerComplainStatus()
     {
-        return $this->belongsTo('App\Model\CustomerComplainStatus', 'customer_complain_status_id', 'id');
+        return $this->belongsTo(\App\Model\CustomerComplainStatus::class, 'customer_complain_status_id', 'id');
     }
 
     public function User()
     {
-        return $this->belongsTo('App\Model\User', 'user_id', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'user_id', 'id');
     }
 }

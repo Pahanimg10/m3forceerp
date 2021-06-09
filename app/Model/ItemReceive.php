@@ -29,11 +29,11 @@ class ItemReceive extends Model
      */
     public function ItemIssue()
     {
-        return $this->belongsTo('App\Model\ItemIssue', 'item_issue_id', 'id');
+        return $this->belongsTo(\App\Model\ItemIssue::class, 'item_issue_id', 'id');
     }
 
     public function ItemReceiveDetails()
     {
-        return $this->hasMany('App\Model\ItemReceiveDetails', 'item_receive_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\ItemReceiveDetails::class, 'item_receive_id', 'id')->where('is_delete', 0);
     }
 }

@@ -29,11 +29,11 @@ class QuotationJobCardDetails extends Model
      */
     public function QuotationJobCard()
     {
-        return $this->belongsTo('App\Model\QuotationJobCard', 'quotation_job_card_id', 'id');
+        return $this->belongsTo(\App\Model\QuotationJobCard::class, 'quotation_job_card_id', 'id');
     }
 
     public function Item()
     {
-        return $this->belongsTo('App\Model\Item', 'item_id', 'id');
+        return $this->belongsTo(\App\Model\Item::class, 'item_id', 'id');
     }
 }

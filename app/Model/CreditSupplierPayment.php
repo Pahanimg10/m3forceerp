@@ -31,11 +31,11 @@ class CreditSupplierPayment extends Model
      */
     public function CreditSupplier()
     {
-        return $this->belongsTo('App\Model\CreditSupplier', 'credit_supplier_id', 'id');
+        return $this->belongsTo(\App\Model\CreditSupplier::class, 'credit_supplier_id', 'id');
     }
 
     public function PaymentMode()
     {
-        return $this->belongsTo('App\Model\PaymentMode', 'payment_mode_id', 'id');
+        return $this->belongsTo(\App\Model\PaymentMode::class, 'payment_mode_id', 'id');
     }
 }

@@ -31,26 +31,26 @@ class ItemIssue extends Model
      */
     public function ItemIssueType()
     {
-        return $this->belongsTo('App\Model\ItemIssueType', 'item_issue_type_id', 'id');
+        return $this->belongsTo(\App\Model\ItemIssueType::class, 'item_issue_type_id', 'id');
     }
 
     public function Job()
     {
-        return $this->belongsTo('App\Model\Job', 'document_id', 'id');
+        return $this->belongsTo(\App\Model\Job::class, 'document_id', 'id');
     }
 
     public function TechResponse()
     {
-        return $this->belongsTo('App\Model\TechResponse', 'document_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponse::class, 'document_id', 'id');
     }
 
     public function ItemIssueDetails()
     {
-        return $this->hasMany('App\Model\ItemIssueDetails', 'item_issue_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\ItemIssueDetails::class, 'item_issue_id', 'id')->where('is_delete', 0);
     }
 
     public function ItemReceive()
     {
-        return $this->hasMany('App\Model\ItemReceive', 'item_issue_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\ItemReceive::class, 'item_issue_id', 'id')->where('is_delete', 0);
     }
 }

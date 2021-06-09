@@ -43,31 +43,31 @@ class CGroup extends Model
      */
     public function Region()
     {
-        return $this->belongsTo('App\Model\Region', 'region_id', 'id');
+        return $this->belongsTo(\App\Model\Region::class, 'region_id', 'id');
     }
 
     public function CollectionManager()
     {
-        return $this->belongsTo('App\Model\CollectionManager', 'collection_manager_id', 'id');
+        return $this->belongsTo(\App\Model\CollectionManager::class, 'collection_manager_id', 'id');
     }
 
     public function Contact()
     {
-        return $this->hasMany('App\Model\Contact', 'group_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Contact::class, 'group_id', 'id')->where('is_delete', 0);
     }
 
     public function CGroupTax()
     {
-        return $this->hasMany('App\Model\CGroupTax', 'group_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CGroupTax::class, 'group_id', 'id')->where('is_delete', 0);
     }
 
     public function CGroupInvoiceMonth()
     {
-        return $this->hasMany('App\Model\CGroupInvoiceMonth', 'group_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CGroupInvoiceMonth::class, 'group_id', 'id')->where('is_delete', 0);
     }
 
     public function MonitoringCustomer()
     {
-        return $this->hasMany('App\Model\MonitoringCustomer', 'contact_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\MonitoringCustomer::class, 'contact_id', 'id')->where('is_delete', 0);
     }
 }

@@ -25,11 +25,11 @@ class CGroupTax extends Model
      */
     public function CGroup()
     {
-        return $this->belongsTo('App\Model\CGroup', 'group_id', 'id');
+        return $this->belongsTo(\App\Model\CGroup::class, 'group_id', 'id');
     }
 
     public function CTaxType()
     {
-        return $this->belongsTo('App\Model\CTaxType', 'tax_id', 'id');
+        return $this->belongsTo(\App\Model\CTaxType::class, 'tax_id', 'id');
     }
 }

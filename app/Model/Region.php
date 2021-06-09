@@ -25,11 +25,11 @@ class Region extends Model
      */
     public function Contact()
     {
-        return $this->hasMany('App\Model\Contact', 'region_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Contact::class, 'region_id', 'id')->where('is_delete', 0);
     }
 
     public function CGroup()
     {
-        return $this->hasMany('App\Model\CGroup', 'region_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CGroup::class, 'region_id', 'id')->where('is_delete', 0);
     }
 }

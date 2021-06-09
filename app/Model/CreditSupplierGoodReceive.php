@@ -25,11 +25,11 @@ class CreditSupplierGoodReceive extends Model
      */
     public function CreditSupplier()
     {
-        return $this->belongsTo('App\Model\CreditSupplier', 'credit_supplier_id', 'id');
+        return $this->belongsTo(\App\Model\CreditSupplier::class, 'credit_supplier_id', 'id');
     }
 
     public function GoodReceive()
     {
-        return $this->belongsTo('App\Model\GoodReceive', 'good_rececive_id', 'id');
+        return $this->belongsTo(\App\Model\GoodReceive::class, 'good_rececive_id', 'id');
     }
 }

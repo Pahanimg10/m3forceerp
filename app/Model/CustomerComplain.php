@@ -34,26 +34,26 @@ class CustomerComplain extends Model
      */
     public function Contact()
     {
-        return $this->belongsTo('App\Model\Contact', 'contact_id', 'id');
+        return $this->belongsTo(\App\Model\Contact::class, 'contact_id', 'id');
     }
 
     public function ComplainType()
     {
-        return $this->belongsTo('App\Model\ComplainType', 'complain_type_id', 'id');
+        return $this->belongsTo(\App\Model\ComplainType::class, 'complain_type_id', 'id');
     }
 
     public function PersonResponsible()
     {
-        return $this->belongsTo('App\Model\PersonResponsible', 'person_responsible_id', 'id');
+        return $this->belongsTo(\App\Model\PersonResponsible::class, 'person_responsible_id', 'id');
     }
 
     public function User()
     {
-        return $this->belongsTo('App\Model\User', 'user_id', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'user_id', 'id');
     }
 
     public function CustomerComplainDetails()
     {
-        return $this->hasMany('App\Model\CustomerComplainDetails', 'customer_complain_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CustomerComplainDetails::class, 'customer_complain_id', 'id')->where('is_delete', 0);
     }
 }

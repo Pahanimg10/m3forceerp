@@ -24,6 +24,6 @@ class InquiryStatus extends Model
      */
     public function InquiryDetials()
     {
-        return $this->hasMany('App\Model\InquiryDetials', 'inquiry_status_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\InquiryDetials::class, 'inquiry_status_id', 'id')->where('is_delete', 0);
     }
 }

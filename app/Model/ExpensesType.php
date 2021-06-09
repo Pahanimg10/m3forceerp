@@ -23,6 +23,6 @@ class ExpensesType extends Model
      */
     public function ActualExpenses()
     {
-        return $this->hasMany('App\Model\ActualExpenses', 'expenses_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\ActualExpenses::class, 'expenses_type_id', 'id')->where('is_delete', 0);
     }
 }

@@ -33,16 +33,16 @@ class TechResponseCustomerPayment extends Model
      */
     public function TechResponseCustomer()
     {
-        return $this->belongsTo('App\Model\TechResponseCustomer', 'tech_response_customer_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponseCustomer::class, 'tech_response_customer_id', 'id');
     }
 
     public function PaymentMode()
     {
-        return $this->belongsTo('App\Model\PaymentMode', 'payment_mode_id', 'id');
+        return $this->belongsTo(\App\Model\PaymentMode::class, 'payment_mode_id', 'id');
     }
 
     public function CollectionPerson()
     {
-        return $this->belongsTo('App\Model\CollectionPerson', 'collection_person_id', 'id');
+        return $this->belongsTo(\App\Model\CollectionPerson::class, 'collection_person_id', 'id');
     }
 }

@@ -25,6 +25,6 @@ class IClientType extends Model
      */
     public function Contact()
     {
-        return $this->hasMany('App\Model\Contact', 'client_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Contact::class, 'client_type_id', 'id')->where('is_delete', 0);
     }
 }

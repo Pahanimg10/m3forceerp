@@ -27,11 +27,11 @@ class InstallationRate extends Model
      */
     public function CostSheet()
     {
-        return $this->hasMany('App\Model\CostSheet', 'installation_rate_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CostSheet::class, 'installation_rate_id', 'id')->where('is_delete', 0);
     }
 
     public function QuotationCostSheet()
     {
-        return $this->hasMany('App\Model\QuotationCostSheet', 'installation_rate_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\QuotationCostSheet::class, 'installation_rate_id', 'id')->where('is_delete', 0);
     }
 }

@@ -25,6 +25,6 @@ class UnitType extends Model
      */
     public function Item()
     {
-        return $this->hasMany('App\Model\Item', 'unit_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Item::class, 'unit_type_id', 'id')->where('is_delete', 0);
     }
 }

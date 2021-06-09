@@ -24,6 +24,6 @@ class UserGroup extends Model
      */
     public function UserGroupPermission()
     {
-        return $this->hasMany('App\Model\UserGroupPermission', 'user_group_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\UserGroupPermission::class, 'user_group_id', 'id')->where('is_delete', 0);
     }
 }

@@ -30,16 +30,16 @@ class GoodReceive extends Model
      */
     public function PurchaseOrder()
     {
-        return $this->belongsTo('App\Model\PurchaseOrder', 'purchase_order_id', 'id');
+        return $this->belongsTo(\App\Model\PurchaseOrder::class, 'purchase_order_id', 'id');
     }
 
     public function GoodReceiveDetails()
     {
-        return $this->hasMany('App\Model\GoodReceiveDetails', 'good_receive_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\GoodReceiveDetails::class, 'good_receive_id', 'id')->where('is_delete', 0);
     }
 
     public function CreditSupplierGoodReceive()
     {
-        return $this->hasMany('App\Model\CreditSupplierGoodReceive', 'good_receive_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CreditSupplierGoodReceive::class, 'good_receive_id', 'id')->where('is_delete', 0);
     }
 }

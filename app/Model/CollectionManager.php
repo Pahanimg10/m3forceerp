@@ -27,11 +27,11 @@ class CollectionManager extends Model
      */
     public function CGroup()
     {
-        return $this->hasMany('App\Model\CGroup', 'collection_manager_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CGroup::class, 'collection_manager_id', 'id')->where('is_delete', 0);
     }
 
     public function Contact()
     {
-        return $this->hasMany('App\Model\Contact', 'collection_manager_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Contact::class, 'collection_manager_id', 'id')->where('is_delete', 0);
     }
 }

@@ -25,6 +25,6 @@ class IInquiryType extends Model
      */
     public function Inquiry()
     {
-        return $this->hasMany('App\Model\Inquiry', 'inquiry_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Inquiry::class, 'inquiry_type_id', 'id')->where('is_delete', 0);
     }
 }

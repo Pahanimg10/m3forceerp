@@ -24,6 +24,6 @@ class TermsCondition extends Model
      */
     public function QuotationTermsCondition()
     {
-        return $this->hasMany('App\Model\QuotationTermsCondition', 'terms_condition_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\QuotationTermsCondition::class, 'terms_condition_id', 'id')->where('is_delete', 0);
     }
 }

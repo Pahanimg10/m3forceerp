@@ -23,6 +23,6 @@ class DrivingType extends Model
      */
     public function TechnicalTeamDrivingDetail()
     {
-        return $this->hasMany('App\Model\TechnicalTeamDrivingDetail', 'driving_type_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechnicalTeamDrivingDetail::class, 'driving_type_id', 'id')->where('is_delete', 0);
     }
 }

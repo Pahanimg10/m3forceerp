@@ -25,11 +25,11 @@ class ContactTax extends Model
      */
     public function Contact()
     {
-        return $this->belongsTo('App\Model\Contact', 'contact_id', 'id');
+        return $this->belongsTo(\App\Model\Contact::class, 'contact_id', 'id');
     }
 
     public function CTaxType()
     {
-        return $this->belongsTo('App\Model\CTaxType', 'tax_id', 'id');
+        return $this->belongsTo(\App\Model\CTaxType::class, 'tax_id', 'id');
     }
 }

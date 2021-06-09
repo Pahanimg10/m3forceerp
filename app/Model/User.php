@@ -43,96 +43,96 @@ class User extends Authenticatable
      */
     public function JobPosition()
     {
-        return $this->belongsTo('App\Model\JobPosition', 'job_position_id', 'id');
+        return $this->belongsTo(\App\Model\JobPosition::class, 'job_position_id', 'id');
     }
 
     public function UserGroupPermission()
     {
-        return $this->hasMany('App\Model\UserGroupPermission', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\UserGroupPermission::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function Inquiry()
     {
-        return $this->hasMany('App\Model\Inquiry', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Inquiry::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function InquiryDetials()
     {
-        return $this->hasMany('App\Model\InquiryDetials', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\InquiryDetials::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function JobDetails()
     {
-        return $this->hasMany('App\Model\JobDetails', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\JobDetails::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function JobCard()
     {
-        return $this->hasMany('App\Model\JobCard', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\JobCard::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function CostSheet()
     {
-        return $this->hasMany('App\Model\CostSheet', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CostSheet::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function Quotation()
     {
-        return $this->hasMany('App\Model\Quotation', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Quotation::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function InstallationSheet()
     {
-        return $this->hasMany('App\Model\InstallationSheet', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\InstallationSheet::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function TechResponse()
     {
-        return $this->hasMany('App\Model\TechResponse', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponse::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function TechResponseDetails()
     {
-        return $this->hasMany('App\Model\TechResponseDetails', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseDetails::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function TechResponseJobCard()
     {
-        return $this->hasMany('App\Model\TechResponseJobCard', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseJobCard::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function TechResponseInstallationSheet()
     {
-        return $this->hasMany('App\Model\TechResponseInstallationSheet', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseInstallationSheet::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function TechResponseQuotation()
     {
-        return $this->hasMany('App\Model\TechResponseQuotation', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseQuotation::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function Repair()
     {
-        return $this->hasMany('App\Model\Repair', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Repair::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function RepairDetails()
     {
-        return $this->hasMany('App\Model\RepairDetails', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\RepairDetails::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function QuotationCostSheet()
     {
-        return $this->hasMany('App\Model\QuotationCostSheet', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\QuotationCostSheet::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function CustomerComplain()
     {
-        return $this->hasMany('App\Model\CustomerComplain', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CustomerComplain::class, 'user_id', 'id')->where('is_delete', 0);
     }
 
     public function CustomerComplainDetails()
     {
-        return $this->hasMany('App\Model\CustomerComplainDetails', 'user_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CustomerComplainDetails::class, 'user_id', 'id')->where('is_delete', 0);
     }
 }

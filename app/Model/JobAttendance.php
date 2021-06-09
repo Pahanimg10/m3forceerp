@@ -28,21 +28,21 @@ class JobAttendance extends Model
      */
     public function TechnicalTeam()
     {
-        return $this->belongsTo('App\Model\TechnicalTeam', 'technical_team_id', 'id');
+        return $this->belongsTo(\App\Model\TechnicalTeam::class, 'technical_team_id', 'id');
     }
 
     public function JobType()
     {
-        return $this->belongsTo('App\Model\ItemIssueType', 'job_type_id', 'id');
+        return $this->belongsTo(\App\Model\ItemIssueType::class, 'job_type_id', 'id');
     }
 
     public function Job()
     {
-        return $this->belongsTo('App\Model\Job', 'job_id', 'id');
+        return $this->belongsTo(\App\Model\Job::class, 'job_id', 'id');
     }
 
     public function TechResponse()
     {
-        return $this->belongsTo('App\Model\TechResponse', 'job_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponse::class, 'job_id', 'id');
     }
 }

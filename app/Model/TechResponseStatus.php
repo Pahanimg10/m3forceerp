@@ -24,6 +24,6 @@ class TechResponseStatus extends Model
      */
     public function TechResponseDetails()
     {
-        return $this->hasMany('App\Model\TechResponseDetails', 'tech_response_status_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseDetails::class, 'tech_response_status_id', 'id')->where('is_delete', 0);
     }
 }

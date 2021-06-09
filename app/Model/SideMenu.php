@@ -28,6 +28,6 @@ class SideMenu extends Model
      */
     public function UserAccess()
     {
-        return $this->hasMany('App\Model\UserAccess', 'side_menu_id', 'id');
+        return $this->hasMany(\App\Model\UserAccess::class, 'side_menu_id', 'id');
     }
 }

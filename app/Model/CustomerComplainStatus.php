@@ -24,6 +24,6 @@ class CustomerComplainStatus extends Model
      */
     public function CustomerComplainDetails()
     {
-        return $this->hasMany('App\Model\CustomerComplainDetails', 'customer_complain_status_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\CustomerComplainDetails::class, 'customer_complain_status_id', 'id')->where('is_delete', 0);
     }
 }

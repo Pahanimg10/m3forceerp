@@ -31,16 +31,16 @@ class JobDetails extends Model
      */
     public function Job()
     {
-        return $this->belongsTo('App\Model\Job', 'job_id', 'id');
+        return $this->belongsTo(\App\Model\Job::class, 'job_id', 'id');
     }
 
     public function JobStatus()
     {
-        return $this->belongsTo('App\Model\JobStatus', 'job_status_id', 'id');
+        return $this->belongsTo(\App\Model\JobStatus::class, 'job_status_id', 'id');
     }
 
     public function User()
     {
-        return $this->belongsTo('App\Model\User', 'user_id', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'user_id', 'id');
     }
 }

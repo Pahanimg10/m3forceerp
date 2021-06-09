@@ -27,11 +27,11 @@ class DocumentUpload extends Model
      */
     public function Inquiry()
     {
-        return $this->belongsTo('App\Model\Inquiry', 'inquiry_id', 'id');
+        return $this->belongsTo(\App\Model\Inquiry::class, 'inquiry_id', 'id');
     }
 
     public function DocumentType()
     {
-        return $this->belongsTo('App\Model\DocumentType', 'document_type_id', 'id');
+        return $this->belongsTo(\App\Model\DocumentType::class, 'document_type_id', 'id');
     }
 }

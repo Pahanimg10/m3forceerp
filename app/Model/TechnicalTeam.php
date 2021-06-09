@@ -30,11 +30,11 @@ class TechnicalTeam extends Model
      */
     public function TechnicalTeamDrivingDetail()
     {
-        return $this->hasMany('App\Model\TechnicalTeamDrivingDetail', 'technical_team_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechnicalTeamDrivingDetail::class, 'technical_team_id', 'id')->where('is_delete', 0);
     }
 
     public function JobAttendance()
     {
-        return $this->hasMany('App\Model\JobAttendance', 'technical_team_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\JobAttendance::class, 'technical_team_id', 'id')->where('is_delete', 0);
     }
 }

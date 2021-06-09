@@ -30,21 +30,21 @@ class TechResponseInstallationSheet extends Model
      */
     public function TechResponse()
     {
-        return $this->belongsTo('App\Model\TechResponse', 'tech_response_id', 'id');
+        return $this->belongsTo(\App\Model\TechResponse::class, 'tech_response_id', 'id');
     }
 
     public function User()
     {
-        return $this->belongsTo('App\Model\User', 'user_id', 'id');
+        return $this->belongsTo(\App\Model\User::class, 'user_id', 'id');
     }
 
     public function TechResponseInstallationSheetDetails()
     {
-        return $this->hasMany('App\Model\TechResponseInstallationSheetDetails', 'tech_response_installation_sheet_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\TechResponseInstallationSheetDetails::class, 'tech_response_installation_sheet_id', 'id')->where('is_delete', 0);
     }
 
     public function GoodRequestDocument()
     {
-        return $this->hasMany('App\Model\GoodRequestDocument', 'document_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\GoodRequestDocument::class, 'document_id', 'id')->where('is_delete', 0);
     }
 }

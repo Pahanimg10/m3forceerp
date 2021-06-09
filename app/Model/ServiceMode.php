@@ -23,6 +23,6 @@ class ServiceMode extends Model
      */
     public function Contact()
     {
-        return $this->hasMany('App\Model\Contact', 'service_mode_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Contact::class, 'service_mode_id', 'id')->where('is_delete', 0);
     }
 }

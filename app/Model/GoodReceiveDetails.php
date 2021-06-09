@@ -32,26 +32,26 @@ class GoodReceiveDetails extends Model
      */
     public function GoodReceive()
     {
-        return $this->belongsTo('App\Model\GoodReceive', 'good_receive_id', 'id');
+        return $this->belongsTo(\App\Model\GoodReceive::class, 'good_receive_id', 'id');
     }
 
     public function Item()
     {
-        return $this->belongsTo('App\Model\Item', 'item_id', 'id');
+        return $this->belongsTo(\App\Model\Item::class, 'item_id', 'id');
     }
 
     public function GoodReceiveBreakdown()
     {
-        return $this->hasMany('App\Model\GoodReceiveBreakdown', 'good_receive_detail_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\GoodReceiveBreakdown::class, 'good_receive_detail_id', 'id')->where('is_delete', 0);
     }
 
     public function ItemIssueBreakdown()
     {
-        return $this->hasMany('App\Model\ItemIssueBreakdown', 'detail_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\ItemIssueBreakdown::class, 'detail_id', 'id')->where('is_delete', 0);
     }
 
     public function ItemReceiveBreakdown()
     {
-        return $this->hasMany('App\Model\ItemReceiveBreakdown', 'detail_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\ItemReceiveBreakdown::class, 'detail_id', 'id')->where('is_delete', 0);
     }
 }

@@ -27,21 +27,21 @@ class ItemIssueBreakdown extends Model
      */
     public function ItemIssueDetails()
     {
-        return $this->belongsTo('App\Model\ItemIssueDetails', 'item_issue_detail_id', 'id');
+        return $this->belongsTo(\App\Model\ItemIssueDetails::class, 'item_issue_detail_id', 'id');
     }
 
     public function GoodReceiveDetails()
     {
-        return $this->belongsTo('App\Model\GoodReceiveDetails', 'detail_id', 'id');
+        return $this->belongsTo(\App\Model\GoodReceiveDetails::class, 'detail_id', 'id');
     }
 
     public function GoodReceiveBreakdown()
     {
-        return $this->belongsTo('App\Model\GoodReceiveBreakdown', 'detail_id', 'id');
+        return $this->belongsTo(\App\Model\GoodReceiveBreakdown::class, 'detail_id', 'id');
     }
 
     public function Repair()
     {
-        return $this->hasMany('App\Model\Repair', 'receive_serial_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Repair::class, 'receive_serial_id', 'id')->where('is_delete', 0);
     }
 }

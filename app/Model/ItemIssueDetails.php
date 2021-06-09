@@ -27,16 +27,16 @@ class ItemIssueDetails extends Model
      */
     public function ItemIssue()
     {
-        return $this->belongsTo('App\Model\ItemIssue', 'item_issue_id', 'id');
+        return $this->belongsTo(\App\Model\ItemIssue::class, 'item_issue_id', 'id');
     }
 
     public function Item()
     {
-        return $this->belongsTo('App\Model\Item', 'item_id', 'id');
+        return $this->belongsTo(\App\Model\Item::class, 'item_id', 'id');
     }
 
     public function ItemIssueBreakdown()
     {
-        return $this->hasMany('App\Model\ItemIssueBreakdown', 'item_issue_detail_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\ItemIssueBreakdown::class, 'item_issue_detail_id', 'id')->where('is_delete', 0);
     }
 }

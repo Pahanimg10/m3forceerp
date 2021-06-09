@@ -27,16 +27,16 @@ class ItemReceiveBreakdown extends Model
      */
     public function ItemReceiveDetails()
     {
-        return $this->belongsTo('App\Model\ItemReceiveDetails', 'item_receive_detail_id', 'id');
+        return $this->belongsTo(\App\Model\ItemReceiveDetails::class, 'item_receive_detail_id', 'id');
     }
 
     public function GoodReceiveDetails()
     {
-        return $this->belongsTo('App\Model\GoodReceiveDetails', 'detail_id', 'id');
+        return $this->belongsTo(\App\Model\GoodReceiveDetails::class, 'detail_id', 'id');
     }
 
     public function GoodReceiveBreakdown()
     {
-        return $this->belongsTo('App\Model\GoodReceiveBreakdown', 'detail_id', 'id');
+        return $this->belongsTo(\App\Model\GoodReceiveBreakdown::class, 'detail_id', 'id');
     }
 }

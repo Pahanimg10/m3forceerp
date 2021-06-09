@@ -29,11 +29,11 @@ class SalesTeam extends Model
      */
     public function Inquiry()
     {
-        return $this->hasMany('App\Model\Inquiry', 'sales_team_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\Inquiry::class, 'sales_team_id', 'id')->where('is_delete', 0);
     }
 
     public function InquiryDetials()
     {
-        return $this->hasMany('App\Model\InquiryDetials', 'sales_team_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(\App\Model\InquiryDetials::class, 'sales_team_id', 'id')->where('is_delete', 0);
     }
 }
