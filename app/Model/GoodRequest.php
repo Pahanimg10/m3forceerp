@@ -38,6 +38,6 @@ class GoodRequest extends Model
 
     public function GoodRequest()
     {
-        return $this->hasMany(\App\Model\GoodRequest::class, 'good_request_id', 'id')->where('is_delete', 0);
+        return $this->hasMany(self::class, 'good_request_id', 'id')->where('is_delete', 0);
     }
 }
