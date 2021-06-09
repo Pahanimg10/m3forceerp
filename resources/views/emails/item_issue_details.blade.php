@@ -153,14 +153,14 @@ Remarks : <strong><?php echo $item_issue->remarks; ?></strong>
 <br/><br/>
 <?php
     if ($item_issue->ItemIssueDetails) {
-        $main_serails = array();
+        $main_serails = [];
         foreach ($item_issue->ItemIssueDetails as $index => $value) {
             foreach ($value->ItemIssueBreakdown as $detail) {
                 if ($detail['type'] == 1) {
-                    $row = array(
+                    $row = [
                         'id' => $detail['GoodReceiveBreakdown']['id'],
                         'serial_no' => $detail['GoodReceiveBreakdown']['serial_no']
-                    );
+                    ];
                     array_push($main_serails, $row);
                 }
             }
@@ -180,13 +180,13 @@ Remarks : <strong><?php echo $item_issue->remarks; ?></strong>
             $s = 1;
             foreach ($item_issue->ItemIssueDetails as $index => $value) {
                 $style = $s % 2 == 0 ? ' background-color: #e3e0dd;' : '';
-                $main_serails = array();
+                $main_serails = [];
                 foreach ($value->ItemIssueBreakdown as $detail) {
                     if ($detail['type'] == 1) {
-                        $row = array(
+                        $row = [
                             'id' => $detail['GoodReceiveBreakdown']['id'],
                             'serial_no' => $detail['GoodReceiveBreakdown']['serial_no']
-                        );
+                        ];
                         array_push($main_serails, $row);
                     }
                 }
