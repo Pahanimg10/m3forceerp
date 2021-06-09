@@ -35,6 +35,7 @@ class Kernel extends ConsoleKernel
                 ->monthlyOn(1, '08:30')
                 ->timezone('Asia/Colombo');
     }
+
     /**
      * Register the Closure based commands for the application.
      *
